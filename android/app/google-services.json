@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "782194391131",
+    "firebase_url": "https://feverfilter-22cc0.firebaseio.com",
+    "project_id": "feverfilter-22cc0",
+    "storage_bucket": "feverfilter-22cc0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:782194391131:android:2109dc4076f5b47969a77e",
+        "android_client_info": {
+          "package_name": "com.feverfilter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "782194391131-85mm46ogob43b3deolt5mvdn4tja78jd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCj8Px_67W0YWMUf39d7g-pooqTM0VPF7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "782194391131-85mm46ogob43b3deolt5mvdn4tja78jd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

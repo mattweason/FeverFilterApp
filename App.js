@@ -49,14 +49,13 @@ export default class App extends React.Component {
             'Lato-bold': require('./assets/fonts/Lato-Bold.ttf'),
         });
 
-        if(Platform.OS === 'android'){
-            await this.permissions();
-            SplashScreen.hide()
-        } else if (Platform.OS === 'ios'){
-            SplashScreen.hide();
-            await this.permissions();
-        }
+        console.log(store.getState())
 
+
+        if(Platform.OS === 'android')
+            await this.permissions();
+
+        SplashScreen.hide();
 
         this.setState({ appReady: true })
     }
@@ -65,9 +64,15 @@ export default class App extends React.Component {
             return (
                 <Provider store={store}>
                     <NavigationContainer>
-                        <Stack.Navigator>
-                            <Stack.Screen name="Home" component={HomeScreen} />
-                        </Stack.Navigator>
+                        { store.getState().auth.isAuthenticated ? (
+                            <Stack.Navigator>
+                                <Stack.Screen name="Home" component={HomeScreen} />
+                            </Stack.Navigator>
+                        ) : (
+                            <Stack.Navigator>
+                                <Stack.Screen name="Auth" component={HomeScreen} />
+                            </Stack.Navigator>
+                        )}
                     </NavigationContainer>
                 </Provider>
             )
