@@ -1,30 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Image, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { wifiListener, userCountry } from "../actions/uiActions";
-import { verifyAuth } from "../actions/authActions";
-import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import theme from "../styles/theme.styles";
-import { Feather, FontAwesome } from '@expo/vector-icons'
-import * as RNLocalize from 'react-native-localize'
+import { Feather } from '@expo/vector-icons'
 
-const LoadingScreen = ({ verifyAuth, navigation, ui, wifiListener, userCountry, appStateListener }) => {
-    useEffect(() => {
-        wifiListener()
-        appStateListener()
-        const getCountry = async () => {
-            const locales = await RNLocalize.getLocales()
-            if(locales[0])
-                userCountry(locales[0].countryCode)
-        }
-
-        getCountry()
-    }, []);
-
-    useEffect(() => {
-        if(ui.isConnected)
-            verifyAuth(navigation);
-    }, [ui.isConnected])
+const LoadingScreen = ({ ui }) => {
 
     return (
         <View style={{flex: 1,justifyContent: 'center', alignItems: 'center'}}>
@@ -62,10 +42,6 @@ const styles = StyleSheet.create({
     }
 })
 
-const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ verifyAuth, wifiListener, userCountry }, dispatch)
-};
-
 const mapStateToProps = state => {
     return {
         ui: state.ui
@@ -74,5 +50,5 @@ const mapStateToProps = state => {
 
 export default connect(
     mapStateToProps,
-    mapDispatchToProps
+    null
 )(LoadingScreen)

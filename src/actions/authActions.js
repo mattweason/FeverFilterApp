@@ -17,7 +17,7 @@ const requestLogin = () => {
     };
 };
 
-const receiveLogin = user => {
+export const receiveLogin = user => {
     return {
         type: LOGIN_SUCCESS,
         user
