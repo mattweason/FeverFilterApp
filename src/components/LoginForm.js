@@ -6,6 +6,7 @@ import CustomTextInput from "./CustomTextInput";
 import template from '../styles/styles'
 import theme from '../styles/theme.styles'
 import PrimaryButton from "./PrimaryButton";
+import AuthErrorMessage from "./AuthErrorMessage";
 
 const LoginForm = ({shiftUI, onSubmit, style, auth}) => {
 
@@ -73,6 +74,7 @@ const LoginForm = ({shiftUI, onSubmit, style, auth}) => {
                         autoCorrect={false}
                         error={touched.password && errors.password}
                     />
+                    { auth.loginError ? <AuthErrorMessage errorCode={auth.loginErrorMessage}/> : null }
                     <PrimaryButton disabled={auth.isLoggingIn} loading={auth.isLoggingIn} style={{marginTop: 12}} title="Submit" onPress={handleSubmit} />
                 </>
             )}

@@ -5,6 +5,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import template from '../styles/styles';
 import PrimaryButton from "./PrimaryButton";
+import AuthErrorMessage from "./AuthErrorMessage";
 
 import {connect} from "react-redux";
 
@@ -112,6 +113,7 @@ const SignUpForm = ({shiftUI, onSubmit, style, auth}) => {
                         autoCorrect={false}
                         error={touched.password && errors.password}
                     />
+                    { auth.loginError ? <AuthErrorMessage errorCode={auth.loginErrorMessage}/> : null }
                     <PrimaryButton disabled={auth.isLoggingIn} loading={auth.isLoggingIn} style={{marginTop: 12}} title="Create Account" onPress={handleSubmit} />
                 </View>
             )}
