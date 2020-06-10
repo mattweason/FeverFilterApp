@@ -5,8 +5,10 @@ import {
     LOGOUT_REQUEST,
     LOGOUT_SUCCESS,
     LOGOUT_FAILURE,
+    RESET_EMAIL_REQUEST,
+    RESET_EMAIL_SUCCESS,
+    RESET_EMAIL_FAILURE
 } from "../actions/authActions";
-
 
 export default (state = {
     isLoggingIn: false,
@@ -57,6 +59,25 @@ export default (state = {
                 ...state,
                 isLoggingOut: false,
                 logoutError: true
+            };
+        case RESET_EMAIL_REQUEST:
+            return {
+                ...state,
+                isSendingResetEmail: true,
+                resetEmailError: false,
+                resetEmailSent: false
+            };
+        case RESET_EMAIL_SUCCESS:
+            return {
+                ...state,
+                isSendingResetEmail: false,
+                resetEmailSent: true
+            };
+        case RESET_EMAIL_FAILURE:
+            return {
+                ...state,
+                isSendingResetEmail: false,
+                resetEmailError: true
             };
         default:
             return state

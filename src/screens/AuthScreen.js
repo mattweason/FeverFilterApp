@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import {View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, StatusBar, Platform } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { signUp, signIn } from '../actions/authActions';
+import { signUp, signIn, resetPasswordEmail } from '../actions/authActions';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 //Component imports
 import KeyboardShift from '../components/KeyboardShift';
 import SignUpForm from "../components/SignUpForm";
 import LoginForm from "../components/LoginForm";
+import ResetPasswordForm from "../components/ResetPasswordForm";
 import Fade from "../components/Fade";
+import CustomModal from "../components/CustomModal";
 
 //Css imports
 import template from '../styles/styles';
@@ -18,7 +20,7 @@ import theme from '../styles/theme.styles';
 //For fade animations
 const duration = 100;
 
-const AuthScreen = ({ navigation, signIn, signUp }) => {
+const AuthScreen = ({ navigation, signIn, signUp, resetPasswordEmail }) => {
     const [authType, setAuthType] = useState({
         type: 'login',
         toggleText: 'Sign Up',
@@ -26,6 +28,8 @@ const AuthScreen = ({ navigation, signIn, signUp }) => {
         headerText: 'Log In',
         supportText: 'Enter your email and password below to log in'
     });
+    const [resetModalVisible, setResetModalVisible] = useState(false)
+    const [resetSuccessModalVisible, setResetSuccessModalVisible] = useState(false)
     const [visible, setVisible] = useState(true);
 
     //Toggle login vs signup content
@@ -68,6 +72,24 @@ const AuthScreen = ({ navigation, signIn, signUp }) => {
         signIn(email, password, navigation)
     }
 
+    const toggleSuccessModal = () => {
+        setResetSuccessModalVisible(!resetSuccessModalVisible)
+    }
+
+    const toggleResetModal = () => {
+        setResetModalVisible(!resetModalVisible)
+    }
+
+    const resetPasswordContent = () => {
+        return(
+            <ResetPasswordForm handleSubmit={resetPasswordSubmit} toggleModal={toggleResetModal} />
+        )
+    }
+
+    const resetPasswordSubmit = (email) => {
+        resetPasswordEmail(email, toggleResetModal, toggleSuccessModal);
+    }
+
     return (
         <>
             <SafeAreaView style={{backgroundColor: theme.COLOR_PRIMARY, flex: 1}} forceInset={{top: 'always', bottom: 'never'}}>
@@ -90,12 +112,28 @@ const AuthScreen = ({ navigation, signIn, signUp }) => {
                                     <Text style={styles.loginButton}>{authType.toggleText}</Text>
                                 </TouchableOpacity>
                                 { authType.type === "login" ?
-                                    <TouchableOpacity activeOpacity={0.2} style={styles.forgotPassword} onPress={() => {}}>
+                                    <TouchableOpacity activeOpacity={0.2} style={styles.forgotPassword} onPress={toggleResetModal}>
                                         <Text style={styles.loginButton}>Forgot Password</Text>
                                     </TouchableOpacity> :
                                     null
                                 }
                             </Fade>
+                            <CustomModal
+                                visible={resetModalVisible}
+                                toggleModal={toggleResetModal}
+                                title="Forgot your password?"
+                                subTitle="Enter the email you used to sign up"
+                                content={resetPasswordContent()}
+                            />
+                            <CustomModal
+                                visible={resetSuccessModalVisible}
+                                toggleModal={toggleSuccessModal}
+                                title="Reset Password Email Sent"
+                                subTitle="A password reset email has been sent to the provided email address"
+                                content={null}
+                                cancelButton={null}
+                                confirmButton={{title: "OK", action: toggleSuccessModal}}
+                            />
                         </View>
                     )}
                 </KeyboardShift>
@@ -173,7 +211,7 @@ const styles = StyleSheet.create({
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ signUp, signIn }, dispatch)
+    return bindActionCreators({ signUp, signIn, resetPasswordEmail }, dispatch)
 };
 
 export default connect(

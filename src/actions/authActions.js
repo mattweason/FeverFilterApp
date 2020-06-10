@@ -8,6 +8,10 @@ export const LOGOUT_REQUEST = "LOGOUT_REQUEST";
 export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS";
 export const LOGOUT_FAILURE = "LOGOUT_FAILURE";
 
+export const RESET_EMAIL_REQUEST = "RESET_EMAIL_REQUEST";
+export const RESET_EMAIL_SUCCESS = "RESET_EMAIL_SUCCESS";
+export const RESET_EMAIL_FAILURE = "RESET_EMAIL_FAILURE";
+
 const requestLogin = () => {
     return {
         type: LOGIN_REQUEST
@@ -46,7 +50,25 @@ const logoutError = () => {
     };
 };
 
-export const signIn = (email, password, navigation) => async dispatch => {
+const resetEmailRequest = () => {
+    return {
+        type: RESET_EMAIL_REQUEST
+    };
+};
+
+const resetEmailSuccess = () => {
+    return {
+        type: RESET_EMAIL_SUCCESS
+    };
+};
+
+const resetEmailFailure = () => {
+    return {
+        type: RESET_EMAIL_FAILURE
+    };
+};
+
+export const signIn = (email, password) => async dispatch => {
     dispatch(requestLogin());
     try {
         const response = await auth().signInWithEmailAndPassword(email, password)
@@ -59,7 +81,7 @@ export const signIn = (email, password, navigation) => async dispatch => {
 
 }
 
-export const signUp = (email, password, navigation) => async dispatch => {
+export const signUp = (email, password) => async dispatch => {
     dispatch(requestLogin());
     try {
         const response = await auth().createUserWithEmailAndPassword(email, password)
@@ -71,7 +93,7 @@ export const signUp = (email, password, navigation) => async dispatch => {
     }
 };
 
-export const logout = (navigation) => dispatch => {
+export const logout = () => dispatch => {
     dispatch(requestLogout());
     auth()
         .signOut()
@@ -79,8 +101,26 @@ export const logout = (navigation) => dispatch => {
             dispatch(receiveLogout());
         })
         .catch(error => {
-            console.log(error)
             //Do something with the error if you want!
             dispatch(logoutError());
         });
+};
+
+export const resetPasswordEmail = (email, toggleModal, toggleSuccessModal) => dispatch => {
+    dispatch(resetEmailRequest());
+    auth().sendPasswordResetEmail(email).then(() => {
+        toggleModal();
+        dispatch(resetEmailSuccess());
+        setTimeout(() => {
+            toggleSuccessModal()
+        }, 300);
+    }).catch((error) => {
+
+        //Act like it's a success to prevent learning active emails
+        toggleModal();
+        dispatch(resetEmailFailure());
+        setTimeout(() => {
+            toggleSuccessModal()
+        }, 300);
+    })
 };
