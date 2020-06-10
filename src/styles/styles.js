@@ -6,7 +6,7 @@ export default StyleSheet.create({
     largeHeader: {
         fontSize: 30,
         color: theme.COLOR_PRIMARY,
-        fontFamily: 'Montserrat'
+        fontFamily: 'Montserrat-bold'
     },
     medHeader: {
         fontSize: 20,
@@ -23,4 +23,8 @@ export default StyleSheet.create({
         color: theme.COLOR_LIGHTGREY,
         fontFamily: 'Lato'
     },
+    textInput: {
+        backgroundColor: '#fff',
+        height: 50
+    }
 })
