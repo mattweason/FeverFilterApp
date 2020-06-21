@@ -64,8 +64,8 @@ const AuthScreen = ({ navigation, signIn, signUp, resetPasswordEmail }) => {
         setVisible(prevState => !prevState)
     };
 
-    const handleSignup = (email, password) => {
-        signUp(email, password, navigation);
+    const handleSignup = (email, password, phone, name) => {
+        signUp(email, password, phone, name);
     }
 
     const handleLogin = (email, password) => {

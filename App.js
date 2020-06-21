@@ -9,6 +9,8 @@ import auth from '@react-native-firebase/auth';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import theme from './src/styles/theme.styles'
+import {BleManager} from 'react-native-ble-plx';
+import firestore from '@react-native-firebase/firestore';
 
 //Redux
 import { createStore, applyMiddleware } from 'redux';
@@ -19,7 +21,8 @@ import reducer from './src/reducers';
 //Navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import NavigationDrawer from "./src/components/NavigationDrawer";
 
 //Action imports
 import { wifiListener, userCountry } from "./src/actions/uiActions";
@@ -27,38 +30,46 @@ import { receiveLogin } from "./src/actions/authActions";
 
 //Screen imports
 import HomeScreen from "./src/screens/HomeScreen";
+import AccountScreen from "./src/screens/AccountScreen";
 import AuthScreen from "./src/screens/AuthScreen";
+import NewDeviceScreen from "./src/screens/NewDeviceScreen";
+import QRCodeScannerScreen from "./src/screens/QRCodeScannerScreen";
 import LoadingScreen from "./src/screens/LoadingScreen"
 import * as RNLocalize from "react-native-localize";
 
 const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+
+//BLE manager
+const DeviceManager = new BleManager();
 
 //configure redux store
-const middleware = applyMiddleware(thunk);
+const middleware = applyMiddleware(thunk.withExtraArgument(DeviceManager));
 const store = createStore(reducer, middleware);
+
+const MainFlow = () => {
+
+    return (
+        <Drawer.Navigator
+            initialRouteName="Home"
+            drawerContent={props => <NavigationDrawer {...props} />}>
+            <Drawer.Screen name="Home" component={HomeScreen} />
+            <Drawer.Screen name="Account" component={AccountScreen} />
+        </Drawer.Navigator>
+    );
+};
 
 export default App = () => {
     const [appReady, setAppReady ] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-    const permissions = async () => {
-        try {
-            const { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-            if (status === 'granted') {
-                console.log("You can use location");
-            } else {
-                console.log("Location permission denied");
-            }
-        } catch (err) {
-            console.log(err)
-        }
-    }
-
-    const onAuthStateChanged = (user) => {
+    const onAuthStateChanged = async (user) => {
         if(user){
+            const userDoc = await firestore().collection('accounts').doc(user.uid).get();
+            const userData = userDoc._data;
+            userData.uid = user.uid;
             setIsAuthenticated(true);
-            store.dispatch(receiveLogin(user))
+            store.dispatch(receiveLogin(userData))
         } else
             setIsAuthenticated(false);
         if(!appReady) setAppReady(true);
@@ -76,12 +87,6 @@ export default App = () => {
                 'Lato-bold': require('./assets/fonts/Lato-Bold.ttf'),
             });
 
-            store.dispatch(wifiListener())
-
-            const locales = await RNLocalize.getLocales()
-            if(locales[0])
-                store.dispatch(userCountry(locales[0].countryCode))
-
             if(Platform.OS === 'android')
                 try {
                     const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -94,6 +99,12 @@ export default App = () => {
                 } catch (err) {
                     console.log(err)
                 }
+
+            store.dispatch(wifiListener())
+
+            const locales = await RNLocalize.getLocales()
+            if(locales[0])
+                store.dispatch(userCountry(locales[0].countryCode))
 
             const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
         }
@@ -112,10 +123,13 @@ export default App = () => {
                             <>
                                 { isAuthenticated ? (
                                     <Stack.Navigator
+                                        initialRouteName="Main"
                                         screenOptions={{
                                             headerShown: false
                                         }}>
-                                        <Stack.Screen name="Home" component={HomeScreen} />
+                                        <Stack.Screen name="Main" component={MainFlow} />
+                                        <Stack.Screen name="NewDevice" component={NewDeviceScreen} />
+                                        <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} />
                                     </Stack.Navigator>
                                 ) : (
                                     <Stack.Navigator

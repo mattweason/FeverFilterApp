@@ -9,9 +9,9 @@ export default StyleSheet.create({
         fontFamily: 'Montserrat-bold'
     },
     medHeader: {
-        fontSize: 20,
+        fontSize: 24,
         color: theme.COLOR_PRIMARY,
-        fontFamily: 'Montserrat'
+        fontFamily: 'Montserrat-bold'
     },
     header: {
         fontSize: 18,
@@ -26,5 +26,14 @@ export default StyleSheet.create({
     textInput: {
         backgroundColor: '#fff',
         height: 50
+    },
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.5,
+        elevation: 2
     }
 })

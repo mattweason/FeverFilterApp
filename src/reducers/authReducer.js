@@ -7,7 +7,17 @@ import {
     LOGOUT_FAILURE,
     RESET_EMAIL_REQUEST,
     RESET_EMAIL_SUCCESS,
-    RESET_EMAIL_FAILURE
+    RESET_EMAIL_FAILURE,
+    UPDATE_PASSWORD_REQUEST,
+    UPDATE_PASSWORD_SUCCESS,
+    UPDATE_PASSWORD_FAILURE,
+    UPDATE_PROFILE_REQUEST,
+    UPDATE_PROFILE_SUCCESS,
+    UPDATE_PROFILE_FAILURE,
+    UPDATE_EMAIL_REQUEST,
+    UPDATE_EMAIL_SUCCESS,
+    UPDATE_EMAIL_FAILURE,
+    UPDATE_PROFILE_STATE
 } from "../actions/authActions";
 
 export default (state = {
@@ -79,6 +89,76 @@ export default (state = {
                 isSendingResetEmail: false,
                 resetEmailError: true
             };
+        case UPDATE_PROFILE_REQUEST:
+            return {
+                ...state,
+                updateProfileRequest: true,
+                updateProfileSuccess: false,
+                updateProfileFailure: false
+            };
+        case UPDATE_PROFILE_SUCCESS:
+            return {
+                ...state,
+                updateProfileRequest: false,
+                updateProfileSuccess: true
+            };
+        case UPDATE_PROFILE_FAILURE:
+            return {
+                ...state,
+                updateProfileRequest: false,
+                updateProfileSuccess: false,
+                updateProfileFailure: true
+            };
+        case UPDATE_EMAIL_REQUEST:
+            return {
+                ...state,
+                updateEmailRequest: true,
+                updateEmailSuccess: false,
+                updateEmailFailure: false
+            };
+        case UPDATE_EMAIL_SUCCESS:
+            return {
+                ...state,
+                updateEmailRequest: false,
+                updateEmailSuccess: true
+            };
+        case UPDATE_EMAIL_FAILURE:
+            return {
+                ...state,
+                updateEmailRequest: false,
+                updateEmailSuccess: false,
+                updateEmailFailure: true,
+                updateEmailErrorMessage: action.error
+            };
+        case UPDATE_PASSWORD_REQUEST:
+            return {
+                ...state,
+                updatePasswordRequest: true,
+                updatePasswordSuccess: false,
+                updatePasswordFailure: false
+            };
+        case UPDATE_PASSWORD_SUCCESS:
+            return {
+                ...state,
+                updatePasswordRequest: false,
+                updatePasswordSuccess: true
+            };
+        case UPDATE_PASSWORD_FAILURE:
+            return {
+                ...state,
+                updatePasswordRequest: false,
+                updateEPasswordSuccess: false,
+                updatePasswordFailure: true,
+                updatePasswordErrorMessage: action.error
+            };
+        case UPDATE_PROFILE_STATE:
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    ...action.data
+                }
+            }
         default:
             return state
     }

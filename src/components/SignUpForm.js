@@ -37,7 +37,7 @@ const SignUpForm = ({shiftUI, onSubmit, style, auth}) => {
     return (
         <Formik
             initialValues={{ name: '', phone: '', email: '', password: ''}}
-            onSubmit={values => onSubmit(values.email, values.password)}
+            onSubmit={values => onSubmit(values.email, values.password, values.phone, values.name)}
             validationSchema={validationSchema}
         >
             {({ handleChange, values, handleSubmit, setFieldTouched, touched, errors}) => (
@@ -68,7 +68,7 @@ const SignUpForm = ({shiftUI, onSubmit, style, auth}) => {
                         onChangeText={handleChange('phone')}
                         returnKeyType = {"next"}
                         input={input => phoneRef = input}
-                        onSubmitEditing={() => {emailRef.focus(); console.log(values.phone)}}
+                        onSubmitEditing={() => {emailRef.focus()}}
                         onFocus={() => shiftUI(null)}
                         blurOnSubmit={false}
                         onBlur={() => setFieldTouched('phone')}

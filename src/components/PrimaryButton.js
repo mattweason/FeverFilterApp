@@ -7,9 +7,9 @@ const PrimaryButton = ({ title, icon, onPress, small, mode, style, disabled, loa
     return(
         <Button
             labelStyle={small ? styles.small : styles.label }
-            style={[styles.button, style]}
+            style={[styles.button, style, small && styles.smallButton]}
             icon={icon}
-            color={theme.COLOR_SECONDARY}
+            color={mode === 'outlined' ? '#fff' : theme.COLOR_SECONDARY}
             mode={mode}
             uppercase={false}
             disabled={disabled}
@@ -31,6 +31,10 @@ const styles = StyleSheet.create({
         borderRadius: 3,
         height: 50,
         justifyContent: 'center'
+    },
+    smallButton: {
+        height: 40,
+        borderColor: '#fff'
     }
 });
 

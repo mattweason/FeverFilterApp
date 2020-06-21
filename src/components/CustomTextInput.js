@@ -20,7 +20,7 @@ const CustomTextInput = ({ type, error, disabled, input, ...props }) => {
     };
 
     return(
-        <View style={styles.container}>
+        <View style={[styles.container, disabled && {opacity: 0.4}]}>
             { type === 'phone' ? (
                 <TextInput
                     {...props}
@@ -28,7 +28,6 @@ const CustomTextInput = ({ type, error, disabled, input, ...props }) => {
                     secureTextEntry={hidePassword}
                     editable={!disabled}
                     error={error}
-                    blurOnSubmit={false}
                     theme={{ colors: { primary: theme.COLOR_PRIMARY, error: theme.COLOR_SECONDARY}}}
                     render={props =>
                         <TextInputMask
@@ -46,7 +45,6 @@ const CustomTextInput = ({ type, error, disabled, input, ...props }) => {
                     editable={!disabled}
                     ref={input}
                     error={error}
-                    blurOnSubmit={false}
                     theme={{ colors: { primary: theme.COLOR_PRIMARY, error: theme.COLOR_SECONDARY}}}
                 />
             )}
