@@ -20,7 +20,7 @@ const convertToF = (degree) => {
 }
 
 const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
-    const [menuVisible, setMenuVisible] = useState(false)
+    const [menuVisible, setMenuVisible] = useState(-1)
     const [thresholdModalVisible, setThresholdModalVisible] = useState(false);
     const [renameModalVisible, setRenameModalVisible] = useState(false);
     const [deviceName, setDeviceName] = useState('');
@@ -31,8 +31,11 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
         fetchDevices();
     }, []);
 
-    const toggleMenu = () => {
-        setMenuVisible(!menuVisible);
+    const toggleMenu = (index) => {
+        if(index !== null)
+            setMenuVisible(index);
+        else
+            setMenuVisible(-1)
     }
 
     const toggleThresholdModalVisible = () => {
@@ -60,7 +63,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
     const renderDevices = () => {
         return device.devices.map((device, index) => {
             return (
-                <View key={device.deviceId}>
+                <View style={{marginTop: 24}} key={device.deviceId}>
                     <Text style={styles.deviceName}>{device.deviceName}</Text>
                     <View style={[template.card, styles.deviceCard]}>
                         <View style={{flexDirection: 'row'}}>
@@ -74,10 +77,10 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                             <WifiStatus strength={device.wifiState} />
                         </View>
                         <Menu
-                            visible={menuVisible}
+                            visible={menuVisible === index}
                             onDismiss={toggleMenu}
                             anchor={
-                                <IconToggle onPress={toggleMenu}>
+                                <IconToggle onPress={() => toggleMenu(index)}>
                                     <FontAwesome style={{fontSize: 32, color: theme.COLOR_TEXT}} name="cog"/>
                                 </IconToggle>
                             }
@@ -89,14 +92,14 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                                 setDeviceName(device.deviceName)
                                 setDeviceId(device.deviceId)
                                 setThreshold(device.tempThresh)
-                                toggleMenu()
+                                toggleMenu(index)
                                 toggleThresholdModalVisible()
                             }} icon="thermometer" title="Change Threshold" />
                             <Menu.Item onPress={() => {
                                 setDeviceName(device.deviceName)
                                 setDeviceId(device.deviceId)
                                 setThreshold(device.tempThresh)
-                                toggleMenu()
+                                toggleMenu(index)
                                 toggleRenameModalVisible()
                             }} icon="square-edit-outline" title="Rename Device" />
                         </Menu>
@@ -209,7 +212,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     mainContent: {
-        padding: 24
+        paddingHorizontal: 24
     },
     loading: {
         flexDirection: 'row',
