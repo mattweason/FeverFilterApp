@@ -92,14 +92,14 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                                 setDeviceName(device.deviceName)
                                 setDeviceId(device.deviceId)
                                 setThreshold(device.tempThresh)
-                                toggleMenu(index)
+                                toggleMenu(-1)
                                 toggleThresholdModalVisible()
                             }} icon="thermometer" title="Change Threshold" />
                             <Menu.Item onPress={() => {
                                 setDeviceName(device.deviceName)
                                 setDeviceId(device.deviceId)
                                 setThreshold(device.tempThresh)
-                                toggleMenu(index)
+                                toggleMenu(-1)
                                 toggleRenameModalVisible()
                             }} icon="square-edit-outline" title="Rename Device" />
                         </Menu>

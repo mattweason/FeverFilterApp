@@ -8,7 +8,8 @@ import {bindActionCreators} from "redux";
 import {updateThreshold} from "../actions/deviceActions";
 
 const windowHeight = Dimensions.get('window').height;
-const maxTemp = 37.5;
+const maxTempC = 37.5;
+const maxTempF = 99.5;
 const sliderHeight = windowHeight - windowHeight*0.4;
 
 //Convert temperature to fahrenheit
@@ -17,8 +18,10 @@ const convertToF = (degree) => {
 }
 
 const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleModal, updateThreshold}) => {
-    const [threshold, setThreshold] = useState(initialThreshold);
+    const [threshold, setThreshold] = useState(auth.user.degreeUnit === "celsius" ? initialThreshold : convertToF(initialThreshold));
     const [tickHeight, setTickHeight] = useState(0)
+    const [maxTemp, setMaxTemp] = useState(auth.user.degreeUnit === "celsius" ? maxTempC : maxTempF)
+    const [segment, setSegment] = useState(auth.user.degreeUnit === "celsius" ? 35 : 65)
 
     const handleThresholdUpdate = (step) => {
         const currentTemp = maxTemp - (0.1*step);
@@ -29,7 +32,7 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
     const tickLayout = (event) => {
         const {height} = event.nativeEvent.layout;
 
-        setTickHeight(height / 35)
+        setTickHeight(height / segment)
     }
 
     const renderTick = (i) => {
@@ -42,13 +45,15 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
     const renderRows = () => {
         let rows = [];
 
-        for( let i = 0; i < 36; i++) {
+        for( let i = 0; i < segment+1; i++) {
             const temp = maxTemp - (0.1*i);
             const fixedTemp = temp.toFixed(1)
             const tempText = fixedTemp + '\u00b0' + (auth.user.degreeUnit === "celsius" ? "C" : "F");
+            const topMargin = auth.user.degreeUnit === "celsius" ? "-100%" : "-200%";
+            const tempDisplayIndex = auth.user.degreeUnit === "celsius" ? 5 : 10;
             rows.push(
                 <View key={i} style={[styles.tempRow, {height: tickHeight}]}>
-                    <Text style={{position: 'absolute', left: "-75%", fontFamily: 'Lato', fontSize: 18, top: "-100%"}}>{i === 0 || i % 5 === 0 ? tempText : ""}</Text>
+                    <Text style={{position: 'absolute', left: "-75%", fontFamily: 'Lato', fontSize: 18, top: topMargin}}>{i === 0 || i % tempDisplayIndex === 0 ? tempText : ""}</Text>
                     <View style={styles.tickRow}>
                         { renderTick(i) }
                     </View>
@@ -69,18 +74,18 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
                 <View onLayout={tickLayout} style={styles.rowContainer}>
                     { renderRows() }
                 </View>
-                <View style={[styles.recommended, {height: tickHeight*4+1, marginTop: tickHeight*14+35, marginLeft: "-8%"}]}>
+                <View style={[styles.recommended, {height: tickHeight*4+1, marginTop: tickHeight*14+segment, marginLeft: "-8%"}]}>
                     <Text style={styles.recommendedText}>RECOMMENDED</Text>
                 </View>
                 <View style={{position: 'absolute', right: "5%", top: "12%", alignItems: 'center'}}>
                     <View style={{flexDirection: 'row'}}>
-                        <Text style={styles.temperature}>{ auth.user.degreeUnit === "celsius" ? threshold : convertToF(threshold)}</Text>
+                        <Text style={styles.temperature}>{ threshold }</Text>
                         <Text style={styles.degree}>{'\u00b0'}{ auth.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
                     </View>
                     <Text style={styles.statusText}>Threshold</Text>
                 </View>
                 <View style={{left: "32%", position: 'absolute',height:sliderHeight}}>
-                    <Slider initialValue={(maxTemp - initialThreshold)/0.1} onUpdate={handleThresholdUpdate} />
+                    <Slider segment={segment} initialValue={(maxTemp - initialThreshold)/0.1} onUpdate={handleThresholdUpdate} />
                 </View>
                 <View style={{height: sliderHeight}}/>
             </View>

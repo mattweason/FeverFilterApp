@@ -31,10 +31,10 @@ class Slider extends PureComponent  {
                 if(y < this.state.min)
                     y = this.state.min;
 
-                const step = this.state.max / 35;
+                const step = this.state.max / this.props.segment;
                 let stepArray = [];
 
-                for (let i = 0; i <= 35; i++){
+                for (let i = 0; i <= this.props.segment; i++){
                     stepArray.push(i*step)
                 }
 
@@ -53,10 +53,10 @@ class Slider extends PureComponent  {
     }
 
     calculateStep = (max, y) => {
-        const step = max / 35;
+        const step = max / this.props.segment;
         let stepArray = [];
 
-        for (let i = 0; i <= 35; i++){
+        for (let i = 0; i <= this.props.segment; i++){
             stepArray.push(i*step)
         }
 
@@ -79,7 +79,7 @@ class Slider extends PureComponent  {
         const { height } = event.nativeEvent.layout;
         this.setState({min: 0, max: height - 30});
 
-        const currentStep = this.calculateStep(height - 30, this.props.initialValue*((height-30)/35));
+        const currentStep = this.calculateStep(height - 30, this.props.initialValue*((height-30)/this.props.segment));
         this.translateY.setValue(currentStep)
         this.setState({...this.state, offset: currentStep})
     }
