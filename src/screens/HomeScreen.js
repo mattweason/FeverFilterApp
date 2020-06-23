@@ -181,7 +181,7 @@ const WifiStatus = ({strength}) => {
         strengthText = "Strong";
 
     return (
-        <View style={{justifyContent: 'space-between'}}>
+        <View style={{justifyContent: 'space-between', alignItems: 'center'}}>
             <WifiIcon strength={strength} size={40} />
             <Text style={styles.statusText}>{strengthText}</Text>
         </View>
