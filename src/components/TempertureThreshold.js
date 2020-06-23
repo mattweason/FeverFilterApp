@@ -17,6 +17,10 @@ const convertToF = (degree) => {
     return Math.round((degree * (9/5) + 32) * 10) / 10
 }
 
+const convertToC = (degree) => {
+    return Math.round(((degree - 32) * (5/9)) * 10) / 10
+}
+
 const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleModal, updateThreshold}) => {
     const [threshold, setThreshold] = useState(auth.user.degreeUnit === "celsius" ? initialThreshold : convertToF(initialThreshold));
     const [tickHeight, setTickHeight] = useState(0)
@@ -69,7 +73,8 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
     }
 
     const handleSubmit = () => {
-        updateThreshold(deviceId, threshold, toggleModal);
+        const newThreshold = auth.user.degreeUnit === "celsius" ? threshold : convertToC(threshold);
+        updateThreshold(deviceId, newThreshold, toggleModal);
     }
 
     return (
@@ -89,7 +94,7 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
                     <Text style={styles.statusText}>Threshold</Text>
                 </View>
                 <View style={{left: "32%", position: 'absolute',height:sliderHeight}}>
-                    <Slider segment={segment} initialValue={(maxTemp - initialThreshold)/0.1} onUpdate={handleThresholdUpdate} />
+                    <Slider segment={segment} initialValue={(maxTemp - (auth.user.degreeUnit === "celsius" ? initialThreshold : convertToF(initialThreshold)))/0.1} onUpdate={handleThresholdUpdate} />
                 </View>
                 <View style={{height: sliderHeight}}/>
             </View>
