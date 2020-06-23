@@ -222,7 +222,9 @@ export const sendWifiCharacteristic = (credentials) => {
                 count++;
 
                 device.readCharacteristicForService(serviceUUID, readCharacteristiUUID).then( async (data) => {
-                    if(base64.decode(data.value) === "1"){
+                    const response = base64.decode(data.value);
+                    let wifiNote = response.substr(0,1);
+                    if(wifiNote === "1"){
 
                         //Signal process successfully completed
                         dispatch(changeStatus('CharacteristicReceived'))
