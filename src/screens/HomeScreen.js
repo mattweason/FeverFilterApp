@@ -19,6 +19,10 @@ const convertToF = (degree) => {
     return Math.round((degree * (9/5) + 32) * 10) / 10
 }
 
+const roundToDec = (input) => {
+    return Math.round(input*10) / 10
+}
+
 const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
     const [menuVisible, setMenuVisible] = useState(-1)
     const [thresholdModalVisible, setThresholdModalVisible] = useState(false);
@@ -69,7 +73,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                         <View style={{flexDirection: 'row'}}>
                             <View style={{justifyContent: 'space-between', marginRight: 36}}>
                                 <View style={{flexDirection: 'row'}}>
-                                    <Text style={styles.temperature}>{ auth.user.degreeUnit === "celsius" ? device.tempThresh : convertToF(device.tempThresh)}</Text>
+                                    <Text style={styles.temperature}>{ auth.user.degreeUnit === "celsius" ? roundToDec(device.tempThresh).toFixed(1) : convertToF(device.tempThresh).toFixed(1)}</Text>
                                     <Text style={styles.degree}>{'\u00b0'}{ auth.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
                                 </View>
                                 <Text style={styles.statusText}>Threshold</Text>
