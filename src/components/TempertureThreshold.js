@@ -20,8 +20,12 @@ const convertToF = (degree) => {
 const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleModal, updateThreshold}) => {
     const [threshold, setThreshold] = useState(auth.user.degreeUnit === "celsius" ? initialThreshold : convertToF(initialThreshold));
     const [tickHeight, setTickHeight] = useState(0)
-    const [maxTemp, setMaxTemp] = useState(auth.user.degreeUnit === "celsius" ? maxTempC : maxTempF)
-    const [segment, setSegment] = useState(auth.user.degreeUnit === "celsius" ? 35 : 65)
+
+    const maxTemp = auth.user.degreeUnit === "celsius" ? maxTempC : maxTempF;
+    const segment = auth.user.degreeUnit === "celsius" ? 35 : 65;
+
+    const recommendedMarginTop = auth.user.degreeUnit === "celsius" ? (tickHeight*14+segment) : (tickHeight*19+segment-1)
+    const recommendedHeight = auth.user.degreeUnit === "celsius" ? (tickHeight*4+1) : (tickHeight*7+1)
 
     const handleThresholdUpdate = (step) => {
         const currentTemp = maxTemp - (0.1*step);
@@ -74,7 +78,7 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
                 <View onLayout={tickLayout} style={styles.rowContainer}>
                     { renderRows() }
                 </View>
-                <View style={[styles.recommended, {height: tickHeight*4+1, marginTop: tickHeight*14+segment, marginLeft: "-8%"}]}>
+                <View style={[styles.recommended, {height: recommendedHeight, marginTop: recommendedMarginTop, marginLeft: "-8%"}]}>
                     <Text style={styles.recommendedText}>RECOMMENDED</Text>
                 </View>
                 <View style={{position: 'absolute', right: "5%", top: "12%", alignItems: 'center'}}>
