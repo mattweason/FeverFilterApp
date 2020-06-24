@@ -22,7 +22,8 @@ const convertToC = (degree) => {
 }
 
 const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleModal, updateThreshold}) => {
-    const [threshold, setThreshold] = useState(auth.user.degreeUnit === "celsius" ? initialThreshold.toFixed(1) : convertToF(initialThreshold).toFixed(1));
+    const adjustedThreshold = typeof initialThreshold === "string" ? initialThreshold : initialThreshold.toFixed(1);
+    const [threshold, setThreshold] = useState(auth.user.degreeUnit === "celsius" ? adjustedThreshold : convertToF(adjustedThreshold));
     const [tickHeight, setTickHeight] = useState(0)
 
     const maxTemp = auth.user.degreeUnit === "celsius" ? maxTempC : maxTempF;
