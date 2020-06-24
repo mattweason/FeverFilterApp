@@ -155,7 +155,7 @@ export const signIn = (email, password) => async dispatch => {
             const userDoc = await firestore().collection('accounts').doc(response.user.uid).get();
             const user = userDoc._data;
             user.uid = response.user.uid;
-            dispatch(receiveLogin(user));
+            // dispatch(receiveLogin(user));
         }
     } catch (error) {
         dispatch(loginError(error.code));
@@ -179,7 +179,7 @@ export const signUp = (email, password, phone, name) => async (dispatch, getStat
             }).then(() => {
                 console.log('user added')
             });
-            dispatch(receiveLogin({uid: response.user.uid, name, email, phone, degreeUnit}));
+            // dispatch(receiveLogin({uid: response.user.uid, name, email, phone, degreeUnit}));
 
         }
     } catch (error) {

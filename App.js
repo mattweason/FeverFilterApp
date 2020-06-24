@@ -65,14 +65,18 @@ export default App = () => {
 
     const onAuthStateChanged = async (user) => {
         if(user){
-            const userDoc = await firestore().collection('accounts').doc(user.uid).get();
-            const userData = userDoc._data;
-            userData.uid = user.uid;
-            setIsAuthenticated(true);
-            store.dispatch(receiveLogin(userData))
-        } else
+            setTimeout(async () => {
+                const userDoc = await firestore().collection('accounts').doc(user.uid).get();
+                const userData = userDoc._data;
+                userData.uid = user.uid;
+                setIsAuthenticated(true);
+                store.dispatch(receiveLogin(userData))
+                if(!appReady) setAppReady(true);
+            }, 500)
+        } else{
             setIsAuthenticated(false);
-        if(!appReady) setAppReady(true);
+            if(!appReady) setAppReady(true);
+        }
         SplashScreen.hide();
     }
 
