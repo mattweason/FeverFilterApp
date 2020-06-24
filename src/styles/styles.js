@@ -24,8 +24,7 @@ export default StyleSheet.create({
         fontFamily: 'Lato'
     },
     textInput: {
-        backgroundColor: '#fff',
-        height: 50
+        backgroundColor: '#fff'
     },
     card: {
         backgroundColor: '#fff',
