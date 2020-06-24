@@ -36,8 +36,13 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
     }, []);
 
     const toggleMenu = (index) => {
-        if(index !== null)
+        if(index >= 0){
+            console.log(device.devices[index])
+            setDeviceName(device.devices[index].deviceName)
+            setDeviceId(device.devices[index].deviceId)
+            setThreshold(device.devices[index].tempThresh)
             setMenuVisible(index);
+        }
         else
             setMenuVisible(-1)
     }
@@ -93,16 +98,10 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                             <Divider />
                             <Menu.Item onPress={() => {}} icon="wifi" title="Network Settings" />
                             <Menu.Item onPress={() => {
-                                setDeviceName(device.deviceName)
-                                setDeviceId(device.deviceId)
-                                setThreshold(device.tempThresh)
                                 toggleMenu(-1)
                                 toggleThresholdModalVisible()
                             }} icon="thermometer" title="Change Threshold" />
                             <Menu.Item onPress={() => {
-                                setDeviceName(device.deviceName)
-                                setDeviceId(device.deviceId)
-                                setThreshold(device.tempThresh)
                                 toggleMenu(-1)
                                 toggleRenameModalVisible()
                             }} icon="square-edit-outline" title="Rename Device" />
