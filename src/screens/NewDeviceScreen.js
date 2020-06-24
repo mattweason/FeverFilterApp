@@ -21,6 +21,16 @@ import * as Permissions from 'expo-permissions';
 import template from "../styles/styles";
 import theme from "../styles/theme.styles";
 
+function makeId(length) {
+    let result           = '';
+    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
 const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic, disconnect, ble, device, clearConnectionError, scannedDeviceId, addDevice}) => {
     const [active, setActive] = useState(1);
     const [deviceName, setDeviceName] = useState('');
@@ -32,6 +42,9 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
     const [connectInfoModal, setConnectInfoModal] = useState(false);
     const [iosSsid, setIosSsid] = useState('');
     const connectDevice = useRef();
+
+    //generate deviceToken
+    const deviceToken = makeId(12);
 
     useEffect(() => {
         if(ble.status === "Listening" && active !== 2){
@@ -156,7 +169,7 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                         <View style={styles.fabContainer}>
                             <PrimaryButton disabled={device.addDeviceRequest} mode="text" style={{flex: 1}} title={'Cancel'} onPress={toggleCancelModal} />
                             <PrimaryButton disabled={!ui.newDeviceReady || device.addDeviceRequest} style={{flex: 1, marginLeft: 12}} title={"Add Device"} loading={device.addDeviceRequest} onPress={() => {
-                                addDevice(ble.scannedDeviceId, deviceName, navigation);
+                                addDevice(ble.scannedDeviceId, deviceName, deviceToken, navigation);
                             }} />
                         </View>
                         <CustomModal
@@ -176,7 +189,7 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                             visible={wifiModalVisible}
                             toggleModal={toggleWifiModal}
                             content={<WifiList iosSsid={iosSsid} deviceName={deviceName} handleSubmit={(credentials) => {
-                                sendWifiCharacteristic(credentials)
+                                sendWifiCharacteristic(credentials, deviceToken)
                             }} toggleModal={toggleWifiModal} />}
                         />
                         <CustomModal

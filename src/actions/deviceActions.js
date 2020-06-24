@@ -115,14 +115,15 @@ export const fetchDevices = () => async (dispatch, getState) => {
 
 }
 
-export const addDevice = (deviceId, deviceName, navigation) => (dispatch, getState) => {
+export const addDevice = (deviceId, deviceName, deviceToken, navigation) => (dispatch, getState) => {
     dispatch(addDeviceRequest())
     const uid = getState().auth.user.uid;
 
     firestore().collection('devices').doc(deviceId).set({
         deviceId,
-        tempThresh: 36.8,
+        tempThresh: 37.5,
         deviceName,
+        deviceToken,
         wifiState: null
     }).then(() => {
         const deviceRef = firestore().collection('devices').doc(deviceId);
@@ -130,6 +131,7 @@ export const addDevice = (deviceId, deviceName, navigation) => (dispatch, getSta
             devices: firestore.FieldValue.arrayUnion(deviceRef)
         }).then(() => {
             dispatch(addDeviceSuccess())
+            dispatch(fetchDevices());
             navigation.goBack(null);
         })
     }).catch(err => {

@@ -157,7 +157,7 @@ export const disconnect = () => {
     }
 }
 
-export const sendWifiCharacteristic = (credentials) => {
+export const sendWifiCharacteristic = (credentials, deviceToken) => {
     return async (dispatch, getState, DeviceManager) => {
         const device = getState().ble.device;
         const serviceUUID = "000000ff-0000-1000-8000-00805f9b34fb";
@@ -194,6 +194,14 @@ export const sendWifiCharacteristic = (credentials) => {
             dispatch(changeStatus("disconnected"))
         else{
             dispatch(changeStatus("SendingCharacteristic"))
+
+            //deviceToken write command
+            await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("0"));
+
+            await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("5" + deviceToken));
+
+            //deviceToken end string command
+            await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("6"));
 
             //Start wifi credential write command
             await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("0"));
