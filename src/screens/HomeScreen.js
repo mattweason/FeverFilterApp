@@ -37,7 +37,6 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
 
     const toggleMenu = (index) => {
         if(index >= 0){
-            console.log(device.devices[index])
             setDeviceName(device.devices[index].deviceName)
             setDeviceId(device.devices[index].deviceId)
             setThreshold(device.devices[index].tempThresh)
