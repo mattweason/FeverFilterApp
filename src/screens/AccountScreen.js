@@ -29,9 +29,9 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
     const [receiveNotifications, setReceiveNotifications] = useState(true);
     const [menuVisible, setMenuVisible] = useState(false)
     const [menuOffset, setMenuOffset] = useState(0)
-    const [name, setName] = useState(auth.user.name)
-    const [email, setEmail] = useState(auth.user.name)
-    const [degreeUnit, setDegreeUnit] = useState(auth.user.degreeUnit)
+    const [name, setName] = useState(auth.user ? auth.user.name : null)
+    const [email, setEmail] = useState(auth.user ? auth.user.name : null)
+    const [degreeUnit, setDegreeUnit] = useState(auth.user ? auth.user.degreeUnit : null)
     const [snackText, setSnackText] = useState('');
     const [snackVisible, setSnackVisible] = useState(false);
 

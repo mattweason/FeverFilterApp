@@ -124,7 +124,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                             <Text style={styles.loadingText}>Loading</Text>
                         </View>
                     </View>
-                ) : device.devices ? (
+                ) : device.devices && auth.user ? (
                     <View style={styles.mainContent}>
                         { renderDevices() }
                     </View>
