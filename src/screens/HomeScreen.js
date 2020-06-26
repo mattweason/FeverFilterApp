@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
-import {Divider, Menu} from 'react-native-paper';
+import {Text, View, ScrollView, ActivityIndicator, StyleSheet, Platform, Alert} from 'react-native';
+import {Divider, Menu, Snackbar} from 'react-native-paper';
 import {connect} from "react-redux";
 import PrimaryButton from "../components/PrimaryButton";
 import IconToggle from "../components/IconToggle";
@@ -9,10 +9,13 @@ import theme from '../styles/theme.styles'
 import template from '../styles/styles'
 import {FontAwesome, MaterialCommunityIcons} from '@expo/vector-icons'
 import {fetchDevices, renameDevice} from "../actions/deviceActions";
+import {startScan, sendWifiCharacteristic, changeStatus} from "../actions/bleActions";
 import {bindActionCreators} from "redux";
 import CustomModal from "../components/CustomModal";
 import TemperatureThreshold from "../components/TempertureThreshold";
 import RenameDeviceForm from "../components/RenameDeviceForm";
+import WifiList from "../components/WifiList";
+import NetInfo from "@react-native-community/netinfo";
 
 //Convert temperature to fahrenheit
 const convertToF = (degree) => {
@@ -23,13 +26,17 @@ const roundToDec = (input) => {
     return Math.round(input*10) / 10
 }
 
-const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
+const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, changeStatus, sendWifiCharacteristic, device, auth, ble}) => {
     const [menuVisible, setMenuVisible] = useState(-1)
+    const [wifiSnackVisible, setWifiSnackVisible] = useState(false)
+    const [wifiResetModalVisible, setWifiResetModalVisible] = useState(false);
     const [thresholdModalVisible, setThresholdModalVisible] = useState(false);
     const [renameModalVisible, setRenameModalVisible] = useState(false);
+    const [wifiModalVisible, setWifiModalVisible] = useState(false)
     const [deviceName, setDeviceName] = useState('');
     const [deviceId, setDeviceId] = useState('');
     const [threshold, setThreshold] = useState(0);
+    const [iosSsid, setIosSsid] = useState('');
 
     useEffect(() => {
         fetchDevices();
@@ -46,6 +53,14 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
             setMenuVisible(-1)
     }
 
+    const toggleWifiSnack = () => {
+        setWifiSnackVisible(!wifiSnackVisible)
+    }
+
+    const toggleWifiResetModalVisible = () => {
+        setWifiResetModalVisible(!wifiResetModalVisible)
+    }
+
     const toggleThresholdModalVisible = () => {
         setThresholdModalVisible(!thresholdModalVisible)
     }
@@ -54,14 +69,56 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
         setRenameModalVisible(!renameModalVisible)
     }
 
+    const toggleWifiModal = () => {
+        setWifiModalVisible(!wifiModalVisible);
+    };
+
+    const wifiResetModalContent = () => {
+        return <WifiReset startScan={startScan} deviceId={deviceId} toggleModal={toggleWifiResetModalVisible} handleSetUpWifi={handleSetUpWifi} changeStatus={changeStatus} ble={ble} />
+    }
+
     const thresholdModalContent = () => {
-        return <TemperatureThreshold deviceId={deviceId} initialThreshold={threshold} toggleModal={toggleThresholdModalVisible} />
+        return <TemperatureThreshold deviceId={deviceId} initialThreshold={threshold}toggleModal={toggleThresholdModalVisible} />
     }
 
     const renameModalContent = () => {
         return (
             <RenameDeviceForm handleSubmit={renameModalSubmit} deviceName={deviceName} toggleModal={toggleRenameModalVisible} />
         )
+    }
+
+    //Only android can show list of wifi networks
+    const handleSetUpWifi = () => {
+        NetInfo.fetch().then(state => {
+            if(Platform.OS === 'android'){
+                if(state.isWifiEnabled) {
+                    toggleWifiModal();
+                } else if(!state.isWifiEnabled){
+                    Alert.alert(
+                        "No Wifi",
+                        "Your phone's WiFi is not enabled. Please enable it and try again.",
+                        [
+                            {text: "OK", onPress: () => {}}
+                        ],
+                        {cancelable: false}
+                    );
+                }
+            } else {
+                if(state.type === 'wifi' || state.isConnected) {
+                    setIosSsid(state.details.ssid);
+                    toggleWifiModal(state.details);
+                } else {
+                    Alert.alert(
+                        "Not Connected to WiFi",
+                        "Please connect to the WiFi network you want your FeverFilter to connect to.",
+                        [
+                            {text: "OK", onPress: () => {}}
+                        ],
+                        {cancelable: false}
+                    );
+                }
+            }
+        });
     }
 
     const renameModalSubmit = (deviceName) => {
@@ -95,7 +152,10 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                         >
                             <Menu.Item onPress={() => {}} disabled={true} icon="settings" title="Settings" />
                             <Divider />
-                            <Menu.Item onPress={() => {}} icon="wifi" title="Network Settings" />
+                            <Menu.Item onPress={() => {
+                                toggleMenu(-1)
+                                toggleWifiResetModalVisible()
+                            }} icon="wifi" title="Network Settings" />
                             <Menu.Item onPress={() => {
                                 toggleMenu(-1)
                                 toggleThresholdModalVisible()
@@ -138,6 +198,11 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                 )}
             </ScrollView>
             <CustomModal
+                visible={wifiResetModalVisible}
+                toggleModal={toggleWifiResetModalVisible}
+                content={wifiResetModalContent()}
+            />
+            <CustomModal
                 visible={thresholdModalVisible}
                 toggleModal={toggleThresholdModalVisible}
                 title="Change Threshold"
@@ -150,6 +215,26 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, device, auth}) => {
                 title="Rename Device"
                 content={renameModalContent()}
             />
+            <CustomModal
+                visible={wifiModalVisible}
+                toggleModal={toggleWifiModal}
+                content={<WifiList toggleSnack={toggleWifiSnack} iosSsid={iosSsid} deviceName={deviceName} handleSubmit={(credentials) => {
+                    sendWifiCharacteristic(credentials, null)
+                }} toggleModal={toggleWifiModal} />}
+            />
+            <Snackbar
+                visible={wifiSnackVisible}
+                onDismiss={() => toggleWifiSnack()}
+                duration={3000}
+                action={{
+                    label: "Ok",
+                    onPress: () => {
+                        toggleWifiSnack(false)
+                    },
+                }}
+            >
+                Network settings updated.
+            </Snackbar>
         </View>
     )
 };
@@ -165,6 +250,46 @@ const HomeHeader = ({navigation}) => {
                 <PrimaryButton small icon="plus" mode="outlined" title="Add" onPress={() => navigation.navigate('NewDevice')}/>
             </View>
         </View>
+    )
+}
+
+const WifiReset = ({ deviceId, toggleModal, startScan, handleSetUpWifi, changeStatus, ble }) => {
+    const [connecting, setConnecting] = useState(false)
+    const [notFound, setNotFound] = useState(false)
+
+    const connectBle = () => {
+        setConnecting(true);
+        setNotFound(false)
+        startScan(deviceId);
+    }
+
+    const closeModal = () => {
+        changeStatus('')
+        setNotFound(false);
+        toggleModal()
+    }
+
+    useEffect(() => {
+        if(ble.status === "Stopped scan"){
+            setConnecting(false);
+            setNotFound(true)
+        }
+        if(ble.status === "Listening"){
+            closeModal()
+            handleSetUpWifi()
+        }
+    }, [ble.status])
+
+    return (
+        <>
+            <Text style={styles.topTitle}>Update Network Settings</Text>
+            <Text style={styles.subTitle}>In order to update the network settings for your FeverFilter, we will need to connect to it over bluetooth. Please ensure you are near the device and press connect.</Text>
+            { notFound && (<Text style={styles.notFound}>FeverFilter not found. Make sure you are near the device and try connecting again.</Text>)}
+            <View style={styles.modalActions}>
+                <PrimaryButton mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={closeModal} />
+                <PrimaryButton loading={connecting} disabled={connecting} style={styles.button} title="Connect" onPress={connectBle} />
+            </View>
+        </>
     )
 }
 
@@ -252,6 +377,44 @@ const styles = StyleSheet.create({
         fontFamily: 'Lato-bold',
         fontSize: 14,
         color: theme.COLOR_TEXT
+    },
+    topTitle: {
+        color: theme.COLOR_PRIMARY,
+        fontFamily: 'Montserrat-bold',
+        fontSize: 20
+    },
+    subTitle: {
+        color: theme.COLOR_LIGHTGREY,
+        fontFamily: 'Lato',
+        fontSize: 16
+    },
+    notFound: {
+        marginTop: 12,
+        color: theme.COLOR_SECONDARY,
+        fontFamily: 'Lato',
+        fontSize: 16
+    },
+    modalActions: {
+        marginTop: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    button: {
+        flex: 1
+    },
+    cancelButton: {
+        marginRight: 12
+    },
+    connecting: {
+        padding: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 40
+    },
+    connectingText: {
+        fontSize: 14,
+        fontFamily: 'Lato-light',
+        marginLeft: 12
     }
 });
 
@@ -259,12 +422,13 @@ const mapStateToProps = state => {
     return {
         ui: state.ui,
         auth: state.auth,
-        device: state.device
+        device: state.device,
+        ble: state.ble
     }
 };
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ fetchDevices, renameDevice }, dispatch)
+    return bindActionCreators({ fetchDevices, renameDevice, startScan, sendWifiCharacteristic, changeStatus }, dispatch)
 };
 
 export default connect(

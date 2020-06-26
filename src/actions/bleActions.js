@@ -195,13 +195,15 @@ export const sendWifiCharacteristic = (credentials, deviceToken) => {
         else{
             dispatch(changeStatus("SendingCharacteristic"))
 
-            //deviceToken write command
-            await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("0"));
+            if(deviceToken){
+                //deviceToken write command
+                await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("0"));
 
-            await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("5" + deviceToken));
+                await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("5" + deviceToken));
 
-            //deviceToken end string command
-            await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("6"));
+                //deviceToken end string command
+                await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("6"));
+            }
 
             //Start wifi credential write command
             await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("0"));

@@ -11,7 +11,7 @@ import CustomTextInput from "./CustomTextInput";
 import PrimaryButton from "./PrimaryButton";
 import template from "../styles/styles";
 
-const WifiList = ({wifi, ble, deviceName, iosSsid, scanNetworks, toggleModal, handleSubmit, getNetwork}) => {
+const WifiList = ({wifi, ble, deviceName, iosSsid, scanNetworks, toggleModal, handleSubmit, getNetwork, toggleSnack}) => {
     const [networkList, setNetworkList] = useState([]);
     const [selectedNetwork, setSelectedNetwork] = useState(iosSsid || '');
     const [password, setPassword] = useState('');
@@ -41,8 +41,10 @@ const WifiList = ({wifi, ble, deviceName, iosSsid, scanNetworks, toggleModal, ha
 
     //Close modal when connection is successful
     useEffect(() => {
-        if(ble.status === 'CharacteristicReceived')
+        if(ble.status === 'CharacteristicReceived'){
             toggleModal()
+            toggleSnack()
+        }
         if(ble.status === 'CharacteristicFailed')
             setErrorMessage('Could not connect. Check password.')
     }, [ble.status]);
