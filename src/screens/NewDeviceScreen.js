@@ -41,10 +41,8 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
     const [addDeviceErrorSnack, setAddDeviceErrorSnack] = useState(false);
     const [connectInfoModal, setConnectInfoModal] = useState(false);
     const [iosSsid, setIosSsid] = useState('');
+    const [deviceToken, setDeviceToken] = useState(makeId(12))
     const connectDevice = useRef();
-
-    //generate deviceToken
-    const deviceToken = makeId(12);
 
     useEffect(() => {
         if(ble.status === "Listening" && active !== 2){
@@ -189,6 +187,7 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                             visible={wifiModalVisible}
                             toggleModal={toggleWifiModal}
                             content={<WifiList iosSsid={iosSsid} deviceName={deviceName} handleSubmit={(credentials) => {
+                                console.log(credentials)
                                 sendWifiCharacteristic(credentials, deviceToken)
                             }} toggleModal={toggleWifiModal} />}
                         />
