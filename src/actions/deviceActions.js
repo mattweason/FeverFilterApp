@@ -161,7 +161,7 @@ export const updateThreshold = (deviceId, threshold, toggleModal) => dispatch =>
     dispatch(updateThresholdRequest())
 
     firestore().collection('devices').doc(deviceId).update({
-        tempThresh: threshold
+        tempThresh: parseFloat(threshold)
     }).then(() => {
         dispatch(updateThresholdSuccess())
         toggleModal();
