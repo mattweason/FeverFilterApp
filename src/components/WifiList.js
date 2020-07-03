@@ -11,7 +11,7 @@ import CustomTextInput from "./CustomTextInput";
 import PrimaryButton from "./PrimaryButton";
 import template from "../styles/styles";
 
-const WifiList = ({wifi, ble, deviceName, iosSsid, scanNetworks, toggleModal, handleSubmit, getNetwork, toggleSnack = () => {}}) => {
+const WifiList = ({wifi, ble, deviceName, iosSsid, scanNetworks, toggleModal, handleCancel = () => {}, handleSubmit, getNetwork, toggleSnack = () => {}}) => {
     const [networkList, setNetworkList] = useState([]);
     const [selectedNetwork, setSelectedNetwork] = useState(iosSsid || '');
     const [password, setPassword] = useState('');
@@ -26,6 +26,10 @@ const WifiList = ({wifi, ble, deviceName, iosSsid, scanNetworks, toggleModal, ha
             scanNetworks();
         else
             getNetwork();
+
+        return () => {
+            handleCancel()
+        }
     }, []);
 
     useEffect( () => {

@@ -82,9 +82,9 @@ export const scan = (bleID) => {
     }
 }
 
-export const stopScan = () => {
+export const stopScan = (method) => {
     return (dispatch, getState, DeviceManager) => {
-        dispatch(changeStatus("Stopped scan"));
+        dispatch(changeStatus(method ? method : "Stopped scan"));
         DeviceManager.stopDeviceScan();
     }
 }

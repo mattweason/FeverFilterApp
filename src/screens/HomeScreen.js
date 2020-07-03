@@ -9,7 +9,7 @@ import theme from '../styles/theme.styles'
 import template from '../styles/styles'
 import {FontAwesome, MaterialCommunityIcons} from '@expo/vector-icons'
 import {fetchDevices, renameDevice} from "../actions/deviceActions";
-import {startScan, sendWifiCharacteristic, changeStatus} from "../actions/bleActions";
+import {startScan, sendWifiCharacteristic, changeStatus, disconnect, stopScan} from "../actions/bleActions";
 import {bindActionCreators} from "redux";
 import CustomModal from "../components/CustomModal";
 import TemperatureThreshold from "../components/TempertureThreshold";
@@ -26,13 +26,14 @@ const roundToDec = (input) => {
     return Math.round(input*10) / 10
 }
 
-const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, changeStatus, sendWifiCharacteristic, device, auth, ble}) => {
+const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan, changeStatus, sendWifiCharacteristic, device, auth, ble, disconnect}) => {
     const [menuVisible, setMenuVisible] = useState(-1)
     const [wifiSnackVisible, setWifiSnackVisible] = useState(false)
     const [wifiResetModalVisible, setWifiResetModalVisible] = useState(false);
     const [thresholdModalVisible, setThresholdModalVisible] = useState(false);
     const [renameModalVisible, setRenameModalVisible] = useState(false);
     const [wifiModalVisible, setWifiModalVisible] = useState(false)
+    const [wifiSnackText, setWifiSnackText] = useState('')
     const [deviceName, setDeviceName] = useState('');
     const [deviceId, setDeviceId] = useState('');
     const [threshold, setThreshold] = useState(0);
@@ -41,6 +42,14 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, changeSt
     useEffect(() => {
         fetchDevices();
     }, []);
+
+    useEffect(() => {
+        if(ble.status === "lost connection" && wifiModalVisible){
+            toggleWifiModal()
+            setWifiSnackText('Lost bluetooth connection.')
+            toggleWifiSnack()
+        }
+    }, [ble.status])
 
     const toggleMenu = (index) => {
         if(index >= 0){
@@ -74,7 +83,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, changeSt
     };
 
     const wifiResetModalContent = () => {
-        return <WifiReset startScan={startScan} deviceId={deviceId} toggleModal={toggleWifiResetModalVisible} handleSetUpWifi={handleSetUpWifi} changeStatus={changeStatus} ble={ble} />
+        return <WifiReset startScan={startScan} stopScan={stopScan} deviceId={deviceId} toggleModal={toggleWifiResetModalVisible} handleSetUpWifi={handleSetUpWifi} changeStatus={changeStatus} ble={ble} />
     }
 
     const thresholdModalContent = () => {
@@ -218,7 +227,11 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, changeSt
             <CustomModal
                 visible={wifiModalVisible}
                 toggleModal={toggleWifiModal}
-                content={<WifiList toggleSnack={toggleWifiSnack} iosSsid={iosSsid} deviceName={deviceName} handleSubmit={(credentials) => {
+                content={<WifiList toggleSnack={ () => {
+                    setWifiSnackText("Network settings updated.")
+                    toggleWifiSnack()
+                }
+                } iosSsid={iosSsid} deviceName={deviceName} handleCancel={() => disconnect()} handleSubmit={(credentials) => {
                     sendWifiCharacteristic(credentials, null)
                 }} toggleModal={toggleWifiModal} />}
             />
@@ -233,7 +246,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, changeSt
                     },
                 }}
             >
-                Network settings updated.
+                {wifiSnackText}
             </Snackbar>
         </View>
     )
@@ -253,7 +266,7 @@ const HomeHeader = ({navigation}) => {
     )
 }
 
-const WifiReset = ({ deviceId, toggleModal, startScan, handleSetUpWifi, changeStatus, ble }) => {
+const WifiReset = ({ deviceId, toggleModal, startScan, stopScan, handleSetUpWifi, changeStatus, ble }) => {
     const [connecting, setConnecting] = useState(false)
     const [notFound, setNotFound] = useState(false)
 
@@ -266,8 +279,14 @@ const WifiReset = ({ deviceId, toggleModal, startScan, handleSetUpWifi, changeSt
     const closeModal = () => {
         changeStatus('')
         setNotFound(false);
+        stopScan("Cancelled scan");
         toggleModal()
     }
+
+    useEffect(() => {
+        changeStatus('')
+        setNotFound(false);
+    }, [])
 
     useEffect(() => {
         if(ble.status === "Stopped scan"){
@@ -428,7 +447,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ fetchDevices, renameDevice, startScan, sendWifiCharacteristic, changeStatus }, dispatch)
+    return bindActionCreators({ fetchDevices, renameDevice, startScan, stopScan, sendWifiCharacteristic, changeStatus, disconnect }, dispatch)
 };
 
 export default connect(
