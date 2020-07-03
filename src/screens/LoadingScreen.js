@@ -10,7 +10,7 @@ const LoadingScreen = ({ ui }) => {
         <View style={{flex: 1,justifyContent: 'center', alignItems: 'center'}}>
             { ui.isConnected ? (
                 <>
-                    <Image style={{width: 120}} resizeMode="contain" source={require('../../assets/logo.png')} />
+                    <Image style={{width: "50%"}} resizeMode="contain" source={require('../../assets/logo.png')} />
                     <ActivityIndicator style={{position: 'absolute'}} size="large" color={theme.COLOR_LIGHTGREY} />
                 </>
             ) : (
