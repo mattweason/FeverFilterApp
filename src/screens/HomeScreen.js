@@ -183,29 +183,29 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     return(
         <View style={styles.container}>
             <HomeHeader navigation={navigation} />
-            <ScrollView contentContainerStyle={styles.container}>
-                { device.fetchDevicesRequest ? (
-                    <View style={styles.centerContent}>
-                        <View style={styles.loading}>
-                            <ActivityIndicator size="large" color={theme.COLOR_PRIMARY} />
-                            <Text style={styles.loadingText}>Loading</Text>
-                        </View>
+            { device.fetchDevicesRequest ? (
+                <View style={styles.centerContent}>
+                    <View style={styles.loading}>
+                        <ActivityIndicator size="large" color={theme.COLOR_PRIMARY} />
+                        <Text style={styles.loadingText}>Loading</Text>
                     </View>
-                ) : device.devices && auth.user ? (
-                    <View style={styles.mainContent}>
+                </View>
+            ) : device.devices && auth.user ? (
+                    <ScrollView contentContainerStyle={styles.scrollContainer}>
+                        <View style={styles.mainContent}>
                         { renderDevices() }
-                    </View>
-                ) : (
-                    <View style={styles.centerContent}>
-                        <Text style={[template.smallText, {width: '80%', marginBottom: 24, textAlign: 'center'}]}>
-                            You currently have no FeverFilter devices
-                            set up. Click Add New FeverFilter below
-                            to get started!
-                        </Text>
-                        <PrimaryButton icon="plus" title="Add New FeverFilter" onPress={() => navigation.navigate('NewDevice')} />
-                    </View>
-                )}
-            </ScrollView>
+                        </View>
+                    </ScrollView>
+            ) : (
+                <View style={styles.centerContent}>
+                    <Text style={[template.smallText, {width: '80%', marginBottom: 24, textAlign: 'center'}]}>
+                        You currently have no FeverFilter devices
+                        set up. Click Add New FeverFilter below
+                        to get started!
+                    </Text>
+                    <PrimaryButton icon="plus" title="Add New FeverFilter" onPress={() => navigation.navigate('NewDevice')} />
+                </View>
+            )}
             <CustomModal
                 visible={wifiResetModalVisible}
                 toggleModal={toggleWifiResetModalVisible}
@@ -337,6 +337,10 @@ const WifiStatus = ({strength}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1
+    },
+    scrollContainer: {
+        height: "auto",
+        paddingBottom: 48
     },
     homeHeader: {
         height: 120,
