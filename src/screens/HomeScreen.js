@@ -229,6 +229,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                 toggleModal={toggleWifiModal}
                 content={<WifiList toggleSnack={ () => {
                     setWifiSnackText("Network settings updated.")
+                    disconnect()
                     toggleWifiSnack()
                 }
                 } iosSsid={iosSsid} deviceName={deviceName} handleCancel={() => disconnect()} handleSubmit={(credentials) => {
