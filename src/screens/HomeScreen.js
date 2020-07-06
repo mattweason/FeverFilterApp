@@ -7,7 +7,7 @@ import IconToggle from "../components/IconToggle";
 import WifiIcon from "../components/WifiIcon";
 import theme from '../styles/theme.styles'
 import template from '../styles/styles'
-import {FontAwesome, MaterialCommunityIcons} from '@expo/vector-icons'
+import {FontAwesome} from '@expo/vector-icons'
 import {fetchDevices, renameDevice} from "../actions/deviceActions";
 import {startScan, sendWifiCharacteristic, changeStatus, disconnect, stopScan} from "../actions/bleActions";
 import {bindActionCreators} from "redux";

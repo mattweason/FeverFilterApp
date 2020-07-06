@@ -10,7 +10,10 @@ import {
     RENAME_DEVICE_FAILURE,
     UPDATE_THRESHOLD_REQUEST,
     UPDATE_THRESHOLD_SUCCESS,
-    UPDATE_THRESHOLD_FAILURE
+    UPDATE_THRESHOLD_FAILURE,
+    ADD_ISSUE_REQUEST,
+    ADD_ISSUE_SUCCESS,
+    ADD_ISSUE_FAILURE
 } from "../actions/deviceActions";
 
 export default (state = {}, action) => {
@@ -92,6 +95,25 @@ export default (state = {}, action) => {
                 updateThresholdRequest: false,
                 updateThresholdFailure: true,
             };
+        case ADD_ISSUE_REQUEST:
+            return {
+                ...state,
+                addIssueRequest: true,
+                addIssueFailure: false,
+                addIssueSuccess: false
+            }
+        case ADD_ISSUE_SUCCESS:
+            return{
+                ...state,
+                addIssueRequest: false,
+                addIssueSuccess: true
+            }
+        case ADD_ISSUE_FAILURE:
+            return{
+                ...state,
+                addIssueRequest: false,
+                addIssueFailure: true
+            }
         default:
             return state
     }

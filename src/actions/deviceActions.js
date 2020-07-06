@@ -16,6 +16,10 @@ export const UPDATE_THRESHOLD_REQUEST = "UPDATE_THRESHOLD_REQUEST";
 export const UPDATE_THRESHOLD_SUCCESS = "UPDATE_THRESHOLD_SUCCESS";
 export const UPDATE_THRESHOLD_FAILURE = "UPDATE_THRESHOLD_FAILURE";
 
+export const ADD_ISSUE_REQUEST = "ADD_ISSUE_REQUEST";
+export const ADD_ISSUE_SUCCESS = "ADD_ISSUE_SUCCESS";
+export const ADD_ISSUE_FAILURE = "ADD_ISSUE_FAILURE";
+
 const fetchDevicesRequest = () => {
     return {
         type: FETCH_DEVICES_REQUEST
@@ -86,6 +90,24 @@ const updateThresholdSuccess = () => {
 const updateThresholdFailure = () => {
     return {
         type: UPDATE_THRESHOLD_FAILURE
+    }
+}
+
+const addIssueRequest = () => {
+    return {
+        type: ADD_ISSUE_REQUEST
+    }
+}
+
+const addIssueSuccess = () => {
+    return {
+        type: ADD_ISSUE_SUCCESS
+    }
+}
+
+const addIssueFailure = () => {
+    return {
+        type: ADD_ISSUE_FAILURE
     }
 }
 
@@ -169,5 +191,23 @@ export const updateThreshold = (deviceId, threshold, toggleModal) => dispatch =>
     }).catch(err => {
         console.log(err)
         dispatch(updateThresholdFailure())
+    })
+}
+
+export const addNewIssue = (title, content, toggleModal) => (dispatch, getState) => {
+    dispatch(addIssueRequest())
+
+    const {uid, name, email, phone} = getState().auth.user;
+
+    const issueRef = firestore().collection('issueReports').doc()
+
+    issueRef.set({title, content, uid, name, email, phone,
+        timestamp: firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        dispatch(addIssueSuccess())
+        toggleModal("success")
+    }).catch(err => {
+        console.log(err)
+        dispatch(addIssueFailure())
     })
 }

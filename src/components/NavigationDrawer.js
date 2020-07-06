@@ -1,13 +1,39 @@
-import React from 'react';
-import {Image, ScrollView, View, StyleSheet, Dimensions, Text, Platform, Linking, StatusBar } from 'react-native';
-import { TouchableRipple } from "react-native-paper";
+import React, { useState } from 'react';
+import {Image, ScrollView, View, StyleSheet, Text, Linking } from 'react-native';
+import {Snackbar, TouchableRipple} from "react-native-paper";
 import { MaterialCommunityIcons, Feather, FontAwesome } from "@expo/vector-icons";
 import theme from '../styles/theme.styles'
 import {connect} from "react-redux";
 import InAppBrowser from 'react-native-inappbrowser-reborn'
 import IconToggle from './IconToggle'
+import CustomModal from "./CustomModal";
+import ReportIssueForm from "./ReportIssueForm"
+import {addNewIssue, fetchDevices, renameDevice} from "../actions/deviceActions";
+import {bindActionCreators} from "redux";
+import {changeStatus, disconnect, sendWifiCharacteristic, startScan, stopScan} from "../actions/bleActions";
 
-const NavigationDrawer = ({auth, navigation, state}) => {
+const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
+    const [issueModalVisible, setIssueModalVisible] = useState(false);
+    const [issueSnackVisible, setIssueSnackVisible] = useState(false)
+
+    const toggleIssueSnack = () => {
+        setIssueSnackVisible(!issueSnackVisible)
+    }
+
+    const toggleIssueModal = (message) => {
+        setIssueModalVisible(!issueModalVisible);
+
+        if(message === "success")
+            toggleIssueSnack()
+    }
+
+    const issueModalContent = () => {
+        return <ReportIssueForm handleSubmit={handleIssueSubmit} toggleModal={toggleIssueModal} />
+    }
+
+    const handleIssueSubmit = (title, content) => {
+        addNewIssue(title, content, toggleIssueModal)
+    }
 
     const getActiveRouteName = () => {
         const route = state.routes[state?.index || 0];
@@ -51,7 +77,7 @@ const NavigationDrawer = ({auth, navigation, state}) => {
             title: "Report Issues",
             key: null,
             icon: "alert-triangle",
-            action: () => {}
+            action: () => toggleIssueModal()
         },
     ];
 
@@ -116,7 +142,7 @@ const NavigationDrawer = ({auth, navigation, state}) => {
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.drawerHeader}>
                 <FontAwesome style={{color: 'white', fontSize: 36, marginRight: 12}} name="user-circle"/>
                 {auth.user ? (
@@ -135,6 +161,27 @@ const NavigationDrawer = ({auth, navigation, state}) => {
                 <Image style={{width: 160, height: 100}} resizeMode="contain" source={require('../../assets/logo.png')} />
             </View>
             { renderItems() }
+
+            <CustomModal
+                visible={issueModalVisible}
+                toggleModal={toggleIssueModal}
+                title="Report an Issue"
+                content={issueModalContent()}
+            />
+            <Snackbar
+                style={{}}
+                visible={issueSnackVisible}
+                onDismiss={() => toggleIssueSnack()}
+                duration={3000}
+                action={{
+                    label: "Ok",
+                    onPress: () => {
+                        toggleIssueSnack(false)
+                    },
+                }}
+            >
+                Issue reported.
+            </Snackbar>
         </ScrollView>
     )
 };
@@ -224,7 +271,12 @@ const mapStateToProps = state => {
     }
 };
 
+
+const mapDispatchToProps = dispatch => {
+    return bindActionCreators({ addNewIssue }, dispatch)
+};
+
 export default React.memo(connect(
     mapStateToProps,
-    null
+    mapDispatchToProps
 )(NavigationDrawer));
