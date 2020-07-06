@@ -142,32 +142,34 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <View style={styles.drawerHeader}>
-                <FontAwesome style={{color: 'white', fontSize: 36, marginRight: 12}} name="user-circle"/>
-                {auth.user ? (
-                    <View>
-                        <Text style={{fontFamily: 'Montserrat-bold', fontSize: 18, color: 'white'}}>{auth.user.name}</Text>
-                        <Text style={{fontFamily: "Lato", color: 'white'}}>{auth.user.email}</Text>
+        <View>
+            <ScrollView contentContainerStyle={styles.container}>
+                <View style={styles.drawerHeader}>
+                    <FontAwesome style={{color: 'white', fontSize: 36, marginRight: 12}} name="user-circle"/>
+                    {auth.user ? (
+                        <View>
+                            <Text style={{fontFamily: 'Montserrat-bold', fontSize: 18, color: 'white'}}>{auth.user.name}</Text>
+                            <Text style={{fontFamily: "Lato", color: 'white'}}>{auth.user.email}</Text>
+                        </View>
+                    ) : null}
+                    <View style={styles.closeDrawer}>
+                        <IconToggle onPress={() => navigation.closeDrawer()}>
+                            <FontAwesome style={{color: '#fff', fontSize: 18}} name="arrow-left"/>
+                        </IconToggle>
                     </View>
-                ) : null}
-                <View style={styles.closeDrawer}>
-                    <IconToggle onPress={() => navigation.closeDrawer()}>
-                        <FontAwesome style={{color: '#fff', fontSize: 18}} name="arrow-left"/>
-                    </IconToggle>
                 </View>
-            </View>
-            <View style={styles.subHeader}>
-                <Image style={{width: 160, height: 100}} resizeMode="contain" source={require('../../assets/logo.png')} />
-            </View>
-            { renderItems() }
+                <View style={styles.subHeader}>
+                    <Image style={{width: 160, height: 100}} resizeMode="contain" source={require('../../assets/logo.png')} />
+                </View>
+                { renderItems() }
 
-            <CustomModal
-                visible={issueModalVisible}
-                toggleModal={toggleIssueModal}
-                title="Report an Issue"
-                content={issueModalContent()}
-            />
+                <CustomModal
+                    visible={issueModalVisible}
+                    toggleModal={toggleIssueModal}
+                    title="Report an Issue"
+                    content={issueModalContent()}
+                />
+            </ScrollView>
             <Snackbar
                 style={{}}
                 visible={issueSnackVisible}
@@ -182,7 +184,7 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
             >
                 Issue reported.
             </Snackbar>
-        </ScrollView>
+        </View>
     )
 };
 
