@@ -236,18 +236,21 @@ export const sendWifiCharacteristic = (credentials, deviceToken) => {
                     let wifiNote = response.substr(0,1);
                     if(wifiNote === "1"){
 
-                        //Signal process successfully completed
-                        dispatch(changeStatus('CharacteristicReceived'))
-                        dispatch(newDeviceReady(true))
-                        clearInterval(interval)
+                        //Make sure we have disconnected and reconnected
+                        if(count > 6) {
+                            //Signal process successfully completed
+                            dispatch(changeStatus('CharacteristicReceived'))
+                            dispatch(newDeviceReady(true))
+                            clearInterval(interval)
+                        }
                     } else {
-                        if(count === 6){
+                        if(count === 18){
                             clearInterval(interval)
                             dispatch(changeStatus('CharacteristicFailed'))
                         }
                     }
                 })
-            }, 3000)
+            }, 1000)
         }
     }
 }
