@@ -10,7 +10,6 @@ import CustomModal from "./CustomModal";
 import ReportIssueForm from "./ReportIssueForm"
 import {addNewIssue, fetchDevices, renameDevice} from "../actions/deviceActions";
 import {bindActionCreators} from "redux";
-import {changeStatus, disconnect, sendWifiCharacteristic, startScan, stopScan} from "../actions/bleActions";
 
 const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     const [issueModalVisible, setIssueModalVisible] = useState(false);
@@ -142,8 +141,8 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     };
 
     return (
-        <View>
-            <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.drawerHeader}>
                     <FontAwesome style={{color: 'white', fontSize: 36, marginRight: 12}} name="user-circle"/>
                     {auth.user ? (
@@ -191,6 +190,10 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    scrollContainer: {
+        height: "auto",
+        paddingBottom: 48
     },
     drawerHeader: {
         width: '100%',

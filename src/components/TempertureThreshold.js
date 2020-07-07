@@ -8,8 +8,8 @@ import {bindActionCreators} from "redux";
 import {updateThreshold} from "../actions/deviceActions";
 
 const windowHeight = Dimensions.get('window').height;
-const maxTempC = 37.5;
-const maxTempF = 99.5;
+const maxTempC = 38;
+const maxTempF = 100.5;
 const sliderHeight = windowHeight - windowHeight*0.4;
 
 //Convert temperature to fahrenheit
@@ -27,10 +27,10 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
     const [tickHeight, setTickHeight] = useState(0)
 
     const maxTemp = auth.user.degreeUnit === "celsius" ? maxTempC : maxTempF;
-    const segment = auth.user.degreeUnit === "celsius" ? 35 : 65;
+    const segment = auth.user.degreeUnit === "celsius" ? 20 : 40;
 
-    const recommendedMarginTop = auth.user.degreeUnit === "celsius" ? (tickHeight*14+segment) : (tickHeight*19+segment-1)
-    const recommendedHeight = auth.user.degreeUnit === "celsius" ? (tickHeight*4+1) : (tickHeight*7+1)
+    const recommendedMarginTop = auth.user.degreeUnit === "celsius" ? (tickHeight*5+35) : (tickHeight*10+35)
+    const recommendedHeight = auth.user.degreeUnit === "celsius" ? (tickHeight*5+1) : (tickHeight*9+1)
 
     const handleThresholdUpdate = (step) => {
         const currentTemp = maxTemp - (0.1*step);
@@ -87,7 +87,7 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
                 <View style={[styles.recommended, {height: recommendedHeight, marginTop: recommendedMarginTop, marginLeft: "-8%"}]}>
                     <Text style={styles.recommendedText}>RECOMMENDED</Text>
                 </View>
-                <View style={{position: 'absolute', right: "5%", top: "12%", alignItems: 'center'}}>
+                <View style={{position: 'absolute', width: "50%", right: 0, top: "8%", alignItems: 'center'}}>
                     <View style={{flexDirection: 'row'}}>
                         <Text style={styles.temperature}>{ threshold }</Text>
                         <Text style={styles.degree}>{'\u00b0'}{ auth.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
