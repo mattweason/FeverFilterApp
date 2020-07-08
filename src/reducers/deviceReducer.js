@@ -13,7 +13,8 @@ import {
     UPDATE_THRESHOLD_FAILURE,
     ADD_ISSUE_REQUEST,
     ADD_ISSUE_SUCCESS,
-    ADD_ISSUE_FAILURE
+    ADD_ISSUE_FAILURE,
+    UPDATE_WIFI_STATE
 } from "../actions/deviceActions";
 
 export default (state = {}, action) => {
@@ -113,6 +114,15 @@ export default (state = {}, action) => {
                 ...state,
                 addIssueRequest: false,
                 addIssueFailure: true
+            }
+        case UPDATE_WIFI_STATE:
+            return{
+                ...state,
+                devices: state.devices.map(device => device.deviceId === action.deviceId ?
+                    { ...device, wifiState: action.wifiState } :
+                    device
+                )
+
             }
         default:
             return state

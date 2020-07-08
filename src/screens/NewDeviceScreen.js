@@ -187,7 +187,6 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                             visible={wifiModalVisible}
                             toggleModal={toggleWifiModal}
                             content={<WifiList iosSsid={iosSsid} deviceName={deviceName} handleSubmit={(credentials) => {
-                                console.log(credentials)
                                 sendWifiCharacteristic(credentials, deviceToken)
                             }} toggleModal={toggleWifiModal} />}
                         />

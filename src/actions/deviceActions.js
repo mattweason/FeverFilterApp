@@ -20,6 +20,8 @@ export const ADD_ISSUE_REQUEST = "ADD_ISSUE_REQUEST";
 export const ADD_ISSUE_SUCCESS = "ADD_ISSUE_SUCCESS";
 export const ADD_ISSUE_FAILURE = "ADD_ISSUE_FAILURE";
 
+export const UPDATE_WIFI_STATE =  "UPDATE_WIFI_STATE";
+
 const fetchDevicesRequest = () => {
     return {
         type: FETCH_DEVICES_REQUEST
@@ -111,7 +113,7 @@ const addIssueFailure = () => {
     }
 }
 
-export const fetchDevices = () => async (dispatch, getState) => {
+export const fetchDevices = (deviceId = '') => async (dispatch, getState) => {
     dispatch(fetchDevicesRequest())
     const uid = getState().auth.user.uid;
 
@@ -122,8 +124,11 @@ export const fetchDevices = () => async (dispatch, getState) => {
 
         for (let i = 0; i < userData.devices.length; i++){
             const deviceDoc = await userData.devices[i].get();
-            if(deviceDoc._data)
+            if(deviceDoc._data){
                 devices.push(deviceDoc._data);
+                if(deviceId)
+                    dispatch(watchWifiState(deviceId))
+            }
         }
 
         if (!devices.length)
@@ -153,7 +158,7 @@ export const addDevice = (deviceId, deviceName, deviceToken, navigation) => (dis
             devices: firestore.FieldValue.arrayUnion(deviceRef)
         }).then(() => {
             dispatch(addDeviceSuccess())
-            dispatch(fetchDevices());
+            dispatch(fetchDevices(deviceId));
             navigation.goBack(null);
         })
     }).catch(err => {
@@ -210,4 +215,27 @@ export const addNewIssue = (title, content, toggleModal) => (dispatch, getState)
         console.log(err)
         dispatch(addIssueFailure())
     })
+}
+
+export const watchWifiState = (deviceId) => dispatch => {
+    let unsubscribeWifiListener = firestore().collection("devices").doc(deviceId)
+        .onSnapshot(function(doc) {
+            let data = doc.data();
+            if(data.wifiState !== null){
+                dispatch(updateWifiState(data.wifiState, deviceId))
+                unsubscribe()
+            }
+        });
+
+    function unsubscribe() {
+        unsubscribeWifiListener();
+    }
+}
+
+const updateWifiState = (wifiState, deviceId) => {
+    return {
+        type: UPDATE_WIFI_STATE,
+        wifiState,
+        deviceId
+    }
 }
