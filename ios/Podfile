@@ -7,6 +7,7 @@ target 'feverfilter' do
   rnPrefix = "../node_modules/react-native"
 
   # React Native and its dependencies
+  pod 'Firebase/Analytics'
   pod 'FBLazyVector', :path => "#{rnPrefix}/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "#{rnPrefix}/Libraries/FBReactNativeSpec"
   pod 'RCTRequired', :path => "#{rnPrefix}/Libraries/RCTRequired"
@@ -36,7 +37,7 @@ target 'feverfilter' do
   pod 'glog', :podspec => "#{rnPrefix}/third-party-podspecs/glog.podspec"
   pod 'Folly', :podspec => "#{rnPrefix}/third-party-podspecs/Folly.podspec"
 
-  use_frameworks!
+  # use_frameworks!
   pod 'RNInputMask', :path => '../node_modules/react-native-text-input-mask/ios/InputMask'
 
 

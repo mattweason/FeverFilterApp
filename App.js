@@ -64,6 +64,7 @@ export default App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
     const onAuthStateChanged = async (user) => {
+        console.log(user)
         if(user){
             setTimeout(async () => {
                 const userDoc = await firestore().collection('accounts').doc(user.uid).get();
@@ -78,6 +79,7 @@ export default App = () => {
             if(!appReady) setAppReady(true);
         }
         SplashScreen.hide();
+
     }
 
     useEffect(() => {
@@ -112,6 +114,7 @@ export default App = () => {
 
             const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
         }
+        SplashScreen.hide();
 
         initApp()
 

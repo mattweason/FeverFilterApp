@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         marginBottom: 12
     },
     text: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Lato',
         color: theme.COLOR_PRIMARY,
         fontSize: 14,
         textAlign: 'center'

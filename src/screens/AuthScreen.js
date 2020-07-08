@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
         paddingBottom: 48
     },
     loginButton: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Lato',
         fontSize: 18,
         color: theme.COLOR_PRIMARY
     },
