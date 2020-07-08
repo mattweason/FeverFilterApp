@@ -92,7 +92,7 @@ const AuthScreen = ({ navigation, signIn, signUp, resetPasswordEmail }) => {
 
     return (
         <>
-            <SafeAreaView style={{backgroundColor: theme.COLOR_PRIMARY, flex: 1}} forceInset={{top: 'always', bottom: 'never'}}>
+            <View style={{backgroundColor: theme.COLOR_PRIMARY, flex: 1}}>
                 <KeyboardShift>
                     {(shiftUI) => (
                         <View style={{backgroundColor: '#fff', flex: 1, minHeight: Platform.OS === "android" ? Dimensions.get('window').height - StatusBar.currentHeight : Dimensions.get('window').height}}>
@@ -137,7 +137,7 @@ const AuthScreen = ({ navigation, signIn, signUp, resetPasswordEmail }) => {
                         </View>
                     )}
                 </KeyboardShift>
-            </SafeAreaView>
+            </View>
         </>
 
     )

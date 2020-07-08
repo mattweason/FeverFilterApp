@@ -337,7 +337,7 @@ const WifiStatus = ({strength}) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
     },
     scrollContainer: {
         height: "auto",

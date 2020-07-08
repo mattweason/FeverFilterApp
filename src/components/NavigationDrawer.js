@@ -88,7 +88,7 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
                     // iOS Properties
                     dismissButtonStyle: 'cancel',
                     preferredBarTintColor: theme.COLOR_PRIMARY,
-                    preferredControlTintColor: theme.COLOR_PRIMARY,
+                    preferredControlTintColor: "#fff",
                     readerMode: false,
                     animated: false,
                     modalPresentationStyle: 'fullScreen',
