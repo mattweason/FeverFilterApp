@@ -64,7 +64,6 @@ export default App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
     const onAuthStateChanged = async (user) => {
-        console.log(user)
         if(user){
             setTimeout(async () => {
                 const userDoc = await firestore().collection('accounts').doc(user.uid).get();

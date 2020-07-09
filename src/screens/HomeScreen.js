@@ -298,7 +298,10 @@ const WifiReset = ({ deviceId, toggleModal, startScan, stopScan, handleSetUpWifi
         }
         if(ble.status === "Listening"){
             closeModal()
-            handleSetUpWifi()
+            //on iOS opening a new modal too quickly causes the new modal to be invisible
+            setTimeout(() => {
+                handleSetUpWifi()
+            }, 500)
         }
     }, [ble.status])
 
