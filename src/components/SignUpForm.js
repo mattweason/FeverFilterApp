@@ -69,7 +69,7 @@ const SignUpForm = ({shiftUI, onSubmit, style, auth}) => {
                         returnKeyType = {"next"}
                         input={input => phoneRef = input}
                         onSubmitEditing={() => {emailRef.focus()}}
-                        onFocus={() => shiftUI(null)}
+                        focusHandler={() => shiftUI(null)}
                         blurOnSubmit={false}
                         onBlur={() => setFieldTouched('phone')}
                         autoCapitalize="none"
@@ -86,7 +86,7 @@ const SignUpForm = ({shiftUI, onSubmit, style, auth}) => {
                         returnKeyType = {"next"}
                         input={input => emailRef = input}
                         onSubmitEditing={() => passwordInput.focus()}
-                        onFocus={() => shiftUI(null)}
+                        focusHandler={() => shiftUI(null)}
                         blurOnSubmit={false}
                         onBlur={() => setFieldTouched('email')}
                         autoCapitalize="none"
