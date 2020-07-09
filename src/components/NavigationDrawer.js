@@ -10,10 +10,12 @@ import CustomModal from "./CustomModal";
 import ReportIssueForm from "./ReportIssueForm"
 import {addNewIssue, fetchDevices, renameDevice} from "../actions/deviceActions";
 import {bindActionCreators} from "redux";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     const [issueModalVisible, setIssueModalVisible] = useState(false);
-    const [issueSnackVisible, setIssueSnackVisible] = useState(false)
+    const [issueSnackVisible, setIssueSnackVisible] = useState(false);
+    const insets = useSafeAreaInsets()
 
     const toggleIssueSnack = () => {
         setIssueSnackVisible(!issueSnackVisible)
@@ -143,7 +145,7 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <View style={styles.drawerHeader}>
+                <View style={[styles.drawerHeader, {paddingTop: insets.top, height: 120 + insets.top}]}>
                     <FontAwesome style={{color: 'white', fontSize: 36, marginRight: 12}} name="user-circle"/>
                     {auth.user ? (
                         <View>
@@ -201,6 +203,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.COLOR_PRIMARY,
         flexDirection: 'row',
         alignItems: 'flex-end',
+        justifyContent: 'space-between',
         padding: 12
     },
     subHeader: {
@@ -211,9 +214,9 @@ const styles = StyleSheet.create({
         borderColor: theme.COLOR_LIGHTGREY,
     },
     closeDrawer: {
-        position: 'absolute',
+        position: 'relative',
         right: 12,
-        top: 30
+        top: -48
     },
     image: {
         width: "100%",

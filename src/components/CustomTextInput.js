@@ -6,7 +6,7 @@ import theme from '../styles/theme.styles'
 import {Ionicons} from "@expo/vector-icons";
 import TextInputMask from 'react-native-text-input-mask';
 
-const CustomTextInput = ({ type, error, disabled, input, ...props }) => {
+const CustomTextInput = ({ type, error, disabled, input, focusHandler, ...props }) => {
     const [hidePassword, setHidePassword] = useState(type === 'password');
 
     const showPassword = () => {
@@ -29,6 +29,7 @@ const CustomTextInput = ({ type, error, disabled, input, ...props }) => {
                     editable={!disabled}
                     error={error}
                     theme={{ colors: { primary: theme.COLOR_PRIMARY, error: theme.COLOR_SECONDARY}}}
+                    onFocus={focusHandler}
                     render={props =>
                         <TextInputMask
                             {...props}
@@ -46,6 +47,7 @@ const CustomTextInput = ({ type, error, disabled, input, ...props }) => {
                     ref={input}
                     error={error}
                     theme={{ colors: { primary: theme.COLOR_PRIMARY, error: theme.COLOR_SECONDARY}}}
+                    onFocus={focusHandler}
                 />
             )}
             { error ? <Text style={styles.error}>{error}</Text> : null }

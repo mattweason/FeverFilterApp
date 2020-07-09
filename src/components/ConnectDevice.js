@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        marginHorizontal: 36
+        marginHorizontal: 36,
     },
     logo: {
         width: 120,

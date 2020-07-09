@@ -6,7 +6,7 @@ import theme from '../styles/theme.styles'
 const PrimaryButton = ({ title, icon, onPress, small, mode, style, disabled, loading }) => {
     return(
         <Button
-            labelStyle={small ? styles.small : styles.label }
+            labelStyle={small ? [styles.small] : [styles.label] }
             style={[styles.button, style, small && styles.smallButton]}
             contentStyle={small ? {height: 40} : {height: 50}}
             icon={icon}
@@ -30,10 +30,12 @@ const styles = StyleSheet.create({
     },
     button: {
         borderRadius: 3,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        height: 50
     },
     smallButton: {
-        borderColor: '#fff'
+        borderColor: '#fff',
+        height: 40
     }
 });
 
