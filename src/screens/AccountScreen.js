@@ -183,7 +183,7 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
                             </View>
                         </View>
                         <View style={{paddingHorizontal: 24, paddingVertical: 12}}>
-                            <Text style={styles.settingsHeader}>Other</Text>
+                            {/*<Text style={styles.settingsHeader}>Other</Text>*/}
                             <View style={template.card}>
                                 {/*<TouchableRipple onPress={() => {}}>*/}
                                 {/*    <View style={styles.settingsItem}>*/}
