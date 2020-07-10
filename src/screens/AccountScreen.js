@@ -184,13 +184,13 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
                         <View style={{paddingHorizontal: 24, paddingVertical: 12}}>
                             <Text style={styles.settingsHeader}>Other</Text>
                             <View style={template.card}>
-                                <TouchableRipple onPress={() => {}}>
-                                    <View style={styles.settingsItem}>
-                                        <Text style={{fontFamily: 'Lato', fontSize: 16}}>About FeverFilter</Text>
-                                        <Feather style={{color: theme.COLOR_TEXT, fontSize: 20}} name="arrow-right"/>
-                                    </View>
-                                </TouchableRipple>
-                                <Divider />
+                                {/*<TouchableRipple onPress={() => {}}>*/}
+                                {/*    <View style={styles.settingsItem}>*/}
+                                {/*        <Text style={{fontFamily: 'Lato', fontSize: 16}}>About FeverFilter</Text>*/}
+                                {/*        <Feather style={{color: theme.COLOR_TEXT, fontSize: 20}} name="arrow-right"/>*/}
+                                {/*    </View>*/}
+                                {/*</TouchableRipple>*/}
+                                {/*<Divider />*/}
                                 <TouchableRipple onPress={toggleLogoutModal}>
                                     <View style={styles.settingsItem}>
                                         <Text style={{fontFamily: 'Lato', fontSize: 16}}>Logout</Text>
