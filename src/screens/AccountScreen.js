@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {View, StyleSheet, Text, ScrollView} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //Redux
 import {bindActionCreators} from "redux";
@@ -251,12 +252,13 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
 };
 
 const AccountHeader = ({navigation}) => {
+    const insets = useSafeAreaInsets()
     return(
-        <View style={styles.accountHeader}>
+        <View style={[styles.accountHeader, {height: 120 + insets.top}]}>
             <IconToggle onPress={() => navigation.openDrawer()}>
                 <FontAwesome style={styles.icon} name="navicon"/>
             </IconToggle>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', height: 40}}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', height: 40, marginTop: 12}}>
                 <Text style={[template.medHeader, {color: 'white', marginLeft: 12}]}>Account Settings</Text>
             </View>
         </View>
@@ -265,7 +267,7 @@ const AccountHeader = ({navigation}) => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white',
+        backgroundColor: theme.COLOR_BACKGROUND,
         flex: 1
     },
     content: {
@@ -280,7 +282,7 @@ const styles = StyleSheet.create({
         paddingTop: 30,
         paddingHorizontal: 12,
         paddingBottom: 12,
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end'
     },
     icon: {
         fontSize: 18,

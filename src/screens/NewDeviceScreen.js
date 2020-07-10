@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import {View, Image, StyleSheet, Dimensions, BackHandler, Platform, Alert, Text} from 'react-native';
-import BackButton from "../components/BackButton";
+import {View, StyleSheet, BackHandler, Platform, Alert, Text} from 'react-native';
 import ConnectDevice from "../components/ConnectDevice";
 import IconToggle from "../components/IconToggle";
 import PrimaryButton from "../components/PrimaryButton"
@@ -10,7 +9,6 @@ import CustomModal from "../components/CustomModal";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import { disconnect } from "../actions/bleActions";
-// import {addOto, addOtoReset} from "../actions/deviceActions";
 import {newDeviceReady} from "../actions/uiActions";
 import {sendWifiCharacteristic, clearConnectionError, scannedDeviceId} from "../actions/bleActions"
 import { addDevice} from "../actions/deviceActions";
@@ -20,6 +18,7 @@ import WifiList from "../components/WifiList";
 import * as Permissions from 'expo-permissions';
 import template from "../styles/styles";
 import theme from "../styles/theme.styles";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function makeId(length) {
     let result           = '';
@@ -43,6 +42,7 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
     const [iosSsid, setIosSsid] = useState('');
     const [deviceToken, setDeviceToken] = useState(makeId(12))
     const connectDevice = useRef();
+    const insets = useSafeAreaInsets()
 
     useEffect(() => {
         if(ble.status === "Listening" && active !== 2){
@@ -164,9 +164,9 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                                 setDeviceName={setDeviceName}
                                 setUpWifi={handleSetUpWifi} />
                         </View>
-                        <View style={styles.fabContainer}>
-                            <PrimaryButton disabled={device.addDeviceRequest} mode="text" style={{flex: 1}} title={'Cancel'} onPress={toggleCancelModal} />
-                            <PrimaryButton disabled={!ui.newDeviceReady || device.addDeviceRequest} style={{flex: 1, marginLeft: 12}} title={"Add Device"} loading={device.addDeviceRequest} onPress={() => {
+                        <View style={[styles.fabContainer, {paddingBottom: 16 + insets.bottom}]}>
+                            <PrimaryButton disabled={device.addDeviceRequest} mode="text" title={'Cancel'} onPress={toggleCancelModal} />
+                            <PrimaryButton disabled={!ui.newDeviceReady || device.addDeviceRequest} style={{marginLeft: 12}} title={"Add Device"} loading={device.addDeviceRequest} onPress={() => {
                                 addDevice(ble.scannedDeviceId, deviceName, deviceToken, navigation);
                             }} />
                         </View>
@@ -258,12 +258,13 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
 };
 
 const NewDeviceHeader = ({navigation, toggleCancelModal}) => {
+    const insets = useSafeAreaInsets()
     return(
-        <View style={styles.newDeviceHeader}>
+        <View style={[styles.newDeviceHeader, {paddingTop: insets.top, height: 120 + insets.top}]}>
             <IconToggle onPress={toggleCancelModal}>
                 <FontAwesome style={styles.icon} name="arrow-left"/>
             </IconToggle>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12}}>
                 <Text style={[template.medHeader, {color: '#fff', marginLeft: 12}]}>Add New Device</Text>
             </View>
         </View>
@@ -276,26 +277,24 @@ const styles = StyleSheet.create({
         flex: 1
     },
     newDeviceHeader: {
-        height: 120,
         width: "100%",
         backgroundColor: theme.COLOR_PRIMARY,
         paddingTop: 30,
         paddingHorizontal: 12,
         paddingBottom: 12,
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
     },
     scrollContainer: {
         marginTop: 12,
         flexDirection: 'column',
         justifyContent: 'center',
-        flex: 1
+        flex: 1,
     },
     fabContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginHorizontal: 36,
         marginBottom: 12,
-        flex: 1
     },
     icon: {
         fontSize: 24,

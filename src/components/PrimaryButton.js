@@ -6,8 +6,9 @@ import theme from '../styles/theme.styles'
 const PrimaryButton = ({ title, icon, onPress, small, mode, style, disabled, loading }) => {
     return(
         <Button
-            labelStyle={small ? styles.small : styles.label }
+            labelStyle={small ? [styles.small] : [styles.label] }
             style={[styles.button, style, small && styles.smallButton]}
+            contentStyle={small ? {height: 40} : {height: 50}}
             icon={icon}
             color={mode === 'outlined' ? '#fff' : theme.COLOR_SECONDARY}
             mode={mode}
@@ -29,12 +30,12 @@ const styles = StyleSheet.create({
     },
     button: {
         borderRadius: 3,
-        height: 50,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        height: 50
     },
     smallButton: {
-        height: 40,
-        borderColor: '#fff'
+        borderColor: '#fff',
+        height: 40
     }
 });
 

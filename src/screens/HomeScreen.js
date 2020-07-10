@@ -16,6 +16,7 @@ import TemperatureThreshold from "../components/TempertureThreshold";
 import RenameDeviceForm from "../components/RenameDeviceForm";
 import WifiList from "../components/WifiList";
 import NetInfo from "@react-native-community/netinfo";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //Convert temperature to fahrenheit
 const convertToF = (degree) => {
@@ -254,12 +255,13 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
 };
 
 const HomeHeader = ({navigation}) => {
+    const insets = useSafeAreaInsets()
     return(
-        <View style={styles.homeHeader}>
+        <View style={[styles.homeHeader, {paddingTop: insets.top, height: 120 + insets.top}]}>
             <IconToggle onPress={() => navigation.openDrawer()}>
                 <FontAwesome style={styles.icon} name="navicon"/>
             </IconToggle>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12}}>
                 <Text style={[template.medHeader, {color: '#fff', marginLeft: 12}]}>Your Devices</Text>
                 <PrimaryButton small icon="plus" mode="outlined" title="Add" onPress={() => navigation.navigate('NewDevice')}/>
             </View>
@@ -296,7 +298,10 @@ const WifiReset = ({ deviceId, toggleModal, startScan, stopScan, handleSetUpWifi
         }
         if(ble.status === "Listening"){
             closeModal()
-            handleSetUpWifi()
+            //on iOS opening a new modal too quickly causes the new modal to be invisible
+            setTimeout(() => {
+                handleSetUpWifi()
+            }, 500)
         }
     }, [ble.status])
 
@@ -337,20 +342,19 @@ const WifiStatus = ({strength}) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
     },
     scrollContainer: {
         height: "auto",
         paddingBottom: 48
     },
     homeHeader: {
-        height: 120,
         width: "100%",
         backgroundColor: theme.COLOR_PRIMARY,
         paddingTop: 30,
         paddingHorizontal: 12,
         paddingBottom: 12,
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
     },
     icon: {
         fontSize: 18,

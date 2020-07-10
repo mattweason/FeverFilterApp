@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        marginHorizontal: 36
+        marginHorizontal: 36,
     },
     logo: {
         width: 120,
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     },
     number: {
         fontSize: 20,
-        fontFamily: 'Roboto',
+        fontFamily: 'Lato',
         color: '#fff'
     },
     title: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     },
     successText: {
         marginLeft: 12,
-        fontFamily: 'Roboto-light',
+        fontFamily: 'Lato-light',
         fontSize: 16,
         color: theme.COLOR_PRIMARY
     }

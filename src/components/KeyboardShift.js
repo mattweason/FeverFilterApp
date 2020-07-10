@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, Dimensions, Keyboard, StyleSheet, TextInput, UIManager, ScrollView } from 'react-native';
+import { Animated, Dimensions, Keyboard, StyleSheet, TextInput, UIManager, ScrollView, Platform } from 'react-native';
 
 const { State: TextInputState } = TextInput;
 
@@ -48,7 +48,10 @@ class KeyboardShift extends React.PureComponent {
                     const gap = (windowHeight - this.state.keyboardHeight) - (fieldTop + fieldHeight + 24);
 
                     //Add to shift value if pressing next input button
-                    const shiftValue = this.state.shiftValue >= 0 ? gap : this.state.shiftValue + gap;
+                    let shiftValue = this.state.shiftValue >= 0 ? gap : this.state.shiftValue + gap;
+
+                    if(Platform.OS === "ios")
+                        shiftValue -= 26;
 
                     //UI should only shift down
                     if (gap >= 0) {

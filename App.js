@@ -78,6 +78,7 @@ export default App = () => {
             if(!appReady) setAppReady(true);
         }
         SplashScreen.hide();
+
     }
 
     useEffect(() => {
@@ -112,6 +113,7 @@ export default App = () => {
 
             const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
         }
+        SplashScreen.hide();
 
         initApp()
 

@@ -3,7 +3,8 @@ import {View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, StatusBar, 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { signUp, signIn, resetPasswordEmail } from '../actions/authActions';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 //Component imports
 import KeyboardShift from '../components/KeyboardShift';
@@ -31,6 +32,7 @@ const AuthScreen = ({ navigation, signIn, signUp, resetPasswordEmail }) => {
     const [resetModalVisible, setResetModalVisible] = useState(false)
     const [resetSuccessModalVisible, setResetSuccessModalVisible] = useState(false)
     const [visible, setVisible] = useState(true);
+    const insets = useSafeAreaInsets();
 
     //Toggle login vs signup content
     useEffect(() => {
@@ -92,10 +94,10 @@ const AuthScreen = ({ navigation, signIn, signUp, resetPasswordEmail }) => {
 
     return (
         <>
-            <SafeAreaView style={{backgroundColor: theme.COLOR_PRIMARY, flex: 1}} forceInset={{top: 'always', bottom: 'never'}}>
+            <View style={{backgroundColor: theme.COLOR_PRIMARY, flex: 1}}>
                 <KeyboardShift>
                     {(shiftUI) => (
-                        <View style={{backgroundColor: '#fff', flex: 1, minHeight: Platform.OS === "android" ? Dimensions.get('window').height - StatusBar.currentHeight : Dimensions.get('window').height}}>
+                        <View style={{backgroundColor: '#fff', flex: 1, paddingBottom: insets.bottom, minHeight: Platform.OS === "android" ? Dimensions.get('window').height - StatusBar.currentHeight : Dimensions.get('window').height - (insets.top + insets.bottom)}}>
                             <AuthHeader />
                             <Fade style={[styles.container, authType.type === "signup" ? {marginTop: 90} : {marginTop: 40}]} duration={duration} visible={visible}>
                                 <View>
@@ -137,15 +139,16 @@ const AuthScreen = ({ navigation, signIn, signUp, resetPasswordEmail }) => {
                         </View>
                     )}
                 </KeyboardShift>
-            </SafeAreaView>
+            </View>
         </>
 
     )
 };
 
 const AuthHeader = () => {
+    const insets = useSafeAreaInsets();
     return (
-        <View style={styles.authHeader}>
+        <View style={[styles.authHeader, {paddingTop: insets.top}]}>
             <Image style={styles.device} resizeMode="contain" source={require('../../assets/fever-filter-device.png')} />
             <Image style={styles.logo} resizeMode="contain" source={require('../../assets/logo.png')} />
         </View>
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
         paddingBottom: 48
     },
     loginButton: {
-        fontFamily: 'Roboto',
+        fontFamily: 'Lato',
         fontSize: 18,
         color: theme.COLOR_PRIMARY
     },
