@@ -17,6 +17,9 @@ import RenameDeviceForm from "../components/RenameDeviceForm";
 import WifiList from "../components/WifiList";
 import NetInfo from "@react-native-community/netinfo";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import messaging from "@react-native-firebase/messaging";
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 
 //Convert temperature to fahrenheit
 const convertToF = (degree) => {
@@ -27,7 +30,7 @@ const roundToDec = (input) => {
     return Math.round(input*10) / 10
 }
 
-const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan, changeStatus, sendWifiCharacteristic, device, auth, ble, disconnect}) => {
+const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan, changeStatus, sendWifiCharacteristic, device, authStore, ble, disconnect}) => {
     const [menuVisible, setMenuVisible] = useState(-1)
     const [wifiSnackVisible, setWifiSnackVisible] = useState(false)
     const [wifiResetModalVisible, setWifiResetModalVisible] = useState(false);
@@ -40,8 +43,33 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     const [threshold, setThreshold] = useState(0);
     const [iosSsid, setIosSsid] = useState('');
 
+    async function saveTokenToDatabase(token) {
+
+        const uid = auth().currentUser.uid;
+
+        // Add the token to the users datastore
+        await firestore()
+            .collection('accounts')
+            .doc(uid)
+            .update({
+                tokens: firestore.FieldValue.arrayUnion(token),
+            });
+    }
+
     useEffect(() => {
         fetchDevices();
+
+        // Get the device token
+        messaging()
+            .getToken()
+            .then(token => {
+                return saveTokenToDatabase(token);
+            });
+
+        // Listen to whether the token changes
+        return messaging().onTokenRefresh(token => {
+            saveTokenToDatabase(token);
+        });
     }, []);
 
     useEffect(() => {
@@ -144,8 +172,8 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                         <View style={{flexDirection: 'row'}}>
                             <View style={{justifyContent: 'space-between', marginRight: 36}}>
                                 <View style={{flexDirection: 'row'}}>
-                                    <Text style={styles.temperature}>{ auth.user.degreeUnit === "celsius" ? roundToDec(device.tempThresh).toFixed(1) : convertToF(device.tempThresh).toFixed(1)}</Text>
-                                    <Text style={styles.degree}>{'\u00b0'}{ auth.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
+                                    <Text style={styles.temperature}>{ authStore.user.degreeUnit === "celsius" ? roundToDec(device.tempThresh).toFixed(1) : convertToF(device.tempThresh).toFixed(1)}</Text>
+                                    <Text style={styles.degree}>{'\u00b0'}{ authStore.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
                                 </View>
                                 <Text style={styles.statusText}>Threshold</Text>
                             </View>
@@ -191,7 +219,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                         <Text style={styles.loadingText}>Loading</Text>
                     </View>
                 </View>
-            ) : device.devices && auth.user ? (
+            ) : device.devices && authStore.user ? (
                     <ScrollView contentContainerStyle={styles.scrollContainer}>
                         <View style={styles.mainContent}>
                         { renderDevices() }
@@ -449,7 +477,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
     return {
         ui: state.ui,
-        auth: state.auth,
+        authStore: state.auth,
         device: state.device,
         ble: state.ble
     }
