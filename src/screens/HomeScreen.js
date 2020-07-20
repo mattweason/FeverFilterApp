@@ -164,45 +164,64 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     }
 
     const renderDevices = () => {
-        return device.devices.map((device, index) => {
+        return device.devices.map((deviceItem, index) => {
             return (
-                <View style={{marginTop: 24}} key={device.deviceId}>
-                    <Text style={styles.deviceName}>{device.deviceName}</Text>
-                    <View style={[template.card, styles.deviceCard]}>
-                        <View style={{flexDirection: 'row'}}>
-                            <View style={{justifyContent: 'space-between', marginRight: 36}}>
-                                <View style={{flexDirection: 'row'}}>
-                                    <Text style={styles.temperature}>{ authStore.user.degreeUnit === "celsius" ? roundToDec(device.tempThresh).toFixed(1) : convertToF(device.tempThresh).toFixed(1)}</Text>
-                                    <Text style={styles.degree}>{'\u00b0'}{ authStore.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
+                <View style={{marginTop: 24}} key={deviceItem.deviceId}>
+                    <Text style={styles.deviceName}>{deviceItem.deviceName}</Text>
+                    <View style={template.card}>
+                        <View style={styles.deviceCard}>
+                            <View style={{flexDirection: 'row'}}>
+                                <View style={{justifyContent: 'space-between', marginRight: 36}}>
+                                    <View style={{flexDirection: 'row'}}>
+                                        <Text style={styles.temperature}>{ authStore.user.degreeUnit === "celsius" ? roundToDec(deviceItem.tempThresh).toFixed(1) : convertToF(deviceItem.tempThresh).toFixed(1)}</Text>
+                                        <Text style={styles.degree}>{'\u00b0'}{ authStore.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
+                                    </View>
+                                    <Text style={styles.statusText}>Threshold</Text>
                                 </View>
-                                <Text style={styles.statusText}>Threshold</Text>
+                                <WifiStatus strength={deviceItem.wifiState} />
                             </View>
-                            <WifiStatus strength={device.wifiState} />
+                            <Menu
+                                visible={menuVisible === index}
+                                onDismiss={toggleMenu}
+                                anchor={
+                                    <IconToggle onPress={() => toggleMenu(index)}>
+                                        <FontAwesome style={{fontSize: 32, color: theme.COLOR_TEXT}} name="cog"/>
+                                    </IconToggle>
+                                }
+                            >
+                                <Menu.Item onPress={() => {}} disabled={true} icon="settings" title="Settings" />
+                                <Divider />
+                                <Menu.Item onPress={() => {
+                                    toggleMenu(-1)
+                                    toggleWifiResetModalVisible()
+                                }} icon="wifi" title="Network Settings" />
+                                <Menu.Item onPress={() => {
+                                    toggleMenu(-1)
+                                    toggleThresholdModalVisible()
+                                }} icon="thermometer" title="Change Threshold" />
+                                <Menu.Item onPress={() => {
+                                    toggleMenu(-1)
+                                    toggleRenameModalVisible()
+                                }} icon="square-edit-outline" title="Rename Device" />
+                            </Menu>
                         </View>
-                        <Menu
-                            visible={menuVisible === index}
-                            onDismiss={toggleMenu}
-                            anchor={
-                                <IconToggle onPress={() => toggleMenu(index)}>
-                                    <FontAwesome style={{fontSize: 32, color: theme.COLOR_TEXT}} name="cog"/>
-                                </IconToggle>
-                            }
-                        >
-                            <Menu.Item onPress={() => {}} disabled={true} icon="settings" title="Settings" />
-                            <Divider />
-                            <Menu.Item onPress={() => {
-                                toggleMenu(-1)
-                                toggleWifiResetModalVisible()
-                            }} icon="wifi" title="Network Settings" />
-                            <Menu.Item onPress={() => {
-                                toggleMenu(-1)
-                                toggleThresholdModalVisible()
-                            }} icon="thermometer" title="Change Threshold" />
-                            <Menu.Item onPress={() => {
-                                toggleMenu(-1)
-                                toggleRenameModalVisible()
-                            }} icon="square-edit-outline" title="Rename Device" />
-                        </Menu>
+                        {
+                            device.thresholdStatus.hasOwnProperty(deviceItem.deviceId) ? (
+                                <>
+                                    { device.thresholdStatus[deviceItem.deviceId] === "pending" ? (
+                                        <View style={{borderTopWidth: 1, borderColor: theme.COLOR_LIGHTERGREY, flexDirection: 'row', alignItems: 'center', padding: 8}}>
+                                            <ActivityIndicator size="small" color={theme.COLOR_PRIMARY} />
+                                            <Text style={{fontFamily: 'Lato', marginLeft: 6}}>Threshold update pending...</Text>
+                                        </View>
+                                    ) : device.thresholdStatus[deviceItem.deviceId] === "updated" ? (
+                                        <View style={{borderTopWidth: 1, borderColor: theme.COLOR_LIGHTERGREY, flexDirection: 'row', alignItems: 'center', padding: 8}}>
+                                            <FontAwesome style={{fontSize: 18, color: theme.COLOR_PRIMARY}} name="check"/>
+                                            <Text style={{fontFamily: 'Lato', marginLeft: 6}}>Threshold updated</Text>
+                                        </View>
+                                    ) : null}
+                                </>
+                            ) : null
+                        }
                     </View>
                 </View>
             )
