@@ -132,6 +132,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                 if(state.isWifiEnabled) {
                     toggleWifiModal();
                 } else if(!state.isWifiEnabled){
+                    disconnect();
                     Alert.alert(
                         "No Wifi",
                         "Your phone's WiFi is not enabled. Please enable it and try again.",
@@ -146,6 +147,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                     setIosSsid(state.details.ssid);
                     toggleWifiModal(state.details);
                 } else {
+                    disconnect();
                     Alert.alert(
                         "Not Connected to WiFi",
                         "Please connect to the WiFi network you want your FeverFilter to connect to.",

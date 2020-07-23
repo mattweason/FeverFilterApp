@@ -84,6 +84,7 @@ export const scan = (bleID) => {
 
 export const stopScan = (method) => {
     return (dispatch, getState, DeviceManager) => {
+        clearTimeout(timeout)
         dispatch(changeStatus(method ? method : "Stopped scan"));
         DeviceManager.stopDeviceScan();
     }
