@@ -155,8 +155,10 @@ export const fetchDevices = (deviceId = '') => async (dispatch, getState) => {
 export const addDevice = (deviceId, deviceName, deviceToken, navigation) => (dispatch, getState) => {
     dispatch(addDeviceRequest())
     const uid = getState().auth.user.uid;
+    console.log(uid)
 
     firestore().collection('devices').doc(deviceId).set({
+        uid,
         deviceId,
         tempThresh: 37.5,
         deviceName,
