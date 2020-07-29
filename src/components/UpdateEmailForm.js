@@ -74,7 +74,7 @@ const UpdateEmailForm = ({handleSubmit, toggleModal, auth}) => {
                         required
                         error={touched.password && errors.password}
                     />
-                    { auth.updateEmailFailure ? <AuthErrorMessage errorCode={auth.updateEmailErrorMessage}/> : null }
+                    { auth.updateEmailFailure ? <AuthErrorMessage errorCode={auth.updatePasswordErrorMessage === "auth/wrong-password" ? "incorrect-password" : auth.updatePasswordErrorMessage}/> : null }
                     <View style={styles.modalActions}>
                         <PrimaryButton disabled={auth.updateEmailRequest} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} />
                         <PrimaryButton loading={auth.updateEmailRequest} disabled={auth.updateEmailRequest} style={styles.button} title="Save" onPress={() => {handleSubmit()}} />

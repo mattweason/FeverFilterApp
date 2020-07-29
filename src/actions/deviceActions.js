@@ -131,7 +131,7 @@ export const fetchDevices = (deviceId = '') => async (dispatch, getState) => {
                 if(deviceId) //If fetch devices call was triggered by add device
                     dispatch(watchWifiState(deviceId))
 
-                if(deviceDoc._data.threshUpdated){
+                if(deviceDoc._data.threshUpdated && deviceDoc._data.timestamp){
                     let updateTime = deviceDoc._data.threshUpdated.toDate();
                     let retrieveTime = deviceDoc._data.timestamp.toDate();
                     let pending = moment(retrieveTime).isBefore(updateTime);
@@ -155,7 +155,6 @@ export const fetchDevices = (deviceId = '') => async (dispatch, getState) => {
 export const addDevice = (deviceId, deviceName, deviceToken, navigation) => (dispatch, getState) => {
     dispatch(addDeviceRequest())
     const uid = getState().auth.user.uid;
-    console.log(uid)
 
     firestore().collection('devices').doc(deviceId).set({
         uid,

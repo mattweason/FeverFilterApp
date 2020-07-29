@@ -14,6 +14,8 @@ const AuthErrorMessage = ({errorCode}) => {
                 setErrorMessage('An account already exists for this email address.')
             else if (errorCode === 'auth/network-request-failed')
                 setErrorMessage('Cannot connect to server.')
+            else if (errorCode === 'incorrect-password')
+                setErrorMessage('Incorrect password.')
             else
                 setErrorMessage('Unknown error.')
         }

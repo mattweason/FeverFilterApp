@@ -66,6 +66,18 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                 return saveTokenToDatabase(token);
             });
 
+        messaging().onNotificationOpenedApp(remoteMessage => {
+            if(remoteMessage)
+                Alert.alert(remoteMessage.notification.title, remoteMessage.notification.body);
+        });
+
+        messaging()
+            .getInitialNotification()
+            .then(remoteMessage => {
+                if(remoteMessage)
+                    Alert.alert(remoteMessage.notification.title, remoteMessage.notification.body);
+            });
+
         // Listen to whether the token changes
         return messaging().onTokenRefresh(token => {
             saveTokenToDatabase(token);

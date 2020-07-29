@@ -74,7 +74,7 @@ const UpdatePasswordForm = ({handleSubmit, toggleModal, auth}) => {
                         required
                         error={touched.newPassword && errors.newPassword}
                     />
-                    { auth.updatePasswordFailure ? <AuthErrorMessage errorCode={auth.updatePasswordErrorMessage === "Email or password is invalid." ? "Incorrect password." : auth.updatePasswordErrorMessage}/> : null }
+                    { auth.updatePasswordFailure ? <AuthErrorMessage errorCode={auth.updatePasswordErrorMessage === "auth/wrong-password" ? "incorrect-password" : auth.updatePasswordErrorMessage}/> : null }
                     <View style={styles.modalActions}>
                         <PrimaryButton disabled={auth.updatePasswordRequest} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} />
                         <PrimaryButton loading={auth.updatePasswordRequest} disabled={auth.updatePasswordRequest} style={styles.button} title="Save" onPress={() => {handleSubmit()}} />

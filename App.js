@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
-import { Platform, StatusBar } from 'react-native'
+import { Platform, StatusBar, Alert } from 'react-native'
 
 import SplashScreen from 'react-native-splash-screen';
 import * as Permissions from 'expo-permissions';
@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import theme from './src/styles/theme.styles'
 import {BleManager} from 'react-native-ble-plx';
 import firestore from '@react-native-firebase/firestore';
+import messaging from '@react-native-firebase/messaging'
 
 //Redux
 import { createStore, applyMiddleware } from 'redux';
@@ -45,7 +46,7 @@ const DeviceManager = new BleManager();
 
 //configure redux store
 const middleware = applyMiddleware(thunk.withExtraArgument(DeviceManager));
-const store = createStore(reducer, middleware);
+export const store = createStore(reducer, middleware);
 
 const MainFlow = () => {
 
@@ -68,10 +69,11 @@ export default App = () => {
             setTimeout(async () => {
                 const userDoc = await firestore().collection('accounts').doc(user.uid).get();
                 const userData = userDoc._data;
+                const isConnected = store.getState().ui.isConnected;
                 userData.uid = user.uid;
                 setIsAuthenticated(true);
                 store.dispatch(receiveLogin(userData))
-                if(!appReady) setAppReady(true);
+                if(!appReady && isConnected) setAppReady(true);
             }, 500)
         } else{
             setIsAuthenticated(false);
@@ -116,6 +118,13 @@ export default App = () => {
         SplashScreen.hide();
 
         initApp()
+
+        const unsubscribe = messaging().onMessage(async remoteMessage => {
+            if(remoteMessage)
+                Alert.alert(remoteMessage.notification.title, remoteMessage.notification.body);
+        });
+
+        return unsubscribe;
 
     }, [])
 
