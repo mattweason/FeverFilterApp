@@ -137,6 +137,8 @@ export const fetchDevices = (deviceId = '') => async (dispatch, getState) => {
                     let pending = moment(retrieveTime).isBefore(updateTime);
                     if(pending)
                         dispatch(watchTimestamp(deviceDoc._data.deviceId));
+                } else if (deviceDoc._data.threshUpdated && !deviceDoc._data.timestamp){
+                    dispatch(watchTimestamp(deviceDoc._data.deviceId));
                 }
             }
         }
@@ -217,22 +219,26 @@ export const watchTimestamp = (deviceId) => dispatch => {
         .onSnapshot(function(doc) {
             let data = doc.data();
 
-            let updateTime = data.threshUpdated.toDate();
-            let retrieveTime = data.timestamp.toDate();
+            if(data.threshUpdated && data.timestamp){
 
-            // moment('2010-10-20').isAfter('2010-10-19'); // true
 
-            let complete = moment(retrieveTime).isAfter(moment(updateTime).add(5, 'm'))
-            let updated = moment(retrieveTime).isAfter(updateTime);
-            let pending = moment(retrieveTime).isBefore(updateTime);
+                let updateTime = data.threshUpdated.toDate();
+                let retrieveTime = data.timestamp.toDate();
 
-            if(complete) {
-                dispatch(updateThresholdState('null', deviceId));
-                unsubscribe()
-            } else if(updated) {
-                dispatch(updateThresholdState('updated', deviceId));
-            } else if(pending) {
-                dispatch(updateThresholdState('pending', deviceId));
+                // moment('2010-10-20').isAfter('2010-10-19'); // true
+
+                let complete = moment(retrieveTime).isAfter(moment(updateTime).add(5, 'm'))
+                let updated = moment(retrieveTime).isAfter(updateTime);
+                let pending = moment(retrieveTime).isBefore(updateTime);
+
+                if(complete) {
+                    dispatch(updateThresholdState('null', deviceId));
+                    unsubscribe()
+                } else if(updated) {
+                    dispatch(updateThresholdState('updated', deviceId));
+                } else if(pending) {
+                    dispatch(updateThresholdState('pending', deviceId));
+                }
             }
         });
 
