@@ -69,11 +69,10 @@ export default App = () => {
             setTimeout(async () => {
                 const userDoc = await firestore().collection('accounts').doc(user.uid).get();
                 const userData = userDoc._data;
-                const isConnected = store.getState().ui.isConnected;
                 userData.uid = user.uid;
                 setIsAuthenticated(true);
                 store.dispatch(receiveLogin(userData))
-                if(!appReady && isConnected) setAppReady(true);
+                if(!appReady) setAppReady(true);
             }, 500)
         } else{
             setIsAuthenticated(false);
@@ -83,41 +82,22 @@ export default App = () => {
 
     }
 
-    useEffect(() => {
-        async function initApp() {
-            await Font.loadAsync({
-                'Montserrat': require('./assets/fonts/Montserrat-Regular.ttf'),
-                'Montserrat-light': require('./assets/fonts/Montserrat-Light.ttf'),
-                'Montserrat-bold': require('./assets/fonts/Montserrat-Bold.ttf'),
-                'Lato': require('./assets/fonts/Lato-Regular.ttf'),
-                'Lato-light': require('./assets/fonts/Lato-Light.ttf'),
-                'Lato-bold': require('./assets/fonts/Lato-Bold.ttf'),
-            });
-
-            if(Platform.OS === 'android')
-                try {
-                    const { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-                    if (status === 'granted') {
-                        console.log("You can use location");
-                    } else {
-                        console.log("Location permission denied");
-                    }
-                } catch (err) {
-                    console.log(err)
-                }
-
-            store.dispatch(wifiListener())
-
-            const locales = await RNLocalize.getLocales()
-            if(locales[0])
-                store.dispatch(userCountry(locales[0].countryCode))
-
-            const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    //Listen to the redux store and initialize app if we are both connected to the internet and the app has not yet initialized
+    const connectedListener = store.subscribe(() => {
+        if(!appReady && store.getState().ui.isConnected){
+            initApp()
+            connectedListener() //Stop listening once app is initialize
         }
+
+    })
+
+    useEffect(() => {
+
         SplashScreen.hide();
 
-        initApp()
+        //Start listening for wifi
+        //Only when we have wifi will the app initialize
+        store.dispatch(wifiListener())
 
         const unsubscribe = messaging().onMessage(async remoteMessage => {
             if(remoteMessage)
@@ -128,13 +108,44 @@ export default App = () => {
 
     }, [])
 
+    const initApp = async () => {
+        await Font.loadAsync({
+            'Montserrat': require('./assets/fonts/Montserrat-Regular.ttf'),
+            'Montserrat-light': require('./assets/fonts/Montserrat-Light.ttf'),
+            'Montserrat-bold': require('./assets/fonts/Montserrat-Bold.ttf'),
+            'Lato': require('./assets/fonts/Lato-Regular.ttf'),
+            'Lato-light': require('./assets/fonts/Lato-Light.ttf'),
+            'Lato-bold': require('./assets/fonts/Lato-Bold.ttf'),
+        });
+
+        if(Platform.OS === 'android')
+            try {
+                const { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+                if (status === 'granted') {
+                    console.log("You can use location");
+                } else {
+                    console.log("Location permission denied");
+                }
+            } catch (err) {
+                console.log(err)
+            }
+
+        const locales = await RNLocalize.getLocales()
+
+        if(locales[0])
+            store.dispatch(userCountry(locales[0].countryCode))
+
+        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    }
+
     return (
         <Provider store={store}>
             <PaperProvider>
                 <StatusBar backgroundColor={theme.COLOR_PRIMARY} />
                 <SafeAreaProvider>
                     <NavigationContainer>
-                        { appReady ? (
+                        { appReady && store.getState().ui.isConnected ? (
                             <>
                                 { isAuthenticated ? (
                                     <Stack.Navigator
