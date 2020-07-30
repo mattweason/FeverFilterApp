@@ -1,5 +1,5 @@
 import CustomTextInput from "./CustomTextInput";
-import { View, StyleSheet } from "react-native";
+import {View, StyleSheet, Text} from "react-native";
 import PrimaryButton from "./PrimaryButton";
 import {Formik} from "formik";
 import React from "react";
@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import {connect} from "react-redux";
 import template from "../styles/styles";
 
-const ReportIssueForm = ({handleSubmit, toggleModal, device}) => {
+const ReportIssueForm = ({handleSubmit, toggleModal, device, ui}) => {
     //Input refs used for focus on next input when Next is pressed
     let titleRef = {};
     let contentRef = {};
@@ -64,9 +64,12 @@ const ReportIssueForm = ({handleSubmit, toggleModal, device}) => {
                         blurHandler={() => setFieldTouched('content')}
                         error={touched.content && errors.content}
                     />
+                    { !ui.isConnected ? (
+                        <Text style={template.networkError}>No network connection detected.</Text>
+                    ) : null }
                     <View style={styles.modalActions}>
                         <PrimaryButton disabled={device.addIssueRequest} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} />
-                        <PrimaryButton loading={device.addIssueRequest} disabled={device.addIssueRequest} style={styles.button} title="Submit" onPress={() => {handleSubmit()}} />
+                        <PrimaryButton loading={device.addIssueRequest} disabled={device.addIssueRequest || !ui.isConnected} style={styles.button} title="Submit" onPress={() => {handleSubmit()}} />
                     </View>
                 </>
             )}
@@ -90,7 +93,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
     return {
-        device: state.device
+        device: state.device,
+        ui: state.ui
     }
 };
 
