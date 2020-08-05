@@ -56,15 +56,26 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
             });
     }
 
-    useEffect(() => {
+    useEffect( () => {
         fetchDevices();
 
-        // Get the device token
-        messaging()
-            .getToken()
-            .then(token => {
-                return saveTokenToDatabase(token);
-            });
+        async function enablePushNotifications() {
+            //Request permission for push notifications
+            //    Required for iOS, always passes for android
+            const authStatus = await messaging().requestPermission();
+            const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === message.AuthorizationStatus.PROVISIONAL;
+
+            if(enabled) {
+                // Get the device token
+                messaging()
+                    .getToken()
+                    .then(token => {
+                        return saveTokenToDatabase(token);
+                    });
+            }
+        }
+
+        enablePushNotifications();
 
         // Listen to whether the token changes
         return messaging().onTokenRefresh(token => {
