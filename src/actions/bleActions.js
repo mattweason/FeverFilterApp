@@ -76,8 +76,8 @@ let timeout;
 export const scan = (bleID) => {
 
     return (dispatch, getState, DeviceManager) => {
+        dispatch(changeStatus("Scanning"));
         DeviceManager.startDeviceScan(null, null, (error, device) => {
-            dispatch(changeStatus("Scanning"));
             if (error) {
                 clearTimeout(timeout)
                 dispatch(connectionError(error))
