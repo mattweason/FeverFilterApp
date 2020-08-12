@@ -51,7 +51,6 @@ const updateBluetoothState = (status) => ({
 
 export const watchBluetoothState = () => (dispatch, getState, DeviceManager) => {
     const subscription = DeviceManager.onStateChange((state) => {
-        console.log('bluetooth', state)
         dispatch(updateBluetoothState(state))
     }, true)
 }
