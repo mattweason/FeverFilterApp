@@ -14,10 +14,12 @@ import {
     ADD_ISSUE_REQUEST,
     ADD_ISSUE_SUCCESS,
     ADD_ISSUE_FAILURE,
-    UPDATE_WIFI_STATE
+    UPDATE_WIFI_STATE, UPDATE_THRESHOLD_STATE
 } from "../actions/deviceActions";
 
-export default (state = {}, action) => {
+export default (state = {
+    thresholdStatus: {}
+}, action) => {
     switch (action.type) {
         case FETCH_DEVICES_REQUEST:
             return {
@@ -123,6 +125,13 @@ export default (state = {}, action) => {
                     device
                 )
 
+            }
+        case UPDATE_THRESHOLD_STATE:
+            return{
+                ...state,
+                thresholdStatus: {
+                    ...state.thresholdStatus, [action.deviceId]: action.status
+                }
             }
         default:
             return state

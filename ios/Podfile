@@ -36,6 +36,7 @@ target 'feverfilter' do
   pod 'DoubleConversion', :podspec => "#{rnPrefix}/third-party-podspecs/DoubleConversion.podspec"
   pod 'glog', :podspec => "#{rnPrefix}/third-party-podspecs/glog.podspec"
   pod 'Folly', :podspec => "#{rnPrefix}/third-party-podspecs/Folly.podspec"
+  pod 'RNFBMessaging', :path => '../node_modules/@react-native-firebase/messaging'
 
   # use_frameworks!
   pod 'RNInputMask', :path => '../node_modules/react-native-text-input-mask/ios/InputMask'

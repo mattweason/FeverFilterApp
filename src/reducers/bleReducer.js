@@ -4,7 +4,8 @@ import {
     CHANGE_STATUS,
     CONNECTION_ERROR,
     CLEAR_CONNECTION_ERROR,
-    SCANNED_DEVICE_ID
+    SCANNED_DEVICE_ID,
+    BLUETOOTH_ADAPTER_STATUS
 } from '../actions/bleActions'
 
 const INITIAL_STATE = {
@@ -47,6 +48,11 @@ export default (state =INITIAL_STATE, action) => {
                 scannedDeviceId: action.deviceId
             }
         }
+        case BLUETOOTH_ADAPTER_STATUS:
+            return {
+                ...state,
+                bluetoothStatus: action.status
+            }
         default:
             return state;
     }

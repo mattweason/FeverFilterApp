@@ -2,10 +2,12 @@ import React, {useState} from "react";
 import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import Slider from "./Slider";
 import theme from '../styles/theme.styles'
+import template from '../styles/styles'
 import {connect} from "react-redux";
 import PrimaryButton from "./PrimaryButton";
 import {bindActionCreators} from "redux";
 import {updateThreshold} from "../actions/deviceActions";
+import AuthErrorMessage from "./AuthErrorMessage";
 
 const windowHeight = Dimensions.get('window').height;
 const maxTempC = 38;
@@ -21,7 +23,7 @@ const convertToC = (degree) => {
     return (degree - 32) * (5/9)
 }
 
-const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleModal, updateThreshold}) => {
+const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, ui, toggleModal, updateThreshold}) => {
     const adjustedThreshold = parseFloat(initialThreshold).toFixed(1);
     const [threshold, setThreshold] = useState(auth.user.degreeUnit === "celsius" ? adjustedThreshold : convertToF(adjustedThreshold));
     const [tickHeight, setTickHeight] = useState(0)
@@ -99,9 +101,12 @@ const TemperatureThreshold = ({deviceId, initialThreshold, auth, device, toggleM
                 </View>
                 <View style={{height: sliderHeight}}/>
             </View>
+            { !ui.isConnected ? (
+                <Text style={template.networkError}>No network connection detected.</Text>
+            ) : null }
             <View style={styles.modalActions}>
                 <PrimaryButton disabled={device.updateThresholdRequest} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} />
-                <PrimaryButton loading={device.updateThresholdRequest} disabled={device.updateThresholdRequest} style={styles.button} title="Confirm" onPress={() => handleSubmit()} />
+                <PrimaryButton loading={device.updateThresholdRequest} disabled={device.updateThresholdRequest || !ui.isConnected} style={styles.button} title="Confirm" onPress={() => handleSubmit()} />
             </View>
         </>
     )
@@ -182,7 +187,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
     return {
         auth: state.auth,
-        device: state.device
+        device: state.device,
+        ui: state.ui
     }
 };
 

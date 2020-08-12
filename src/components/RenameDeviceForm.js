@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import {View, StyleSheet, Text} from "react-native";
 import PrimaryButton from "./PrimaryButton";
 import CustomTextInput from "./CustomTextInput";
 import {Formik} from "formik";
@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import {connect} from "react-redux";
 import template from "../styles/styles";
 
-const RenameDeviceForm = ({handleSubmit, deviceName, toggleModal, device}) => {
+const RenameDeviceForm = ({handleSubmit, deviceName, toggleModal, device, ui}) => {
 
     const changePasswordValidationSchema = Yup.object().shape({
         deviceName: Yup.string()
@@ -41,9 +41,12 @@ const RenameDeviceForm = ({handleSubmit, deviceName, toggleModal, device}) => {
                         required
                         error={touched.deviceName && errors.deviceName}
                     />
+                    { !ui.isConnected ? (
+                        <Text style={template.networkError}>No network connection detected.</Text>
+                    ) : null }
                     <View style={styles.modalActions}>
                         <PrimaryButton disabled={device.renameDeviceRequest} mode="text" style={[styles.button, styles.cancelButton]} title="Cancel" onPress={toggleModal} />
-                        <PrimaryButton loading={device.renameDeviceRequest} disabled={device.renameDeviceRequest} style={styles.button} title="Rename" onPress={handleSubmit} />
+                        <PrimaryButton loading={device.renameDeviceRequest} disabled={device.renameDeviceRequest || !ui.isConnected} style={styles.button} title="Rename" onPress={handleSubmit} />
                     </View>
                 </>
             )}
@@ -67,7 +70,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
     return {
-        device: state.device
+        device: state.device,
+        ui: state.ui
     }
 };
 

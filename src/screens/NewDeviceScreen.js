@@ -102,7 +102,17 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
     }
 
     const toggleConnectInfoModal = () => {
-        setConnectInfoModal(!connectInfoModal);
+        if(Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff")
+            Alert.alert(
+                'Bluetooth Off',
+                "Your phone's Bluetooth is turned off. Please turn it on.",
+                [
+                    {text: 'OK', onPress: () => {}}
+                ],
+                {cancelable: false}
+            )
+        else
+            setConnectInfoModal(!connectInfoModal);
     };
 
     const toggleWifiModal = () => {

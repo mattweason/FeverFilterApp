@@ -34,5 +34,10 @@ export default StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.5,
         elevation: 2
+    },
+    networkError: {
+        color: theme.COLOR_SECONDARY,
+        textAlign: 'center',
+        marginTop: 6
     }
 })

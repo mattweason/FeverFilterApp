@@ -7,8 +7,9 @@ import template from '../styles/styles'
 import theme from '../styles/theme.styles'
 import PrimaryButton from "./PrimaryButton";
 import AuthErrorMessage from "./AuthErrorMessage";
+import {Text, View} from "react-native";
 
-const LoginForm = ({shiftUI, onSubmit, style, auth}) => {
+const LoginForm = ({shiftUI, onSubmit, style, auth, ui}) => {
 
     //Input refs used for focus on next input when Next is pressed
     let emailRef = {};
@@ -74,8 +75,11 @@ const LoginForm = ({shiftUI, onSubmit, style, auth}) => {
                         autoCorrect={false}
                         error={touched.password && errors.password}
                     />
+                    { !ui.isConnected ? (
+                        <Text style={template.networkError}>No network connection detected.</Text>
+                    ) : null }
                     { auth.loginError ? <AuthErrorMessage errorCode={auth.loginErrorMessage}/> : null }
-                    <PrimaryButton disabled={auth.isLoggingIn} loading={auth.isLoggingIn} style={{marginTop: 12}} title="Submit" onPress={handleSubmit} />
+                    <PrimaryButton disabled={auth.isLoggingIn || !ui.isConnected} loading={auth.isLoggingIn} style={{marginTop: 12}} title="Submit" onPress={handleSubmit} />
                 </>
             )}
         </Formik>
@@ -84,7 +88,8 @@ const LoginForm = ({shiftUI, onSubmit, style, auth}) => {
 
 const mapStateToProps = state => {
     return {
-        auth: state.auth
+        auth: state.auth,
+        ui: state.ui
     }
 };
 

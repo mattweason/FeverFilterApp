@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import {Text, View, ScrollView, ActivityIndicator, StyleSheet, Platform, Alert} from 'react-native';
-import {Divider, Menu, Snackbar} from 'react-native-paper';
+import {Banner, Divider, Menu, Snackbar} from 'react-native-paper';
 import {connect} from "react-redux";
 import PrimaryButton from "../components/PrimaryButton";
 import IconToggle from "../components/IconToggle";
 import WifiIcon from "../components/WifiIcon";
 import theme from '../styles/theme.styles'
 import template from '../styles/styles'
-import {FontAwesome} from '@expo/vector-icons'
+import {Feather, FontAwesome} from '@expo/vector-icons'
 import {fetchDevices, renameDevice} from "../actions/deviceActions";
-import {startScan, sendWifiCharacteristic, changeStatus, disconnect, stopScan} from "../actions/bleActions";
+import {startScan, sendWifiCharacteristic, changeStatus, disconnect, stopScan, watchBluetoothState} from "../actions/bleActions";
 import {bindActionCreators} from "redux";
 import CustomModal from "../components/CustomModal";
 import TemperatureThreshold from "../components/TempertureThreshold";
@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import messaging from "@react-native-firebase/messaging";
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
+import CustomTextInput from "../components/CustomTextInput";
 
 //Convert temperature to fahrenheit
 const convertToF = (degree) => {
@@ -30,7 +31,7 @@ const roundToDec = (input) => {
     return Math.round(input*10) / 10
 }
 
-const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan, changeStatus, sendWifiCharacteristic, device, authStore, ble, disconnect}) => {
+const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan, watchBluetoothState, changeStatus, sendWifiCharacteristic, device, authStore, ble, ui, disconnect}) => {
     const [menuVisible, setMenuVisible] = useState(-1)
     const [wifiSnackVisible, setWifiSnackVisible] = useState(false)
     const [wifiResetModalVisible, setWifiResetModalVisible] = useState(false);
@@ -42,6 +43,11 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     const [deviceId, setDeviceId] = useState('');
     const [threshold, setThreshold] = useState(0);
     const [iosSsid, setIosSsid] = useState('');
+    const [networkBannerVisible, setNetworkBannerVisible] = useState(false);
+
+    useEffect(() => {
+        setNetworkBannerVisible(!ui.isConnected)
+    }, [ui.isConnected])
 
     async function saveTokenToDatabase(token) {
 
@@ -58,6 +64,9 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
 
     useEffect( () => {
         fetchDevices();
+
+        if(Platform.OS === 'ios')
+            watchBluetoothState()
 
         async function enablePushNotifications() {
             //Request permission for push notifications
@@ -76,6 +85,18 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
         }
 
         enablePushNotifications();
+
+        messaging().onNotificationOpenedApp(remoteMessage => {
+            if(remoteMessage)
+                Alert.alert(remoteMessage.notification.title, remoteMessage.notification.body);
+        });
+
+        messaging()
+            .getInitialNotification()
+            .then(remoteMessage => {
+                if(remoteMessage)
+                    Alert.alert(remoteMessage.notification.title, remoteMessage.notification.body);
+            });
 
         // Listen to whether the token changes
         return messaging().onTokenRefresh(token => {
@@ -123,7 +144,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     };
 
     const wifiResetModalContent = () => {
-        return <WifiReset startScan={startScan} stopScan={stopScan} deviceId={deviceId} toggleModal={toggleWifiResetModalVisible} handleSetUpWifi={handleSetUpWifi} changeStatus={changeStatus} ble={ble} />
+        return <WifiReset isConnected={ui.isConnected} startScan={startScan} stopScan={stopScan} deviceId={deviceId} toggleModal={toggleWifiResetModalVisible} handleSetUpWifi={handleSetUpWifi} changeStatus={changeStatus} ble={ble} />
     }
 
     const thresholdModalContent = () => {
@@ -143,6 +164,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                 if(state.isWifiEnabled) {
                     toggleWifiModal();
                 } else if(!state.isWifiEnabled){
+                    disconnect();
                     Alert.alert(
                         "No Wifi",
                         "Your phone's WiFi is not enabled. Please enable it and try again.",
@@ -157,6 +179,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                     setIosSsid(state.details.ssid);
                     toggleWifiModal(state.details);
                 } else {
+                    disconnect();
                     Alert.alert(
                         "Not Connected to WiFi",
                         "Please connect to the WiFi network you want your FeverFilter to connect to.",
@@ -175,45 +198,75 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     }
 
     const renderDevices = () => {
-        return device.devices.map((device, index) => {
+        return device.devices.map((deviceItem, index) => {
             return (
-                <View style={{marginTop: 24}} key={device.deviceId}>
-                    <Text style={styles.deviceName}>{device.deviceName}</Text>
-                    <View style={[template.card, styles.deviceCard]}>
-                        <View style={{flexDirection: 'row'}}>
-                            <View style={{justifyContent: 'space-between', marginRight: 36}}>
-                                <View style={{flexDirection: 'row'}}>
-                                    <Text style={styles.temperature}>{ authStore.user.degreeUnit === "celsius" ? roundToDec(device.tempThresh).toFixed(1) : convertToF(device.tempThresh).toFixed(1)}</Text>
-                                    <Text style={styles.degree}>{'\u00b0'}{ authStore.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
+                <View style={{marginTop: 24}} key={deviceItem.deviceId}>
+                    <Text style={styles.deviceName}>{deviceItem.deviceName}</Text>
+                    <View style={template.card}>
+                        <View style={styles.deviceCard}>
+                            <View style={{flexDirection: 'row'}}>
+                                <View style={{justifyContent: 'space-between', marginRight: 36}}>
+                                    <View style={{flexDirection: 'row'}}>
+                                        <Text style={styles.temperature}>{ authStore.user.degreeUnit === "celsius" ? roundToDec(deviceItem.tempThresh).toFixed(1) : convertToF(deviceItem.tempThresh).toFixed(1)}</Text>
+                                        <Text style={styles.degree}>{'\u00b0'}{ authStore.user.degreeUnit === "celsius" ? "C" : "F"}</Text>
+                                    </View>
+                                    <Text style={styles.statusText}>Threshold</Text>
                                 </View>
-                                <Text style={styles.statusText}>Threshold</Text>
+                                <WifiStatus strength={deviceItem.wifiState} />
                             </View>
-                            <WifiStatus strength={device.wifiState} />
+                            <Menu
+                                visible={menuVisible === index}
+                                onDismiss={toggleMenu}
+                                anchor={
+                                    <IconToggle onPress={() => toggleMenu(index)}>
+                                        <FontAwesome style={{fontSize: 32, color: theme.COLOR_TEXT}} name="cog"/>
+                                    </IconToggle>
+                                }
+                            >
+                                <Menu.Item onPress={() => {}} disabled={true} icon="settings" title="Settings" />
+                                <Divider />
+                                <Menu.Item onPress={() => {
+                                    if(Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff")
+                                        Alert.alert(
+                                            'Bluetooth Off',
+                                            "Your phone's Bluetooth is turned off. Please turn it on.",
+                                            [
+                                                {text: 'OK', onPress: () => {}}
+                                            ],
+                                            {cancelable: false}
+                                        )
+                                    else{
+                                        toggleMenu(-1)
+                                        toggleWifiResetModalVisible()
+                                    }
+                                }} icon="wifi" title="Network Settings" />
+                                <Menu.Item onPress={() => {
+                                    toggleMenu(-1)
+                                    toggleThresholdModalVisible()
+                                }} icon="thermometer" title="Change Threshold" />
+                                <Menu.Item onPress={() => {
+                                    toggleMenu(-1)
+                                    toggleRenameModalVisible()
+                                }} icon="square-edit-outline" title="Rename Device" />
+                            </Menu>
                         </View>
-                        <Menu
-                            visible={menuVisible === index}
-                            onDismiss={toggleMenu}
-                            anchor={
-                                <IconToggle onPress={() => toggleMenu(index)}>
-                                    <FontAwesome style={{fontSize: 32, color: theme.COLOR_TEXT}} name="cog"/>
-                                </IconToggle>
-                            }
-                        >
-                            <Menu.Item onPress={() => {}} disabled={true} icon="settings" title="Settings" />
-                            <Divider />
-                            <Menu.Item onPress={() => {
-                                toggleMenu(-1)
-                                toggleWifiResetModalVisible()
-                            }} icon="wifi" title="Network Settings" />
-                            <Menu.Item onPress={() => {
-                                toggleMenu(-1)
-                                toggleThresholdModalVisible()
-                            }} icon="thermometer" title="Change Threshold" />
-                            <Menu.Item onPress={() => {
-                                toggleMenu(-1)
-                                toggleRenameModalVisible()
-                            }} icon="square-edit-outline" title="Rename Device" />
-                        </Menu>
+                        {
+                            device.thresholdStatus.hasOwnProperty(deviceItem.deviceId) ? (
+                                <>
+                                    { device.thresholdStatus[deviceItem.deviceId] === "pending" ? (
+                                        <View style={{borderTopWidth: 1, borderColor: theme.COLOR_LIGHTERGREY, flexDirection: 'row', alignItems: 'center', padding: 8}}>
+                                            <ActivityIndicator size="small" color={theme.COLOR_PRIMARY} />
+                                            <Text style={{fontFamily: 'Lato', marginLeft: 6}}>Threshold update pending...</Text>
+                                        </View>
+                                    ) : device.thresholdStatus[deviceItem.deviceId] === "updated" ? (
+                                        <View style={{borderTopWidth: 1, borderColor: theme.COLOR_LIGHTERGREY, flexDirection: 'row', alignItems: 'center', padding: 8}}>
+                                            <FontAwesome style={{fontSize: 18, color: theme.COLOR_PRIMARY}} name="check"/>
+                                            <Text style={{fontFamily: 'Lato', marginLeft: 6}}>Threshold updated</Text>
+                                        </View>
+                                    ) : null}
+                                </>
+                            ) : null
+                        }
                     </View>
                 </View>
             )
@@ -223,6 +276,15 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     return(
         <View style={styles.container}>
             <HomeHeader navigation={navigation} />
+            <Banner
+                visible={networkBannerVisible}
+                actions={[]}
+                icon={() =>
+                    <Feather style={{fontSize: 32, color: theme.COLOR_LIGHTGREY, marginLeft: 12, marginTop: -6}} name="wifi-off"/>
+                }
+            >
+                <Text style={{color: theme.COLOR_LIGHTGREY, fontFamily: 'Lato', fontSize: 16}}>No network connection detected.</Text>
+            </Banner>
             { device.fetchDevicesRequest ? (
                 <View style={styles.centerContent}>
                     <View style={styles.loading}>
@@ -230,6 +292,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                         <Text style={styles.loadingText}>Loading</Text>
                     </View>
                 </View>
+
             ) : device.devices && authStore.user ? (
                     <ScrollView contentContainerStyle={styles.scrollContainer}>
                         <View style={styles.mainContent}>
@@ -308,7 +371,7 @@ const HomeHeader = ({navigation}) => {
     )
 }
 
-const WifiReset = ({ deviceId, toggleModal, startScan, stopScan, handleSetUpWifi, changeStatus, ble }) => {
+const WifiReset = ({ deviceId, toggleModal, startScan, stopScan, handleSetUpWifi, changeStatus, ble, isConnected }) => {
     const [connecting, setConnecting] = useState(false)
     const [notFound, setNotFound] = useState(false)
 
@@ -349,9 +412,12 @@ const WifiReset = ({ deviceId, toggleModal, startScan, stopScan, handleSetUpWifi
             <Text style={styles.topTitle}>Update Network Settings</Text>
             <Text style={styles.subTitle}>In order to update the network settings for your FeverFilter, we will need to connect to it over bluetooth. Please ensure you are near the device and press connect.</Text>
             { notFound && (<Text style={styles.notFound}>FeverFilter not found. Make sure you are near the device and try connecting again.</Text>)}
+            { !isConnected ? (
+                <Text style={template.networkError}>No network connection detected.</Text>
+            ) : null }
             <View style={styles.modalActions}>
                 <PrimaryButton mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={closeModal} />
-                <PrimaryButton loading={connecting} disabled={connecting} style={styles.button} title="Connect" onPress={connectBle} />
+                <PrimaryButton loading={connecting} disabled={connecting || !isConnected} style={styles.button} title="Connect" onPress={connectBle} />
             </View>
         </>
     )
@@ -495,7 +561,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ fetchDevices, renameDevice, startScan, stopScan, sendWifiCharacteristic, changeStatus, disconnect }, dispatch)
+    return bindActionCreators({ fetchDevices, renameDevice, startScan, stopScan, watchBluetoothState, sendWifiCharacteristic, changeStatus, disconnect }, dispatch)
 };
 
 export default connect(

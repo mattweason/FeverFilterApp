@@ -16,6 +16,16 @@
 		C7842B8E24B669DC004B5397 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C7842B8D24B669DC004B5397 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		C7E3FF9424DAF37200EA277D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C7E3FF9024DAF37200EA277D /* RNFBMessaging.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2744B98221F45429004F8E3F;
+			remoteInfo = RNFBMessaging;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* feverfilter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = feverfilter.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -32,6 +42,7 @@
 		C71F3EEA24B63FF50001605F /* BleSwiftFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleSwiftFile.swift; sourceTree = "<group>"; };
 		C737644424B652DE0047C49F /* feverfilter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = feverfilter.entitlements; path = feverfilter/feverfilter.entitlements; sourceTree = "<group>"; };
 		C7842B8D24B669DC004B5397 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		C7E3FF9024DAF37200EA277D /* RNFBMessaging.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFBMessaging.xcodeproj; path = "../node_modules/@react-native-firebase/messaging/ios/RNFBMessaging.xcodeproj"; sourceTree = "<group>"; };
 		D43FF9D506E70904424FA7E9 /* libPods-feverfilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-feverfilter.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
@@ -87,6 +98,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				C7E3FF9024DAF37200EA277D /* RNFBMessaging.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -112,6 +124,14 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* feverfilter.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C7E3FF9124DAF37200EA277D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C7E3FF9524DAF37200EA277D /* libRNFBMessaging.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -169,12 +189,28 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = C7E3FF9124DAF37200EA277D /* Products */;
+					ProjectRef = C7E3FF9024DAF37200EA277D /* RNFBMessaging.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* feverfilter */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		C7E3FF9524DAF37200EA277D /* libRNFBMessaging.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNFBMessaging.a;
+			remoteRef = C7E3FF9424DAF37200EA277D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		13B07F8E1A680F5B00A75B9A /* Resources */ = {
@@ -310,12 +346,12 @@
 				CODE_SIGN_ENTITLEMENTS = feverfilter/feverfilter.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = ZYT47ZD48T;
 				INFOPLIST_FILE = feverfilter/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 1.0.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -340,11 +376,11 @@
 				CODE_SIGN_ENTITLEMENTS = feverfilter/feverfilter.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = ZYT47ZD48T;
 				INFOPLIST_FILE = feverfilter/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 1.0.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

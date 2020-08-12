@@ -1,4 +1,5 @@
 import firestore from '@react-native-firebase/firestore';
+import moment from 'moment'
 
 export const FETCH_DEVICES_REQUEST = "FETCH_DEVICES_REQUEST";
 export const FETCH_DEVICES_SUCCESS = "FETCH_DEVICES_SUCCESS";
@@ -21,6 +22,7 @@ export const ADD_ISSUE_SUCCESS = "ADD_ISSUE_SUCCESS";
 export const ADD_ISSUE_FAILURE = "ADD_ISSUE_FAILURE";
 
 export const UPDATE_WIFI_STATE =  "UPDATE_WIFI_STATE";
+export const UPDATE_THRESHOLD_STATE =  "UPDATE_THRESHOLD_STATE";
 
 const fetchDevicesRequest = () => {
     return {
@@ -126,8 +128,18 @@ export const fetchDevices = (deviceId = '') => async (dispatch, getState) => {
             const deviceDoc = await userData.devices[i].get();
             if(deviceDoc._data){
                 devices.push(deviceDoc._data);
-                if(deviceId)
+                if(deviceId) //If fetch devices call was triggered by add device
                     dispatch(watchWifiState(deviceId))
+
+                if(deviceDoc._data.threshUpdated && deviceDoc._data.timestamp){
+                    let updateTime = deviceDoc._data.threshUpdated.toDate();
+                    let retrieveTime = deviceDoc._data.timestamp.toDate();
+                    let pending = moment(retrieveTime).isBefore(updateTime);
+                    if(pending)
+                        dispatch(watchTimestamp(deviceDoc._data.deviceId));
+                } else if (deviceDoc._data.threshUpdated && !deviceDoc._data.timestamp){
+                    dispatch(watchTimestamp(deviceDoc._data.deviceId));
+                }
             }
         }
 
@@ -147,6 +159,7 @@ export const addDevice = (deviceId, deviceName, deviceToken, navigation) => (dis
     const uid = getState().auth.user.uid;
 
     firestore().collection('devices').doc(deviceId).set({
+        uid,
         deviceId,
         tempThresh: 37.5,
         deviceName,
@@ -182,21 +195,64 @@ export const renameDevice = (deviceId, deviceName, toggleModal) => dispatch => {
     })
 }
 
-
-
 export const updateThreshold = (deviceId, threshold, toggleModal) => dispatch => {
     dispatch(updateThresholdRequest())
 
     firestore().collection('devices').doc(deviceId).update({
-        tempThresh: parseFloat(threshold)
+        tempThresh: parseFloat(threshold),
+        threshUpdated: firestore.Timestamp.now()
     }).then(() => {
         dispatch(updateThresholdSuccess())
         toggleModal();
         dispatch(fetchDevices());
+        dispatch(watchTimestamp(deviceId))
     }).catch(err => {
         console.log(err)
         dispatch(updateThresholdFailure())
     })
+}
+
+//Watch for timestamp field to update
+export const watchTimestamp = (deviceId) => dispatch => {
+    dispatch(updateThresholdState('pending', deviceId));
+    let unsubscribeTimestampListener = firestore().collection("devices").doc(deviceId)
+        .onSnapshot(function(doc) {
+            let data = doc.data();
+
+            if(data.threshUpdated && data.timestamp){
+
+
+                let updateTime = data.threshUpdated.toDate();
+                let retrieveTime = data.timestamp.toDate();
+
+                // moment('2010-10-20').isAfter('2010-10-19'); // true
+
+                let complete = moment(retrieveTime).isAfter(moment(updateTime).add(5, 'm'))
+                let updated = moment(retrieveTime).isAfter(updateTime);
+                let pending = moment(retrieveTime).isBefore(updateTime);
+
+                if(complete) {
+                    dispatch(updateThresholdState('null', deviceId));
+                    unsubscribe()
+                } else if(updated) {
+                    dispatch(updateThresholdState('updated', deviceId));
+                } else if(pending) {
+                    dispatch(updateThresholdState('pending', deviceId));
+                }
+            }
+        });
+
+    function unsubscribe() {
+        unsubscribeTimestampListener();
+    }
+}
+
+const updateThresholdState = (status, deviceId) => {
+    return {
+        type: UPDATE_THRESHOLD_STATE,
+        status,
+        deviceId
+    }
 }
 
 export const addNewIssue = (title, content, toggleModal) => (dispatch, getState) => {

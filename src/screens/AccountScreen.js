@@ -18,7 +18,7 @@ import { Snackbar } from 'react-native-paper';
 import IconToggle from "../components/IconToggle";
 import {FontAwesome, Feather, MaterialCommunityIcons} from "@expo/vector-icons";
 import template from "../styles/styles";
-import { TouchableRipple, Divider, Switch, Menu } from "react-native-paper";
+import { TouchableRipple, Divider, Banner, Menu } from "react-native-paper";
 import theme from "../styles/theme.styles";
 
 
@@ -35,6 +35,11 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
     const [degreeUnit, setDegreeUnit] = useState(auth.user ? auth.user.degreeUnit : null)
     const [snackText, setSnackText] = useState('');
     const [snackVisible, setSnackVisible] = useState(false);
+    const [networkBannerVisible, setNetworkBannerVisible] = useState(false);
+
+    useEffect(() => {
+        setNetworkBannerVisible(!ui.isConnected);
+    }, [ui.isConnected])
 
     useEffect(() => {
         if(auth.user){
@@ -128,6 +133,15 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
                             </View>
                         ) : null}
                     </View>
+                    <Banner
+                        visible={networkBannerVisible}
+                        actions={[]}
+                        icon={() =>
+                            <Feather style={{fontSize: 32, color: theme.COLOR_LIGHTGREY, marginLeft: 12, marginTop: -6}} name="wifi-off"/>
+                        }
+                    >
+                        <Text style={{color: theme.COLOR_LIGHTGREY, fontFamily: 'Lato', fontSize: 16}}>No network connection detected.</Text>
+                    </Banner>
                 </View>
                 <ScrollView>
                     <View style={styles.content}>
@@ -160,8 +174,8 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
                                     onDismiss={toggleMenu}
                                     style={{marginLeft: menuOffset, width: 180}}
                                     anchor={
-                                        <TouchableRipple disabled={auth.updateProfileRequest} onPress={toggleMenu}>
-                                            <View style={[styles.settingsItem, auth.updateProfileRequest && styles.disabledItem]} onLayout={(event) => setMenuOffset(event.nativeEvent.layout.width - 180)}>
+                                        <TouchableRipple disabled={auth.updateProfileRequest || !ui.isConnected} onPress={toggleMenu}>
+                                            <View style={[styles.settingsItem, (auth.updateProfileRequest || !ui.isConnected) && styles.disabledItem]} onLayout={(event) => setMenuOffset(event.nativeEvent.layout.width - 180)}>
                                                 <Text style={{fontFamily: 'Lato', fontSize: 16}}>Temperature Unit</Text>
                                                 <MaterialCommunityIcons style={[{color: theme.COLOR_PRIMARY, fontSize: 24}, auth.updateProfileRequest && {color: theme.COLOR_TEXT}]} name={degreeUnit === "celsius" ? "temperature-celsius" : "temperature-fahrenheit"}/>
                                             </View>

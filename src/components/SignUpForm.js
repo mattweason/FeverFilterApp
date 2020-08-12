@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {Text, View} from 'react-native';
 import CustomTextInput from "./CustomTextInput";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -9,7 +9,7 @@ import AuthErrorMessage from "./AuthErrorMessage";
 
 import {connect} from "react-redux";
 
-const SignUpForm = ({shiftUI, onSubmit, style, auth}) => {
+const SignUpForm = ({shiftUI, onSubmit, style, auth, ui}) => {
 
     //Input refs used for focus on next input when Next is pressed
     let nameRef = {};
@@ -113,8 +113,11 @@ const SignUpForm = ({shiftUI, onSubmit, style, auth}) => {
                         autoCorrect={false}
                         error={touched.password && errors.password}
                     />
+                    { !ui.isConnected ? (
+                        <Text style={template.networkError}>No network connection detected.</Text>
+                    ) : null }
                     { auth.loginError ? <AuthErrorMessage errorCode={auth.loginErrorMessage}/> : null }
-                    <PrimaryButton disabled={auth.isLoggingIn} loading={auth.isLoggingIn} style={{marginTop: 12}} title="Create Account" onPress={handleSubmit} />
+                    <PrimaryButton disabled={auth.isLoggingIn || !ui.isConnected} loading={auth.isLoggingIn} style={{marginTop: 12}} title="Create Account" onPress={handleSubmit} />
                 </View>
             )}
         </Formik>
@@ -123,7 +126,8 @@ const SignUpForm = ({shiftUI, onSubmit, style, auth}) => {
 
 const mapStateToProps = state => {
     return {
-        auth: state.auth
+        auth: state.auth,
+        ui: state.ui
     }
 };
 

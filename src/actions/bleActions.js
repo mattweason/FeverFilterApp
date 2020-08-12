@@ -7,6 +7,7 @@ export const CHANGE_STATUS = "CHANGE_STATUS";
 export const CONNECTION_ERROR = "CONNECTION_ERROR";
 export const CLEAR_CONNECTION_ERROR = "CLEAR_CONNECTION_ERROR";
 export const SCANNED_DEVICE_ID = "SCANNED_DEVICE_ID";
+export const BLUETOOTH_ADAPTER_STATUS = "BLUETOOTH_ADAPTER_STATUS"
 
 export const scannedDeviceId = (deviceId) => ({
     type: SCANNED_DEVICE_ID,
@@ -41,6 +42,18 @@ export const clearConnectionError = () => dispatch => {
     dispatch({
         type: CLEAR_CONNECTION_ERROR
     })
+}
+
+const updateBluetoothState = (status) => ({
+    type: BLUETOOTH_ADAPTER_STATUS,
+        status
+})
+
+export const watchBluetoothState = () => (dispatch, getState, DeviceManager) => {
+    const subscription = DeviceManager.onStateChange((state) => {
+        console.log('bluetooth', state)
+        dispatch(updateBluetoothState(state))
+    }, true)
 }
 
 export const startScan = (bleID) => {
@@ -84,6 +97,7 @@ export const scan = (bleID) => {
 
 export const stopScan = (method) => {
     return (dispatch, getState, DeviceManager) => {
+        clearTimeout(timeout)
         dispatch(changeStatus(method ? method : "Stopped scan"));
         DeviceManager.stopDeviceScan();
     }

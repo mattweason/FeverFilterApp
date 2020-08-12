@@ -66,7 +66,7 @@ const QRCodeScannerScreen = ({ble, navigation, startScan, stopScan, clearConnect
     }, [ble.error])
 
     const handleBarCodeScanned = ({data}) => {
-        if(data.includes('ff')){
+        if(data.includes('ff') || data.includes('FF') || data.includes('Ff') || data.includes('fF')){
             setDeviceBLEID(data);
             scannedDeviceId(data);
             setScanned(true)
