@@ -217,27 +217,29 @@ export const watchTimestamp = (deviceId) => dispatch => {
     dispatch(updateThresholdState('pending', deviceId));
     let unsubscribeTimestampListener = firestore().collection("devices").doc(deviceId)
         .onSnapshot(function(doc) {
-            let data = doc.data();
+            if(doc){
+                let data = doc.data();
 
-            if(data.threshUpdated && data.timestamp){
+                if(data.threshUpdated && data.timestamp){
 
 
-                let updateTime = data.threshUpdated.toDate();
-                let retrieveTime = data.timestamp.toDate();
+                    let updateTime = data.threshUpdated.toDate();
+                    let retrieveTime = data.timestamp.toDate();
 
-                // moment('2010-10-20').isAfter('2010-10-19'); // true
+                    // moment('2010-10-20').isAfter('2010-10-19'); // true
 
-                let complete = moment(retrieveTime).isAfter(moment(updateTime).add(5, 'm'))
-                let updated = moment(retrieveTime).isAfter(updateTime);
-                let pending = moment(retrieveTime).isBefore(updateTime);
+                    let complete = moment(retrieveTime).isAfter(moment(updateTime).add(5, 'm'))
+                    let updated = moment(retrieveTime).isAfter(updateTime);
+                    let pending = moment(retrieveTime).isBefore(updateTime);
 
-                if(complete) {
-                    dispatch(updateThresholdState('null', deviceId));
-                    unsubscribe()
-                } else if(updated) {
-                    dispatch(updateThresholdState('updated', deviceId));
-                } else if(pending) {
-                    dispatch(updateThresholdState('pending', deviceId));
+                    if(complete) {
+                        dispatch(updateThresholdState('null', deviceId));
+                        unsubscribe()
+                    } else if(updated) {
+                        dispatch(updateThresholdState('updated', deviceId));
+                    } else if(pending) {
+                        dispatch(updateThresholdState('pending', deviceId));
+                    }
                 }
             }
         });
@@ -276,10 +278,12 @@ export const addNewIssue = (title, content, toggleModal) => (dispatch, getState)
 export const watchWifiState = (deviceId) => dispatch => {
     let unsubscribeWifiListener = firestore().collection("devices").doc(deviceId)
         .onSnapshot(function(doc) {
-            let data = doc.data();
-            if(data.wifiState !== null){
-                dispatch(updateWifiState(data.wifiState, deviceId))
-                unsubscribe()
+            if(doc){
+                let data = doc.data();
+                if(data.wifiState !== null){
+                    dispatch(updateWifiState(data.wifiState, deviceId))
+                    unsubscribe()
+                }
             }
         });
 

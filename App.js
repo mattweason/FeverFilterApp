@@ -62,21 +62,21 @@ const MainFlow = () => {
 
 export default App = () => {
     const [appReady, setAppReady ] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [authCheck, setAuthCheck ] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
 
     const onAuthStateChanged = async (user) => {
         if(user){
-            setTimeout(async () => {
-                const userDoc = await firestore().collection('accounts').doc(user.uid).get();
-                const userData = userDoc._data;
-                userData.uid = user.uid;
-                setIsAuthenticated(true);
-                store.dispatch(receiveLogin(userData))
-                if(!appReady) setAppReady(true);
-            }, 500)
+            const userDoc = await firestore().collection('accounts').doc(user.uid).get();
+            const userData = userDoc._data;
+            userData.uid = user.uid;
+            setIsAuthenticated(true);
+            store.dispatch(receiveLogin(userData))
+            if(!authCheck) setAuthCheck(true);
         } else{
             setIsAuthenticated(false);
-            if(!appReady) setAppReady(true);
+            if(!authCheck) setAuthCheck(true);
         }
         SplashScreen.hide();
 
@@ -84,20 +84,23 @@ export default App = () => {
 
     //Listen to the redux store and initialize app if we are both connected to the internet and the app has not yet initialized
     const connectedListener = store.subscribe(() => {
-        if(!appReady && store.getState().ui.isConnected){
-            initApp()
+        if(store.getState().ui.isConnected){
+            setIsConnected(true)
             connectedListener() //Stop listening once app is initialize
         }
 
     })
 
     useEffect(() => {
+        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
 
         SplashScreen.hide();
 
         //Start listening for wifi
         //Only when we have wifi will the app initialize
         store.dispatch(wifiListener())
+
+        initApp()
 
         const unsubscribe = messaging().onMessage(async remoteMessage => {
             if(remoteMessage)
@@ -118,6 +121,8 @@ export default App = () => {
             'Lato-bold': require('./assets/fonts/Lato-Bold.ttf'),
         });
 
+        setAppReady(true)
+
         if(Platform.OS === 'android')
             try {
                 const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -136,7 +141,6 @@ export default App = () => {
         if(locales[0])
             store.dispatch(userCountry(locales[0].countryCode))
 
-        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     }
 
     return (
@@ -145,7 +149,7 @@ export default App = () => {
                 <StatusBar backgroundColor={theme.COLOR_PRIMARY} />
                 <SafeAreaProvider>
                     <NavigationContainer>
-                        { appReady && store.getState().ui.isConnected ? (
+                        { appReady && isConnected && authCheck ? (
                             <>
                                 { isAuthenticated ? (
                                     <Stack.Navigator

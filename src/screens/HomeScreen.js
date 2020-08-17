@@ -20,7 +20,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import messaging from "@react-native-firebase/messaging";
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
-import CustomTextInput from "../components/CustomTextInput";
 
 //Convert temperature to fahrenheit
 const convertToF = (degree) => {
