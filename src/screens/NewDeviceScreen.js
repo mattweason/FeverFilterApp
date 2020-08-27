@@ -156,7 +156,6 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                             <ConnectDevice
                                 ref={connectDevice}
                                 connectModal={toggleConnectInfoModal}
-                                clearConnectionError={clearConnectionError}
                                 active={active}
                                 setActive={setActive}
                                 deviceName={deviceName}
@@ -165,7 +164,7 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                         </View>
                         <View style={[styles.fabContainer, {paddingBottom: 16 + insets.bottom}]}>
                             <PrimaryButton disabled={device.addDeviceRequest} mode="text" title={'Cancel'} onPress={toggleCancelModal} />
-                            <PrimaryButton disabled={!ui.newDeviceReady || device.addDeviceRequest} style={{marginLeft: 12}} title={"Add Device"} loading={device.addDeviceRequest} onPress={() => {
+                            <PrimaryButton disabled={!ui.newDeviceReady || device.addDeviceRequest || active < 3} style={{marginLeft: 12}} title={"Add Device"} loading={device.addDeviceRequest} onPress={() => {
                                 addDevice(ble.scannedDeviceId, deviceName, deviceToken, navigation);
                             }} />
                         </View>

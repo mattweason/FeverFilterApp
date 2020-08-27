@@ -35,7 +35,8 @@ export default (state =INITIAL_STATE, action) => {
         case CLEAR_CONNECTION_ERROR:
             return {
                 ...state,
-                error: ''
+                error: '',
+                status: ''
             }
         case DEVICE_DISCONNECTED:
             return {

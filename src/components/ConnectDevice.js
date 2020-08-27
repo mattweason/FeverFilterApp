@@ -13,7 +13,7 @@ import {newDeviceReady} from "../actions/uiActions";
 //Gets correct height and width for logo
 const window = Dimensions.get('window');
 
-const ConnectDevice = forwardRef(({connectModal, ble, setUpWifi, setActive, active, deviceName, setDeviceName, startScan, clearConnectionError}, ref) => {
+const ConnectDevice = forwardRef(({connectModal, ble, setUpWifi, setActive, active, ui, deviceName, setDeviceName, startScan}, ref) => {
     const [reconnect, setReconnect] = useState(false);
     const [reconnecting, setReconnecting] = useState(false);
 
@@ -38,10 +38,6 @@ const ConnectDevice = forwardRef(({connectModal, ble, setUpWifi, setActive, acti
             setReconnect(false);
         }
     }, [ble.status])
-
-    useEffect(() => {
-
-    });
 
     return (
         <View style={styles.container}>
@@ -96,7 +92,7 @@ const ConnectDevice = forwardRef(({connectModal, ble, setUpWifi, setActive, acti
             <Header number="3" title="Set Up Device WiFi" active={active > 2} />
             <View style={[styles.content, styles.noBorder]}>
 
-                { ble.status === "CharacteristicReceived" ? (
+                { ble.status === "CharacteristicReceived" || ui.newDeviceReady ? (
                     <View style={styles.successRow}>
                         <FontAwesome style={styles.icon} name="check"/>
                         <Text style={styles.successText}>Your FeverFilter is online!</Text>
@@ -202,7 +198,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
     return {
-        ble: state.ble
+        ble: state.ble,
+        ui: state.ui
     }
 };
 
