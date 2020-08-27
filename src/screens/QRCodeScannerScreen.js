@@ -30,7 +30,7 @@ const QRCodeScannerScreen = ({ble, navigation, startScan, stopScan, clearConnect
         }
     }, []);
 
-    //We need oto ble id to auto connect during scanning
+    //We need ble id to auto connect during scanning
     useEffect(() => {
         if(deviceBLEID){
             startScan(deviceBLEID)

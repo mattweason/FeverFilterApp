@@ -1,5 +1,7 @@
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment'
+import base64 from "react-native-base64";
+import {disconnect} from "./bleActions";
 
 export const FETCH_DEVICES_REQUEST = "FETCH_DEVICES_REQUEST";
 export const FETCH_DEVICES_SUCCESS = "FETCH_DEVICES_SUCCESS";
@@ -154,30 +156,46 @@ export const fetchDevices = (deviceId = '') => async (dispatch, getState) => {
 
 }
 
-export const addDevice = (deviceId, deviceName, deviceToken, navigation) => (dispatch, getState) => {
+export const addDevice = (deviceId, deviceName, deviceToken, navigation) => async (dispatch, getState, DeviceManager) => {
     dispatch(addDeviceRequest())
     const uid = getState().auth.user.uid;
+    const device = getState().ble.device;
+    const serviceUUID = "000000ff-0000-1000-8000-00805f9b34fb";
+    const writeCharacteristicUUID = "0000ee01-0000-1000-8000-00805f9b34fb";
 
-    firestore().collection('devices').doc(deviceId).set({
-        uid,
-        deviceId,
-        tempThresh: 37.5,
-        deviceName,
-        deviceToken,
-        wifiState: null
-    }).then(() => {
-        const deviceRef = firestore().collection('devices').doc(deviceId);
-        firestore().collection('accounts').doc(uid).update({
-            devices: firestore.FieldValue.arrayUnion(deviceRef)
-        }).then(() => {
-            dispatch(addDeviceSuccess())
-            dispatch(fetchDevices(deviceId));
-            navigation.goBack(null);
-        })
-    }).catch(err => {
-        console.log(err)
+    if (device.hasOwnProperty('_manager')) {
+        const connected = await DeviceManager.isDeviceConnected(device.id);
+
+        if (connected){
+
+            firestore().collection('devices').doc(deviceId).set({
+                uid,
+                deviceId,
+                tempThresh: 37.5,
+                deviceName,
+                deviceToken,
+                wifiState: null
+            }).then(() => {
+                const deviceRef = firestore().collection('devices').doc(deviceId);
+                firestore().collection('accounts').doc(uid).update({
+                    devices: firestore.FieldValue.arrayUnion(deviceRef)
+                }).then(async () => {
+                    //add device characteristic
+                    await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("h"));
+
+                    dispatch(addDeviceSuccess())
+                    dispatch(fetchDevices(deviceId));
+                    dispatch(disconnect());
+                    navigation.goBack(null);
+                })
+            }).catch(err => {
+                console.log(err)
+                dispatch(addDeviceFailure())
+            });
+        } else
+            dispatch(addDeviceFailure())
+    } else
         dispatch(addDeviceFailure())
-    });
 }
 
 export const renameDevice = (deviceId, deviceName, toggleModal) => dispatch => {

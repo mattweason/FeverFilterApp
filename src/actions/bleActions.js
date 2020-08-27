@@ -154,18 +154,24 @@ const handleDisconnect = (device) => {
     }
 }
 
-export const disconnect = () => {
+export const disconnect = (cancelAdd) => {
     return async (dispatch, getState, DeviceManager) => {
         const device = getState().ble.device;
+        const serviceUUID = "000000ff-0000-1000-8000-00805f9b34fb";
+        const writeCharacteristicUUID = "0000ee01-0000-1000-8000-00805f9b34fb";
 
         if (device.hasOwnProperty('_manager')) {
             const connected = await DeviceManager.isDeviceConnected(device.id);
 
-            if (connected)
-                await DeviceManager.cancelDeviceConnection(device.id);
+            if (connected){
+                if(cancelAdd)
+                //cancel add device characteristic
+                    await device.writeCharacteristicWithResponseForService(serviceUUID, writeCharacteristicUUID, base64.encode("i"));
 
-            dispatch(deviceDisconnected());
-            dispatch(changeStatus("disconnected"));
+                await DeviceManager.cancelDeviceConnection(device.id);
+                dispatch(deviceDisconnected());
+                dispatch(changeStatus("disconnected"));
+            }
         }
     }
 }

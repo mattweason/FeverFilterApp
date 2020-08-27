@@ -68,23 +68,12 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
     //Carousel ref data is not available until component is mounted
     useEffect(() => {
         newDeviceReady(false);
-
-        const focusUnsubscribe = navigation.addListener('didFocus', payload => {
-            BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-        })
-
-        const blurUnsubscribe = navigation.addListener('didBlur', payload => {
-            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-        })
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
         return () => {
             scannedDeviceId('');
-            focusUnsubscribe;
-            blurUnsubscribe;
             BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
             clearConnectionError();
-            disconnect();
-            // addOtoReset()
         }
 
     }, []);
@@ -189,6 +178,7 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                             confirmButton={{title: "OK", action: () => {
                                     toggleCancelModal();
                                     setTimeout(() => {
+                                        disconnect(true);
                                         navigation.goBack(null)
                                     }, 0)
                                 }}}
