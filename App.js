@@ -77,7 +77,6 @@ export default App = () => {
         }
         else
             setTimeout(async () => {
-                console.log('running again')
                 await getUserAccount(uid)
             }, 100)
     }
