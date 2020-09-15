@@ -66,14 +66,25 @@ export default App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
 
-    const onAuthStateChanged = async (user) => {
-        if(user){
-            const userDoc = await firestore().collection('accounts').doc(user.uid).get();
-            const userData = userDoc._data;
-            userData.uid = user.uid;
+    const getUserAccount = async (uid) => {
+        const userDoc = await firestore().collection('accounts').doc(uid).get();
+        if (userDoc._data){
+            let userData = userDoc._data;
+            userData.uid = uid;
             setIsAuthenticated(true);
             store.dispatch(receiveLogin(userData))
             if(!authCheck) setAuthCheck(true);
+        }
+        else
+            setTimeout(async () => {
+                console.log('running again')
+                await getUserAccount(uid)
+            }, 100)
+    }
+
+    const onAuthStateChanged = async (user) => {
+        if(user){
+            await getUserAccount(user.uid)
         } else{
             setIsAuthenticated(false);
             if(!authCheck) setAuthCheck(true);
