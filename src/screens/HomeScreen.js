@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import messaging from "@react-native-firebase/messaging";
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
+import * as Permissions from "expo-permissions";
 
 //Convert temperature to fahrenheit
 const convertToF = (degree) => {
@@ -157,39 +158,56 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     }
 
     //Only android can show list of wifi networks
-    const handleSetUpWifi = () => {
-        NetInfo.fetch().then(state => {
-            if(Platform.OS === 'android'){
-                if(state.isWifiEnabled) {
-                    toggleWifiModal();
-                } else if(!state.isWifiEnabled){
-                    disconnect();
-                    Alert.alert(
-                        "No Wifi",
-                        "Your phone's WiFi is not enabled. Please enable it and try again.",
-                        [
-                            {text: "OK", onPress: () => {}}
-                        ],
-                        {cancelable: false}
-                    );
-                }
+    const handleSetUpWifi = async () => {
+        try {
+            const { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+            if (status === 'granted') {
+                NetInfo.fetch().then(state => {
+                    if(Platform.OS === 'android'){
+                        if(state.isWifiEnabled) {
+                            toggleWifiModal();
+                        } else if(!state.isWifiEnabled){
+                            disconnect();
+                            Alert.alert(
+                                "No Wifi",
+                                "Your phone's WiFi is not enabled. Please enable it and try again.",
+                                [
+                                    {text: "OK", onPress: () => {}}
+                                ],
+                                {cancelable: false}
+                            );
+                        }
+                    } else {
+                        if(state.type === 'wifi' || state.isConnected) {
+                            setIosSsid(state.details.ssid);
+                            toggleWifiModal(state.details);
+                        } else {
+                            disconnect();
+                            Alert.alert(
+                                "Not Connected to WiFi",
+                                "Please connect to the WiFi network you want your FeverFilter to connect to.",
+                                [
+                                    {text: "OK", onPress: () => {}}
+                                ],
+                                {cancelable: false}
+                            );
+                        }
+                    }
+                });
             } else {
-                if(state.type === 'wifi' || state.isConnected) {
-                    setIosSsid(state.details.ssid);
-                    toggleWifiModal(state.details);
-                } else {
-                    disconnect();
-                    Alert.alert(
-                        "Not Connected to WiFi",
-                        "Please connect to the WiFi network you want your FeverFilter to connect to.",
-                        [
-                            {text: "OK", onPress: () => {}}
-                        ],
-                        {cancelable: false}
-                    );
-                }
+                Alert.alert(
+                    "Location Not Enabled",
+                    "Location permission is required to access your WiFi.",
+                    [
+                        {text: "OK", onPress: () => {}}
+                    ],
+                    {cancelable: false}
+                );
             }
-        });
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     const renameModalSubmit = (deviceName) => {
@@ -224,19 +242,36 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                             >
                                 <Menu.Item onPress={() => {}} disabled={true} icon="settings" title="Settings" />
                                 <Divider />
-                                <Menu.Item onPress={() => {
-                                    if(Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff")
+                                <Menu.Item onPress={ async () => {
+                                    const {status} =
+                                    Platform.OS === 'android' && await Permissions.askAsync(Permissions.LOCATION);
+
+                                    if(status !== 'granted')
                                         Alert.alert(
-                                            'Bluetooth Off',
-                                            "Your phone's Bluetooth is turned off. Please turn it on.",
+                                            "Need Permission",
+                                            "Location permissions are required to connect to OtO via bluetooth.",
                                             [
-                                                {text: 'OK', onPress: () => {}}
+                                                {text: "OK"}
                                             ],
                                             {cancelable: false}
-                                        )
-                                    else{
-                                        toggleMenu(-1)
-                                        toggleWifiResetModalVisible()
+                                        );
+                                    else {
+                                        if (Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff")
+                                            Alert.alert(
+                                                'Bluetooth Off',
+                                                "Your phone's Bluetooth is turned off. Please turn it on.",
+                                                [
+                                                    {
+                                                        text: 'OK', onPress: () => {
+                                                        }
+                                                    }
+                                                ],
+                                                {cancelable: false}
+                                            )
+                                        else {
+                                            toggleMenu(-1)
+                                            toggleWifiResetModalVisible()
+                                        }
                                     }
                                 }} icon="wifi" title="Network Settings" />
                                 <Menu.Item onPress={() => {

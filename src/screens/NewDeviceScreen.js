@@ -109,37 +109,54 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
     };
 
     //Only android can show list of wifi networks
-    const handleSetUpWifi = () => {
-        NetInfo.fetch().then(state => {
-            if(Platform.OS === 'android'){
-                if(state.isWifiEnabled) {
-                    toggleWifiModal();
-                } else if(!state.isWifiEnabled){
-                    Alert.alert(
-                        "No Wifi",
-                        "Your phone's WiFi is not enabled. Please enable it and try again.",
-                        [
-                            {text: "OK", onPress: () => {}}
-                        ],
-                        {cancelable: false}
-                    );
-                }
+    const handleSetUpWifi = async () => {
+        try {
+            const { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+            if (status === 'granted') {
+                NetInfo.fetch().then(state => {
+                    if(Platform.OS === 'android'){
+                        if(state.isWifiEnabled) {
+                            toggleWifiModal();
+                        } else if(!state.isWifiEnabled){
+                            Alert.alert(
+                                "No Wifi",
+                                "Your phone's WiFi is not enabled. Please enable it and try again.",
+                                [
+                                    {text: "OK", onPress: () => {}}
+                                ],
+                                {cancelable: false}
+                            );
+                        }
+                    } else {
+                        if(state.type === 'wifi' || state.isConnected) {
+                            setIosSsid(state.details.ssid);
+                            toggleWifiModal(state.details);
+                        } else {
+                            Alert.alert(
+                                "Not Connected to WiFi",
+                                "Please connect to the WiFi network you want your FeverFilter to connect to.",
+                                [
+                                    {text: "OK", onPress: () => {}}
+                                ],
+                                {cancelable: false}
+                            );
+                        }
+                    }
+                });
             } else {
-                if(state.type === 'wifi' || state.isConnected) {
-                    setIosSsid(state.details.ssid);
-                    toggleWifiModal(state.details);
-                } else {
-                    Alert.alert(
-                        "Not Connected to WiFi",
-                        "Please connect to the WiFi network you want your FeverFilter to connect to.",
-                        [
-                            {text: "OK", onPress: () => {}}
-                        ],
-                        {cancelable: false}
-                    );
-                }
+                Alert.alert(
+                    "Location Not Enabled",
+                    "Location permission is required to access your WiFi.",
+                    [
+                        {text: "OK", onPress: () => {}}
+                    ],
+                    {cancelable: false}
+                );
             }
-        });
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     const toggleCancelModal = () => {
@@ -216,10 +233,24 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                                             {cancelable: false}
                                         );
                                     else{
-                                        toggleConnectInfoModal();
-                                        setTimeout(() => {
-                                            navigation.navigate('QRCodeScanner')
-                                        })
+                                        if (Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff")
+                                            Alert.alert(
+                                                "Bluetooth Off",
+                                                "Your phone's Bluetooth is turned off. Please turn it on.",
+                                                [
+                                                    {
+                                                        text: "OK", onPress: () => {
+                                                        }
+                                                    }
+                                                ],
+                                                {cancelable: false}
+                                            );
+                                        else {
+                                            toggleConnectInfoModal();
+                                            setTimeout(() => {
+                                                navigation.navigate('QRCodeScanner')
+                                            })
+                                        }
                                     }
                                 }}}
                         />
