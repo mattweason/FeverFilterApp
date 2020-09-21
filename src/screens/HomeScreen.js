@@ -173,7 +173,9 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                                 "No Wifi",
                                 "Your phone's WiFi is not enabled. Please enable it and try again.",
                                 [
-                                    {text: "OK", onPress: () => {}}
+                                    {text: "OK", onPress: () => {
+                                            disconnect()
+                                    }}
                                 ],
                                 {cancelable: false}
                             );
@@ -188,7 +190,9 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                                 "Not Connected to WiFi",
                                 "Please connect to the WiFi network you want your FeverFilter to connect to.",
                                 [
-                                    {text: "OK", onPress: () => {}}
+                                    {text: "OK", onPress: () => {
+                                            disconnect()
+                                    }}
                                 ],
                                 {cancelable: false}
                             );
@@ -200,7 +204,9 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                     "Location Not Enabled",
                     "Location permission is required to access your WiFi.",
                     [
-                        {text: "OK", onPress: () => {}}
+                        {text: "OK", onPress: () => {
+                            disconnect()
+                            }}
                     ],
                     {cancelable: false}
                 );
