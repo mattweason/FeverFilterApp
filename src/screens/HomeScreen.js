@@ -249,25 +249,43 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                                     if(status !== 'granted')
                                         Alert.alert(
                                             "Need Permission",
-                                            "Location permissions are required to connect to OtO via Bluetooth.",
+                                            "Location permissions are required to connect to your FeverFilter via Bluetooth.",
                                             [
                                                 {text: "OK"}
                                             ],
                                             {cancelable: false}
                                         );
                                     else {
-                                        if (Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff")
-                                            Alert.alert(
-                                                'Bluetooth Off',
-                                                "Your phone's Bluetooth is turned off. Please turn it on.",
-                                                [
-                                                    {
-                                                        text: 'OK', onPress: () => {
-                                                        }
-                                                    }
-                                                ],
-                                                {cancelable: false}
-                                            )
+                                        if (Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff"){
+                                            if(ble.bluetoothStatus === "PoweredOff")
+                                                Alert.alert(
+                                                    'Bluetooth Off',
+                                                    "Your phone's Bluetooth is turned off. Please turn it on.",
+                                                    [
+                                                        {text: 'OK', onPress: () => {}}
+                                                    ],
+                                                    {cancelable: false}
+                                                )
+                                            else if(ble.bluetoothStatus === "Unauthorized")
+                                                Alert.alert(
+                                                    'Need Permission',
+                                                    "Bluetooth permissions are required to connect to your FeverFilter via Bluetooth.",
+                                                    [
+                                                        {text: 'OK', onPress: () => {}}
+                                                    ],
+                                                    {cancelable: false}
+                                                )
+
+                                            else if(ble.bluetoothStatus === "Unsupported")
+                                                Alert.alert(
+                                                    'Bluetooth Not Supported',
+                                                    "Bluetooth Low Energy is not supported on this mobile device.",
+                                                    [
+                                                        {text: 'OK', onPress: () => {}}
+                                                    ],
+                                                    {cancelable: false}
+                                                )
+                                        }
                                         else {
                                             toggleMenu(-1)
                                             toggleWifiResetModalVisible()

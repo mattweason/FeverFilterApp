@@ -91,6 +91,38 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
     }
 
     const toggleConnectInfoModal = () => {
+        if(Platform.OS === 'ios'){
+            if(ble.bluetoothStatus === "PoweredOff")
+                Alert.alert(
+                    'Bluetooth Off',
+                    "Your phone's Bluetooth is turned off. Please turn it on.",
+                    [
+                        {text: 'OK', onPress: () => {}}
+                    ],
+                    {cancelable: false}
+                )
+            else if(ble.bluetoothStatus === "Unauthorized")
+                Alert.alert(
+                    'Need Permission',
+                    "Bluetooth permissions are required to connect to your FeverFilter via Bluetooth.",
+                    [
+                        {text: 'OK', onPress: () => {}}
+                    ],
+                    {cancelable: false}
+                )
+
+            else if(ble.bluetoothStatus === "Unsupported")
+                Alert.alert(
+                    'Bluetooth Not Supported',
+                    "Bluetooth Low Energy is not supported on this mobile device.",
+                    [
+                        {text: 'OK', onPress: () => {}}
+                    ],
+                    {cancelable: false}
+                )
+            else
+                setConnectInfoModal(!connectInfoModal);
+        }
         if(Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff")
             Alert.alert(
                 'Bluetooth Off',
