@@ -107,7 +107,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     useEffect(() => {
         if(ble.status === "lost connection" && wifiModalVisible){
             toggleWifiModal()
-            setWifiSnackText('Lost bluetooth connection.')
+            setWifiSnackText('Lost Bluetooth connection.')
             toggleWifiSnack()
         }
     }, [ble.status])
@@ -249,25 +249,43 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                                     if(status !== 'granted')
                                         Alert.alert(
                                             "Need Permission",
-                                            "Location permissions are required to connect to OtO via bluetooth.",
+                                            "Location permissions are required to connect to your FeverFilter via Bluetooth.",
                                             [
                                                 {text: "OK"}
                                             ],
                                             {cancelable: false}
                                         );
                                     else {
-                                        if (Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff")
-                                            Alert.alert(
-                                                'Bluetooth Off',
-                                                "Your phone's Bluetooth is turned off. Please turn it on.",
-                                                [
-                                                    {
-                                                        text: 'OK', onPress: () => {
-                                                        }
-                                                    }
-                                                ],
-                                                {cancelable: false}
-                                            )
+                                        if (Platform.OS === 'ios' && ble.bluetoothStatus === "PoweredOff"){
+                                            if(ble.bluetoothStatus === "PoweredOff")
+                                                Alert.alert(
+                                                    'Bluetooth Off',
+                                                    "Your phone's Bluetooth is turned off. Please turn it on.",
+                                                    [
+                                                        {text: 'OK', onPress: () => {}}
+                                                    ],
+                                                    {cancelable: false}
+                                                )
+                                            else if(ble.bluetoothStatus === "Unauthorized")
+                                                Alert.alert(
+                                                    'Need Permission',
+                                                    "Bluetooth permissions are required to connect to your FeverFilter via Bluetooth.",
+                                                    [
+                                                        {text: 'OK', onPress: () => {}}
+                                                    ],
+                                                    {cancelable: false}
+                                                )
+
+                                            else if(ble.bluetoothStatus === "Unsupported")
+                                                Alert.alert(
+                                                    'Bluetooth Not Supported',
+                                                    "Bluetooth Low Energy is not supported on this mobile device.",
+                                                    [
+                                                        {text: 'OK', onPress: () => {}}
+                                                    ],
+                                                    {cancelable: false}
+                                                )
+                                        }
                                         else {
                                             toggleMenu(-1)
                                             toggleWifiResetModalVisible()
@@ -444,7 +462,7 @@ const WifiReset = ({ deviceId, toggleModal, startScan, stopScan, handleSetUpWifi
     return (
         <>
             <Text style={styles.topTitle}>Update Network Settings</Text>
-            <Text style={styles.subTitle}>In order to update the network settings for your FeverFilter, we will need to connect to it over bluetooth. Please ensure you are near the device and press connect.</Text>
+            <Text style={styles.subTitle}>In order to update the network settings for your FeverFilter, we will need to connect to it over Bluetooth. Please ensure you are near the device and press connect.</Text>
             { notFound && (<Text style={styles.notFound}>FeverFilter not found. Make sure you are near the device and try connecting again.</Text>)}
             { !isConnected ? (
                 <Text style={template.networkError}>No network connection detected.</Text>
