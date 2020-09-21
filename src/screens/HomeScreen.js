@@ -107,7 +107,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
     useEffect(() => {
         if(ble.status === "lost connection" && wifiModalVisible){
             toggleWifiModal()
-            setWifiSnackText('Lost bluetooth connection.')
+            setWifiSnackText('Lost Bluetooth connection.')
             toggleWifiSnack()
         }
     }, [ble.status])
@@ -249,7 +249,7 @@ const HomeScreen = ({navigation, fetchDevices, renameDevice, startScan, stopScan
                                     if(status !== 'granted')
                                         Alert.alert(
                                             "Need Permission",
-                                            "Location permissions are required to connect to OtO via bluetooth.",
+                                            "Location permissions are required to connect to OtO via Bluetooth.",
                                             [
                                                 {text: "OK"}
                                             ],
@@ -444,7 +444,7 @@ const WifiReset = ({ deviceId, toggleModal, startScan, stopScan, handleSetUpWifi
     return (
         <>
             <Text style={styles.topTitle}>Update Network Settings</Text>
-            <Text style={styles.subTitle}>In order to update the network settings for your FeverFilter, we will need to connect to it over bluetooth. Please ensure you are near the device and press connect.</Text>
+            <Text style={styles.subTitle}>In order to update the network settings for your FeverFilter, we will need to connect to it over Bluetooth. Please ensure you are near the device and press connect.</Text>
             { notFound && (<Text style={styles.notFound}>FeverFilter not found. Make sure you are near the device and try connecting again.</Text>)}
             { !isConnected ? (
                 <Text style={template.networkError}>No network connection detected.</Text>

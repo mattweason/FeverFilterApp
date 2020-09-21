@@ -225,8 +225,8 @@ const NewDeviceScreen = ({navigation, ui, newDeviceReady, sendWifiCharacteristic
                                         Alert.alert(
                                             "Need Permission",
                                             Platform.OS === 'ios' ?
-                                                "Camera permission is required to scan the QR Code and connect to your FeverFilter via bluetooth."
-                                                : "Camera and Location permissions are required to scan the QR Code and connect to your FeverFilter via bluetooth.",
+                                                "Camera permission is required to scan the QR Code and connect to your FeverFilter via Bluetooth."
+                                                : "Camera and Location permissions are required to scan the QR Code and connect to your FeverFilter via Bluetooth.",
                                             [
                                                 {text: "OK", onPress: () => toggleConnectInfoModal()}
                                             ],
