@@ -15,6 +15,7 @@ const CustomModal = ({
      subTitle,
      content,
      noClose,
+     noDismiss,
      customBackButton = null,
      onModalHide}) => {
 
@@ -48,7 +49,7 @@ const CustomModal = ({
             animationOut="fadeOut"
             avoidKeyboard={Platform.OS === 'ios'}
             backdropTransitionOutTiming={0}
-            onBackdropPress={ keyboardShown ? null : toggleModal}
+            onBackdropPress={ (keyboardShown || noDismiss) ? null : toggleModal}
             onBackButtonPress={ customBackButton ? customBackButton : (keyboardShown ? null : toggleModal)}
             onModalHide={onModalHide}
             loading={loading}

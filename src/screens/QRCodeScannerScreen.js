@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import {Text, View, StyleSheet, Dimensions, ActivityIndicator, Image, Alert, StatusBar, Platform} from 'react-native';
+import {
+    Text,
+    View,
+    StyleSheet,
+    Dimensions,
+    ActivityIndicator,
+    Image,
+    Alert,
+    StatusBar,
+    Platform,
+    ScrollView
+} from 'react-native';
 import theme from '../styles/theme.styles'
 import {BarCodeScanner} from 'expo-barcode-scanner';
 import {FontAwesome} from "@expo/vector-icons";
@@ -8,6 +19,9 @@ import {bindActionCreators} from "redux";
 import {startScan, stopScan, clearConnectionError, scannedDeviceId} from "../actions/bleActions";
 import PrimaryButton from "../components/PrimaryButton";
 import CloseButton from "../components/CloseButton";
+import ManualConnectForm from "../components/ManualConnectForm";
+import ReportIssueForm from "../components/ReportIssueForm";
+import CustomModal from "../components/CustomModal";
 
 //Get window height and width
 const windowHeight = Dimensions.get('window').height;
@@ -21,6 +35,19 @@ const QRCodeScannerScreen = ({ble, navigation, startScan, stopScan, clearConnect
     const [deviceBLEID, setDeviceBLEID] = useState('');
     const [connected, setConnected] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const [connectModalVisible, setConnectModalVisible] = useState(false);
+
+    const toggleConnectModal = () => {
+        setConnectModalVisible(!connectModalVisible)
+    }
+
+    const connectModal = () => {
+        return <ManualConnectForm handleSubmit={handleConnectSubmit} toggleModal={toggleConnectModal} />
+    }
+
+    const handleConnectSubmit = (serialNumber) => {
+        startScan(serialNumber)
+    }
 
     useEffect(() => {
         setHasError(false);
@@ -41,10 +68,13 @@ const QRCodeScannerScreen = ({ble, navigation, startScan, stopScan, clearConnect
     useEffect(() => {
         if(ble.status === "Discovering")
             setConnected(true);
-        if(ble.status === "Listening")
+        if(ble.status === "Listening") {
+            if (connectModalVisible)
+                toggleConnectModal()
             setTimeout(() => {
                 navigation.goBack(null);
             }, 1000)
+        }
     }, [ble.status])
 
     //Alert any errors
@@ -93,6 +123,9 @@ const QRCodeScannerScreen = ({ble, navigation, startScan, stopScan, clearConnect
                     </View>
                 ) : null }
             </View>
+            <View style={styles.connectButton}>
+                <PrimaryButton style={styles.button} title="Connect Manually" onPress={() => {toggleConnectModal()}} />
+            </View>
             <View style={styles.modal}>
                 <View style={styles.card}>
                     <>
@@ -119,6 +152,13 @@ const QRCodeScannerScreen = ({ble, navigation, startScan, stopScan, clearConnect
                     </>
                 </View>
             </View>
+            <CustomModal
+                visible={connectModalVisible}
+                toggleModal={toggleConnectModal}
+                title="Connect Manually"
+                content={connectModal() }
+                noDismiss={true}
+            />
         </View>
     )
 }
@@ -137,6 +177,17 @@ const styles = StyleSheet.create({
         fontFamily: 'Lato',
         color: theme.COLOR_PRIMARY,
         marginRight: 12
+    },
+    button: {
+        width: '60%'
+    },
+    connectButton: {
+        position: 'absolute',
+        bottom: 80,
+        justifyContent: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%'
     },
     container: {
         flex: 1,
