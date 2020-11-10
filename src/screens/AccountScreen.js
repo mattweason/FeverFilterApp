@@ -101,7 +101,7 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
     };
 
     const updateEmailSubmit = (newEmail, currentPassword) => {
-        updateEmail(currentPassword, auth.user.email, newEmail, toggleEmailModal, toggleSnackBar);
+        updateEmail(currentPassword, auth.user.email, auth.user.uid, newEmail, toggleEmailModal, toggleSnackBar);
     };
 
     const updateProfileSubmit = (name, phone) => {

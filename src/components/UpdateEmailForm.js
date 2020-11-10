@@ -77,7 +77,7 @@ const UpdateEmailForm = ({handleSubmit, toggleModal, auth, ui}) => {
                     { !ui.isConnected ? (
                         <Text style={template.networkError}>No network connection detected.</Text>
                     ) : null }
-                    { auth.updateEmailFailure ? <AuthErrorMessage errorCode={auth.updatePasswordErrorMessage === "auth/wrong-password" ? "incorrect-password" : auth.updatePasswordErrorMessage}/> : null }
+                    { auth.updateEmailFailure ? <AuthErrorMessage errorCode={auth.updateEmailErrorMessage === "auth/wrong-password" ? "incorrect-password" : auth.updateEmailErrorMessage}/> : null }
                     <View style={styles.modalActions}>
                         <PrimaryButton disabled={auth.updateEmailRequest} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} />
                         <PrimaryButton loading={auth.updateEmailRequest} disabled={auth.updateEmailRequest || !ui.isConnected} style={styles.button} title="Save" onPress={() => {handleSubmit()}} />

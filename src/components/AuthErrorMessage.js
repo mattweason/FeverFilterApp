@@ -6,6 +6,7 @@ const AuthErrorMessage = ({errorCode}) => {
 
     useEffect(() => {
         if(errorCode){
+            console.log(errorCode)
             if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found')
                 setErrorMessage('Email or password is invalid.')
             else if (errorCode === 'auth/too-many-requests')
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'red',
         bottom: -4,
-        left: 6
+        left: 6,
     }
 })
 

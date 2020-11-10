@@ -245,7 +245,7 @@ export const updatePassword = (userEmail, currentPassword, newPassword, toggleMo
     });
 };
 
-export const updateEmail = (currentPassword, userEmail, newEmail, toggleModal, toggleSnackBar) => dispatch => {
+export const updateEmail = (currentPassword, userEmail, uid, newEmail, toggleModal, toggleSnackBar) => dispatch => {
     dispatch(updateEmailRequest());
 
     const reauthenticate = (currentPassword) => {
@@ -260,10 +260,19 @@ export const updateEmail = (currentPassword, userEmail, newEmail, toggleModal, t
 
         user.updateEmail(newEmail).then(() => {
             toggleModal();
-            dispatch(updateEmailSuccess());
-            dispatch(updateProfileState({email: newEmail}));
 
-            toggleSnackBar('Your email has been updated.');
+            firestore().collection('accounts').doc(uid).update({
+                email: newEmail
+            }).then(() => {
+                dispatch(updateEmailSuccess());
+                dispatch(updateProfileState({email: newEmail}));
+
+                toggleSnackBar('Your email has been updated.');
+
+            }).catch(err => {
+                dispatch(updateEmailFailure())
+            });
+
         }).catch((error) => {
             dispatch(updateEmailFailure(error.code))
         });
