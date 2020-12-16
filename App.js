@@ -34,6 +34,7 @@ import HomeScreen from "./src/screens/HomeScreen";
 import AccountScreen from "./src/screens/AccountScreen";
 import AuthScreen from "./src/screens/AuthScreen";
 import NewDeviceScreen from "./src/screens/NewDeviceScreen";
+import ManageSubscriptions from "./src/screens/ManageSubscriptions";
 import QRCodeScannerScreen from "./src/screens/QRCodeScannerScreen";
 import LoadingScreen from "./src/screens/LoadingScreen"
 import * as RNLocalize from "react-native-localize";
@@ -195,6 +196,7 @@ export default App = () => {
                                         }}>
                                         <Stack.Screen name="Main" component={MainFlow} />
                                         <Stack.Screen name="NewDevice" component={NewDeviceScreen} />
+                                        <Stack.Screen name="ManageSubscriptions" component={ManageSubscriptions} />
                                         <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} />
                                     </Stack.Navigator>
                                 ) : (

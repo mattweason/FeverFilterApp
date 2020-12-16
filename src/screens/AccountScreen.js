@@ -119,6 +119,10 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
         setReceiveNotifications(!receiveNotifications)
     }
 
+    const navigateToSubscription = () => {
+        navigation.navigate('ManageSubscriptions')
+    }
+
     return (
         <>
             <View style={styles.container}>
@@ -185,6 +189,13 @@ const AccountScreen = ({navigation, updatePassword, updateProfile, updateEmail, 
                                     <Menu.Item onPress={() => toggleDegreeUnit('fahrenheit')} icon="temperature-fahrenheit" title="Fahrenheit" />
                                     <Menu.Item onPress={() => toggleDegreeUnit('celsius')} icon="temperature-celsius" title="Celsius" />
                                 </Menu>
+                                <Divider />
+                                <TouchableRipple onPress={navigateToSubscription}>
+                                    <View style={styles.settingsItem}>
+                                        <Text style={{fontFamily: 'Lato', fontSize: 16}}>Manage Subscription</Text>
+                                        <Feather style={{color: theme.COLOR_TEXT, fontSize: 20}} name="arrow-right"/>
+                                    </View>
+                                </TouchableRipple>
                                 {/*<TouchableRipple onPress={toggleNotifications}>*/}
                                 {/*    <View style={styles.settingsItem}>*/}
                                 {/*        <Text style={{fontFamily: 'Lato', fontSize: 16}}>Receive Notifications</Text>*/}
