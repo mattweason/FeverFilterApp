@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     const [issueModalVisible, setIssueModalVisible] = useState(false);
     const [exportReportModalVisible, setExportReportModalVisible] = useState(false);
+    const [premiumModalVisible, setPremiumModalVisible] = useState(false);
     const [issueSnackVisible, setIssueSnackVisible] = useState(false);
     const insets = useSafeAreaInsets()
 
@@ -30,12 +31,19 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
             toggleIssueSnack()
     }
 
+    const togglePremiumModal = () => {
+        setPremiumModalVisible(!premiumModalVisible);
+    }
+
     const issueModalContent = () => {
         return <ReportIssueForm handleSubmit={handleIssueSubmit} toggleModal={toggleIssueModal} />
     }
 
     const toggleReportExportModal = () => {
-        setExportReportModalVisible(!exportReportModalVisible);
+        if(auth.user.subscription.length > 0)
+            setExportReportModalVisible(!exportReportModalVisible);
+        else
+            togglePremiumModal()
     }
 
     const exportReportModalContent = () => {
@@ -185,7 +193,6 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
                     <Image style={{width: 160, height: 100}} resizeMode="contain" source={require('../../assets/logo.png')} />
                 </View>
                 { renderItems() }
-
                 <CustomModal
                     visible={issueModalVisible}
                     toggleModal={toggleIssueModal}
@@ -198,6 +205,18 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
                     title="Device Usage Report"
                     subTitle="Choose a date range from the last 60 days to export your device usage data from. A spreadsheet with the relevant data will be sent to the email for this account."
                     content={exportReportModalContent()}
+                />
+                <CustomModal
+                    visible={premiumModalVisible}
+                    toggleModal={togglePremiumModal}
+                    title="Premium Feature"
+                    subTitle="The Export Report feature is a premium feature and you must be subscribed in order to use it. Press Subscribe below to choose a subscription package that works for you."
+                    content={null}
+                    confirmButton={{title: "Subscribe", action: () => {
+                        togglePremiumModal();
+                        navigation.navigate("ManageSubscriptions")
+                        navigation.closeDrawer()
+                    }}}
                 />
             </ScrollView>
             <Snackbar
