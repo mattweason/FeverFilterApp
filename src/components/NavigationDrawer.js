@@ -8,12 +8,14 @@ import InAppBrowser from 'react-native-inappbrowser-reborn'
 import IconToggle from './IconToggle'
 import CustomModal from "./CustomModal";
 import ReportIssueForm from "./ReportIssueForm"
+import ReportExportDialog from "./ReportExportDialog"
 import {addNewIssue, fetchDevices, renameDevice} from "../actions/deviceActions";
 import {bindActionCreators} from "redux";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     const [issueModalVisible, setIssueModalVisible] = useState(false);
+    const [exportReportModalVisible, setExportReportModalVisible] = useState(false);
     const [issueSnackVisible, setIssueSnackVisible] = useState(false);
     const insets = useSafeAreaInsets()
 
@@ -30,6 +32,14 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
 
     const issueModalContent = () => {
         return <ReportIssueForm handleSubmit={handleIssueSubmit} toggleModal={toggleIssueModal} />
+    }
+
+    const toggleReportExportModal = () => {
+        setExportReportModalVisible(!exportReportModalVisible);
+    }
+
+    const exportReportModalContent = () => {
+        return <ReportExportDialog account={auth.user} toggleModal={toggleReportExportModal} />
     }
 
     const handleIssueSubmit = (title, content) => {
@@ -67,6 +77,13 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
                 navigation.navigate('NewDevice')
                 navigation.closeDrawer()
             }
+        },
+        {
+            title: "Export Report",
+            premium: true,
+            key: null,
+            icon: "file-text",
+            action: () => toggleReportExportModal()
         },
         {
             title: "Visit Website",
@@ -135,7 +152,12 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
                                 <Feather style={[styles.icon, item.key === getActiveRouteName() && {color: "#fff"}]} name={item.icon}/>
                             )}
                         </View>
-                        <Text style={[styles.itemText, item.key === getActiveRouteName() && {color: "#fff"}]}>{item.title}</Text>
+                        <View>
+                            { item.premium && (
+                                <Text style={[styles.premiumItem, item.key === getActiveRouteName() && {color: "#fff"}]}>Premium</Text>
+                            )}
+                            <Text style={[styles.itemText, item.key === getActiveRouteName() && {color: "#fff"}]}>{item.title}</Text>
+                        </View>
                     </View>
                 </TouchableRipple>
             )
@@ -169,6 +191,13 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
                     toggleModal={toggleIssueModal}
                     title="Report an Issue"
                     content={issueModalContent()}
+                />
+                <CustomModal
+                    visible={exportReportModalVisible}
+                    toggleModal={toggleReportExportModal}
+                    title="Device Usage Report"
+                    subTitle="Choose a date range from the last 60 days to export your device usage data from. A spreadsheet with the relevant data will be sent to the email for this account."
+                    content={exportReportModalContent()}
                 />
             </ScrollView>
             <Snackbar
@@ -269,7 +298,14 @@ const styles = StyleSheet.create({
     itemText: {
         fontSize: 14,
         fontFamily: 'Lato',
-        color: theme.COLOR_PRIMARY
+        color: "#4d4d4d"
+    },
+    premiumItem: {
+        color: theme.COLOR_PRIMARY,
+        fontSize: 12,
+        fontFamily: 'Montserrat-bold',
+        position: 'absolute',
+        bottom: 16
     }
 });
 

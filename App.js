@@ -44,6 +44,24 @@ const Drawer = createDrawerNavigator();
 //BLE manager
 const DeviceManager = new BleManager();
 
+//In app purchases
+import * as RNIap from 'react-native-iap'
+
+const itemSkus = Platform.select({
+    ios: [
+        'com.litens.feverfilter.ffsubtier1',
+        'com.litens.feverfilter.ffsubtier2',
+        'com.litens.feverfilter.ffsubtier3',
+        'com.litens.feverfilter.ffsubtier4'
+    ],
+    android: [
+        'com.feverfilter.ffsubtier1',
+        'com.feverfilter.ffsubtier2',
+        'com.feverfilter.ffsubtier3',
+        'com.feverfilter.ffsubtier4'
+    ]
+})
+
 //configure redux store
 const middleware = applyMiddleware(thunk.withExtraArgument(DeviceManager));
 export const store = createStore(reducer, middleware);
@@ -101,10 +119,18 @@ export default App = () => {
 
     })
 
-    useEffect(() => {
+    useEffect(async () => {
         const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
 
         SplashScreen.hide();
+
+        //Get products
+        try {
+            const products = await RNIap.getProducts(itemSkus);
+            console.log(products)
+        } catch(err) {
+            console.warn(err); // standardized err.code and err.message available
+        }
 
         //Start listening for wifi
         //Only when we have wifi will the app initialize

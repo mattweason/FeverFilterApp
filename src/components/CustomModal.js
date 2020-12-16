@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     subTitle: {
+        marginTop: 6,
         color: theme.COLOR_LIGHTGREY,
         fontFamily: 'Lato',
         fontSize: 16
