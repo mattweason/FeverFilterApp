@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     },
     subHeaderText: {
         color: theme.COLOR_LIGHTGREY,
-        fontFamily: 'Lato-regular'
+        fontFamily: 'Lato'
     },
     subscriptionTiers: {
         backgroundColor: 'white',
