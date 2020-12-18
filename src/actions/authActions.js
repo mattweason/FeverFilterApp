@@ -27,6 +27,8 @@ export const UPDATE_EMAIL_FAILURE = "UPDATE_EMAIL_FAILURE";
 
 export const UPDATE_PROFILE_STATE = "UPDATE_PROFILE_STATE";
 
+export const ACTIVE_SUBSCRIPTION_PLAN = "ACTIVE_SUBSCRIPTION_PLAN";
+
 const requestLogin = () => {
     return {
         type: LOGIN_REQUEST
@@ -308,4 +310,11 @@ export const updateDegreeUnit = (unit, uid) => dispatch => {
     }).catch(err => {
         dispatch(updateProfileFailure())
     });
+}
+
+export const setActivePlan = (plan) => {
+    return{
+        type: ACTIVE_SUBSCRIPTION_PLAN,
+        plan
+    }
 }

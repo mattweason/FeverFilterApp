@@ -8,28 +8,34 @@ import {Feather, FontAwesome} from "@expo/vector-icons";
 import {Banner, Divider} from "react-native-paper";
 import PrimaryButton from "../components/PrimaryButton";
 import moment from 'moment';
+import { requestSubscription } from 'react-native-iap';
+import { useIap } from '../context/IAPManager'
 
 //Subscription tiers
 let tiers = [
     {
         title: 'Starter',
         price: '2.99',
-        reportLimit: 1
+        reportLimit: 1,
+        subId: 'ffsubtier1'
     },
     {
         title: 'Basic',
         price: '9.99',
-        reportLimit: 10
+        reportLimit: 10,
+        subId: 'ffsubtier2'
     },
     {
         title: 'Business',
         price: '19.99',
-        reportLimit: 30
+        reportLimit: 30,
+        subId: 'ffsubtier3'
     },
     {
         title: 'Enterprise',
         price: '29.99',
-        reportLimit: 50
+        reportLimit: 50,
+        subId: 'ffsubtier4'
     }
 ]
 
@@ -38,6 +44,17 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
     const [selectedTier, setSelectedTier] = useState(-1)
     const [selectedTierObject, setSelectedTierObject] = useState({})
     const [currentSubscription, setCurrentSubscription] = useState(null)
+    const { processing, setProcessing } = useIap();
+
+    // handle new subscription request
+    const handleSubscription = async (pladId) => {
+        try {
+            setProcessing(true);
+            await requestSubscription(pladId, false);
+        } catch (err) {
+            setProcessing(false);
+        }
+    }
 
     //Component did mount
     useEffect(() => {
@@ -70,8 +87,8 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
             let selected = selectedTier === index;
             return (
                 <View key={index}>
-                    <TouchableOpacity onPress={() => selectTier(index)}>
-                        <View style={{...styles.tierRow, backgroundColor: selected ? theme.COLOR_PRIMARY : 'transparent'}}>
+                    <TouchableOpacity disabled={processing} onPress={() => selectTier(index)}>
+                        <View style={{...styles.tierRow, backgroundColor: selected ? theme.COLOR_PRIMARY : 'transparent', opacity: processing ? 0.4 : 1}}>
                             <View style={styles.flexRow}>
                                 <CustomRadioButton checked={selected} />
                                 <Text style={{...styles.tierText, color: selected ? 'white' : theme.COLOR_PRIMARY}}>{tier.title}</Text>
@@ -119,7 +136,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                             <PrimaryButton style={{width: 120}} disabled={!ui.isConnected} mode="text" title={'Cancel'} onPress={() => {}} />
                         </View>
                     ) : (
-                        <PrimaryButton disabled={!ui.isConnected} title={currentSubscription !== null ? 'Change Plan' : 'Choose Plan'} onPress={() => {}} />
+                        <PrimaryButton loading={processing} disabled={!ui.isConnected || processing} title={currentSubscription !== null ? 'Change Plan' : 'Choose Plan'} onPress={() => handleSubscription(selectedTierObject.subId)} />
                     )}
                 </View>
             </View>

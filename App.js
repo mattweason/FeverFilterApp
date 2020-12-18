@@ -48,7 +48,7 @@ const DeviceManager = new BleManager();
 //In app purchases
 import * as RNIap from 'react-native-iap'
 
-const itemSkus = Platform.select({
+const itemSubs = Platform.select({
     ios: [
         'com.litens.feverfilter.ffsubtier1',
         'com.litens.feverfilter.ffsubtier2',
@@ -56,10 +56,10 @@ const itemSkus = Platform.select({
         'com.litens.feverfilter.ffsubtier4'
     ],
     android: [
-        'com.feverfilter.ffsubtier1',
-        'com.feverfilter.ffsubtier2',
-        'com.feverfilter.ffsubtier3',
-        'com.feverfilter.ffsubtier4'
+        'ffsubtier1',
+        'ffsubtier2',
+        'ffsubtier3',
+        'ffsubtier4'
     ]
 })
 
@@ -125,10 +125,10 @@ export default App = () => {
 
         SplashScreen.hide();
 
-        //Get products
+        //Get subscriptions
         try {
-            const products = await RNIap.getProducts(itemSkus);
-            console.log(products)
+            const subscriptions = await RNIap.getSubscriptions(itemSubs);
+            console.log(subscriptions)
         } catch(err) {
             console.warn(err); // standardized err.code and err.message available
         }
