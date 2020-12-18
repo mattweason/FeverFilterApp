@@ -124,7 +124,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                         <FontAwesome style={{fontSize: 24, color: theme.COLOR_PRIMARY, marginRight: 6}} name="check"/>
                         <Text style={{fontFamily: 'Lato-bold', color: theme.COLOR_PRIMARY, fontSize: 16}}>{selectedTierObject.reportLimit}</Text>
                         <Text style={{fontFamily: 'Lato-bold', fontSize: 16}}> Device Usage Reports</Text>
-                        <Text style={{fontFamily: 'Lato-regular', fontSize: 16}}> /mo</Text>
+                        <Text style={{fontFamily: 'Lato', fontSize: 16}}> /mo</Text>
                     </View>
                     { selectedTierObject.title === currentSubscription ? (
                         <View style={styles.flexColumn}>

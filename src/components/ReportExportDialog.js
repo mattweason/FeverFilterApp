@@ -95,7 +95,7 @@ const ReportExportDialog = ({toggleModal, account}) => {
                     <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12}}>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <Text style={{color: theme.COLOR_PRIMARY, marginRight: 6, fontFamily: 'Lato-bold'}}>{ account.reportUsage }</Text>
-                            <Text style={{fontFamily: 'Lato-regular'}}>reports this month</Text>
+                            <Text style={{fontFamily: 'Lato'}}>reports this month</Text>
                         </View>
                         <Text>{reportLimit}</Text>
                     </View>
