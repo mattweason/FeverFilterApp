@@ -27,7 +27,10 @@ export default (state = {
     loginError: {},
     logoutError: false,
     isAuthenticated: false,
-    user: null
+    user: null,
+    plan: {
+        planId: null
+    }
 }, action) => {
     switch (action.type) {
         case LOGIN_REQUEST:

@@ -27,7 +27,7 @@ import NavigationDrawer from "./src/components/NavigationDrawer";
 
 //Action imports
 import { wifiListener, userCountry } from "./src/actions/uiActions";
-import { receiveLogin } from "./src/actions/authActions";
+import { receiveLogin, setIdToken } from "./src/actions/authActions";
 
 //Screen imports
 import HomeScreen from "./src/screens/HomeScreen";
@@ -47,6 +47,7 @@ const DeviceManager = new BleManager();
 
 //In app purchases
 import * as RNIap from 'react-native-iap'
+import IAPManager from "./src/context/IAPManager";
 
 const itemSubs = Platform.select({
     ios: [
@@ -182,43 +183,45 @@ export default App = () => {
 
     return (
         <Provider store={store}>
-            <PaperProvider>
-                <StatusBar backgroundColor={theme.COLOR_PRIMARY} />
-                <SafeAreaProvider>
-                    <NavigationContainer>
-                        { appReady && isConnected && authCheck ? (
-                            <>
-                                { isAuthenticated ? (
-                                    <Stack.Navigator
-                                        initialRouteName="Main"
-                                        screenOptions={{
-                                            headerShown: false
-                                        }}>
-                                        <Stack.Screen name="Main" component={MainFlow} />
-                                        <Stack.Screen name="NewDevice" component={NewDeviceScreen} />
-                                        <Stack.Screen name="ManageSubscriptions" component={ManageSubscriptions} />
-                                        <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} />
-                                    </Stack.Navigator>
-                                ) : (
-                                    <Stack.Navigator
-                                        screenOptions={{
-                                            headerShown: false
-                                        }}>
-                                        <Stack.Screen name="Auth" component={AuthScreen} />
-                                    </Stack.Navigator>
-                                )}
-                            </>
-                        ) : (
-                            <Stack.Navigator
-                                screenOptions={{
-                                    headerShown: false
-                                }}>
-                                <Stack.Screen name="Loading" component={LoadingScreen} />
-                            </Stack.Navigator>
-                        )}
-                    </NavigationContainer>
-                </SafeAreaProvider>
-            </PaperProvider>
+            <IAPManager>
+                <PaperProvider>
+                    <StatusBar backgroundColor={theme.COLOR_PRIMARY} />
+                    <SafeAreaProvider>
+                        <NavigationContainer>
+                            { appReady && isConnected && authCheck ? (
+                                <>
+                                    { isAuthenticated ? (
+                                        <Stack.Navigator
+                                            initialRouteName="Main"
+                                            screenOptions={{
+                                                headerShown: false
+                                            }}>
+                                            <Stack.Screen name="Main" component={MainFlow} />
+                                            <Stack.Screen name="NewDevice" component={NewDeviceScreen} />
+                                            <Stack.Screen name="ManageSubscriptions" component={ManageSubscriptions} />
+                                            <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} />
+                                        </Stack.Navigator>
+                                    ) : (
+                                        <Stack.Navigator
+                                            screenOptions={{
+                                                headerShown: false
+                                            }}>
+                                            <Stack.Screen name="Auth" component={AuthScreen} />
+                                        </Stack.Navigator>
+                                    )}
+                                </>
+                            ) : (
+                                <Stack.Navigator
+                                    screenOptions={{
+                                        headerShown: false
+                                    }}>
+                                    <Stack.Screen name="Loading" component={LoadingScreen} />
+                                </Stack.Navigator>
+                            )}
+                        </NavigationContainer>
+                    </SafeAreaProvider>
+                </PaperProvider>
+            </IAPManager>
         </Provider>
     )
 }

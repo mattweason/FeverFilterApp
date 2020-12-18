@@ -136,7 +136,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                             <PrimaryButton style={{width: 120}} disabled={!ui.isConnected} mode="text" title={'Cancel'} onPress={() => {}} />
                         </View>
                     ) : (
-                        <PrimaryButton loading={processing} disabled={!ui.isConnected || processing} title={currentSubscription !== null ? 'Change Plan' : 'Choose Plan'} onPress={() => handleSubscription(selectedTierObject.subId)} />
+                        <PrimaryButton style={{width: 200}} loading={processing} disabled={!ui.isConnected || processing} title={currentSubscription !== null ? 'Change Plan' : 'Choose Plan'} onPress={() => handleSubscription(selectedTierObject.subId)} />
                     )}
                 </View>
             </View>

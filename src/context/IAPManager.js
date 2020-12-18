@@ -41,29 +41,7 @@ export const IAPManagerWrapped = (props) => {
         const { productId, transactionReceipt } = purchase;
 
         if (transactionReceipt !== undefined) {
-            fetch(API_URL + '/validate-transaction', {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                method: "POST",
-                body: JSON.stringify({
-                    receipt: transactionReceipt,
-                    productId: productId,
-                    token: props.token
-                })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    setProcessing(false);
-                    if (data.ack === 'success') {
-                        storePlanAsync({ planId: productId });
-                        props.setActivePlan({ planId: productId });
-                    }
-                })
-                .catch(e => {
-                    setProcessing(false);
-                });
+            console.log(transactionReceipt)
         }
     }
 
@@ -113,9 +91,8 @@ export const IAPManagerWrapped = (props) => {
     );
 }
 
-const mapStateToProps = (state, ownProps) => ({
-    token: state.user.token,
-    planId: state.user.plan.planId,
+const mapStateToProps = (state) => ({
+    planId: state.auth.plan.planId,
 });
 
 const mapDispatchToProps = {
