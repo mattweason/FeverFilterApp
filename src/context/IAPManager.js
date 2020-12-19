@@ -3,8 +3,11 @@ import { Platform } from 'react-native'
 import { connect } from 'react-redux'
 import {
     InAppPurchase,
+    initConnection,
+    flushFailedPurchasesCachedAsPendingAndroid,
     PurchaseError,
     SubscriptionPurchase,
+    validateReceiptIos,
     finishTransaction,
     finishTransactionIOS,
     purchaseErrorListener,
@@ -41,34 +44,54 @@ export const IAPManagerWrapped = (props) => {
         const { productId, transactionReceipt } = purchase;
 
         if (transactionReceipt !== undefined) {
-            console.log(transactionReceipt)
+            if(Platform.OS === 'ios'){
+                const receiptBody = {
+                    'receipt-data': transactionReceipt,
+                    'password': 'f4395c2dbcf749a980251b06f39cf814'
+                }
+                const result = await validateReceiptIos(receiptBody, true)
+                console.log(result)
+            }
         }
     }
 
     useEffect(() => {
-        purchaseUpdateSubscription = purchaseUpdatedListener(
-            async (purchase) => {
-                const receipt = purchase.transactionReceipt;
-                if (receipt) {
-                    try {
-                        if (Platform.OS === 'ios') {
-                            finishTransactionIOS(purchase.transactionId);
+        console.log('context mounted ')
+        initConnection().then(() => {
+            // we make sure that "ghost" pending payment are removed
+            // (ghost = failed pending payment that are still marked as pending in Google's native Vending module cache)
+            flushFailedPurchasesCachedAsPendingAndroid().catch(() => {
+                // exception can happen here if:
+                // - there are pending purchases that are still pending (we can't consume a pending purchase)
+                // in any case, you might not want to do anything special with the error
+            }).then(() => {
+                purchaseUpdateSubscription = purchaseUpdatedListener(
+                    async (purchase) => {
+                        console.log('purchasing')
+                        const receipt = purchase.transactionReceipt;
+                        if (receipt) {
+                            try {
+                                if (Platform.OS === 'ios') {
+                                    finishTransactionIOS(purchase.transactionId);
+                                }
+                                await finishTransaction(purchase);
+                                await processNewPurchase(purchase);
+                            } catch (ackErr) {
+                                console.log('ackErr', ackErr);
+                            }
                         }
-                        await finishTransaction(purchase);
-                        await processNewPurchase(purchase);
-                    } catch (ackErr) {
-                        console.log('ackErr', ackErr);
-                    }
-                }
-            },
-        );
-        purchaseErrorSubscription = purchaseErrorListener(
-            (error) => {
-                console.log('purchaseErrorListener', error);
-            },
-        );
+                    },
+                );
+                purchaseErrorSubscription = purchaseErrorListener(
+                    (error) => {
+                        console.log('purchaseErrorListener', error);
+                    },
+                );
+            })
+        })
 
         return (() => {
+            console.log('unmount ')
             if (purchaseUpdateSubscription) {
                 purchaseUpdateSubscription.remove();
                 purchaseUpdateSubscription = null;
