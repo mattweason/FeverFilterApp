@@ -51,10 +51,10 @@ import IAPManager from "./src/context/IAPManager";
 
 const itemSubs = Platform.select({
     ios: [
-        'com.litens.feverfilter.ffsubtier1',
-        'com.litens.feverfilter.ffsubtier2',
-        'com.litens.feverfilter.ffsubtier3',
-        'com.litens.feverfilter.ffsubtier4'
+        'ffsubtier1',
+        'ffsubtier2',
+        'ffsubtier3',
+        'ffsubtier4'
     ],
     android: [
         'ffsubtier1',
