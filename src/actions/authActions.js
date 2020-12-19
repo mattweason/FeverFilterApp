@@ -1,5 +1,6 @@
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import axios from 'axios'
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
@@ -24,6 +25,10 @@ export const UPDATE_PROFILE_FAILURE = "UPDATE_PROFILE_FAILURE";
 export const UPDATE_EMAIL_REQUEST = "UPDATE_EMAIL_REQUEST";
 export const UPDATE_EMAIL_SUCCESS = "UPDATE_EMAIL_SUCCESS";
 export const UPDATE_EMAIL_FAILURE = "UPDATE_EMAIL_FAILURE";
+
+export const USAGE_REPORT_REQUEST = "USAGE_REPORT_REQUEST";
+export const USAGE_REPORT_SUCCESS = "USAGE_REPORT_SUCCESS";
+export const USAGE_REPORT_FAILURE = "USAGE_REPORT_FAILURE";
 
 export const UPDATE_PROFILE_STATE = "UPDATE_PROFILE_STATE";
 
@@ -317,4 +322,41 @@ export const setActivePlan = (plan) => {
         type: ACTIVE_SUBSCRIPTION_PLAN,
         plan
     }
+}
+
+export const usageReportRequest = () => {
+    return {
+        type: USAGE_REPORT_REQUEST
+    }
+}
+
+export const usageReportSuccess = () => {
+    return {
+        type: USAGE_REPORT_SUCCESS
+    }
+}
+
+export const usageReportFailure = () => {
+    return {
+        type: USAGE_REPORT_FAILURE
+    }
+}
+
+export const generateUsageReport = (startDate, endDate) => async (dispatch, getState) => {
+    dispatch(usageReportRequest())
+
+    const idToken = await auth().currentUser.getIdTokenResult();
+
+    axios.post('https://us-central1-feverfilter-22cc0.cloudfunctions.net/api/csv_export', {
+        startDate,
+        endDate
+    }, {
+        headers: {
+            Authorization: 'Bearer '+idToken.token
+        }
+    }).then(result => {
+        console.log(result)
+    }).catch(err => {
+        console.log(err)
+    })
 }

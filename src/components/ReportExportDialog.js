@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View } from 'react-native';
 import PrimaryButton from "./PrimaryButton";
-import { TouchableRipple } from 'react-native-paper';
 import theme from "../styles/theme.styles";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
-import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {generateUsageReport} from "../actions/authActions";
+import {bindActionCreators} from "redux";
+import {connect} from "react-redux";
 
 let initialDate = new Date();
 let dateLimit = new Date();
 dateLimit.setDate(dateLimit.getDate()-60)
 
-const ReportExportDialog = ({toggleModal, account}) => {
+const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport}) => {
     const [dateStart, setDateStart] = useState('');
     const [dateEnd, setDateEnd] = useState('');
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [reportLimit, setReportLimit] = useState(1);
+    const [reportLimit, setReportLimit] = useState(40);
     const [limitMax, setLimitMax] = useState(false)
 
     useEffect(() => {
@@ -75,6 +76,13 @@ const ReportExportDialog = ({toggleModal, account}) => {
         )
     }
 
+    const handleSubmit = () => {
+        let startDate = moment(dateStart).format('YYYY-MM-DD');
+        let endDate = moment(dateEnd).format('YYYY-MM-DD');
+
+        generateUsageReport(startDate, endDate);
+    }
+
     return(
         <>
             <View style={styles.mainContent}>
@@ -106,7 +114,7 @@ const ReportExportDialog = ({toggleModal, account}) => {
                         <Text style={styles.error}>Start Date must equal or precede End Date.</Text>
                     ) }
                     <PrimaryButton disabled={loading} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} />
-                    <PrimaryButton disabled={loading || checkDates() === 'invalid' || checkDates() === 'notset'} loading={loading} style={styles.button} title={"Send Report"} onPress={() => {}} />
+                    <PrimaryButton disabled={loading || checkDates() === 'invalid' || checkDates() === 'notset'} loading={loading} style={styles.button} title={"Send Report"} onPress={handleSubmit} />
                 </View>
             </View>
             {showStart && (
@@ -178,4 +186,18 @@ const styles = StyleSheet.create({
     }
 });
 
-export default ReportExportDialog;
+const mapDispatchToProps = dispatch => {
+    return bindActionCreators({ generateUsageReport }, dispatch)
+};
+
+const mapStateToProps = state => {
+    return {
+        auth: state.auth,
+        ui: state.ui
+    }
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(ReportExportDialog);
