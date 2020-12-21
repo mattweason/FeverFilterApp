@@ -22,6 +22,7 @@ import {
     USAGE_REPORT_SUCCESS,
     USAGE_REPORT_FAILURE,
     USAGE_REPORT_RESET,
+    REPORT_USAGE
 } from "../actions/authActions";
 
 export default (state = {
@@ -34,7 +35,8 @@ export default (state = {
     user: null,
     plan: {
         planId: null
-    }
+    },
+    exportReportUsage: null
 }, action) => {
     switch (action.type) {
         case LOGIN_REQUEST:
@@ -194,6 +196,11 @@ export default (state = {
                 usageReportFailure: false,
                 usageReportSuccess: false,
                 usageReportError: null
+            }
+        case REPORT_USAGE:
+            return {
+                ...state,
+                exportReportUsage: action.usage
             }
         default:
             return state

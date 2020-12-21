@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import {Text, StyleSheet, View, ActivityIndicator} from 'react-native';
 import PrimaryButton from "./PrimaryButton";
 import theme from "../styles/theme.styles";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
-import {generateUsageReport, usageReportReset} from "../actions/authActions";
+import {generateUsageReport, usageReportReset, getReportUsage} from "../actions/authActions";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import { Snackbar } from 'react-native-paper';
@@ -13,17 +13,20 @@ let initialDate = new Date();
 let dateLimit = new Date();
 dateLimit.setDate(dateLimit.getDate()-60)
 
-const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport, usageReportReset}) => {
+const ReportExportDialog = ({navigation, toggleModal, account, auth, ui, generateUsageReport, usageReportReset, getReportUsage}) => {
     const [dateStart, setDateStart] = useState('');
     const [dateEnd, setDateEnd] = useState('');
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
-    const [reportLimit, setReportLimit] = useState(40);
+    const [reportLimit, setReportLimit] = useState(14);
     const [limitMax, setLimitMax] = useState(false)
     const [reportError, setReportError] = useState('');
     const [snackVisible, setSnackVisible] = useState(false)
 
     useEffect(() => {
+        if(auth.exportReportUsage === null)
+            getReportUsage(moment().subtract(7, 'days'));
+
         if(account.subscription === 'starter')
             setReportLimit(1);
         if(account.subscription === 'basic')
@@ -44,16 +47,16 @@ const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport
     }, [auth.usageReportSuccess])
 
     useEffect(() => {
-        if(auth.usageReportFailure)
+        if(auth.usageReportError)
             setReportError(auth.usageReportError)
         else
             setReportError('')
     }, [auth.usageReportFailure])
 
     useEffect(() => {
-        if(account.reportUsage >= reportLimit)
+        if(auth.exportReportUsage >= reportLimit)
             setLimitMax(true);
-    }, [reportLimit])
+    }, [auth.exportReportUsage])
 
     const showStartDatepicker = () => {
         setShowStart(true);
@@ -87,7 +90,7 @@ const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport
     }
 
     const renderReportUsage = () => {
-        let barWidth = (account.reportUsage / reportLimit)*100;
+        let barWidth = (auth.exportReportUsage / reportLimit)*100;
         barWidth = barWidth+'%';
         return (
             <View style={{borderColor: '#707070', borderWidth: 1, borderRadius: 10, width: '100%', height: 20, overflow: 'hidden', marginTop: 6}}>
@@ -103,38 +106,53 @@ const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport
         generateUsageReport(startDate, endDate);
     }
 
+    const navigateToSubscription = () => {
+        toggleModal();
+        navigation.navigate('ManageSubscriptions')
+        navigation.closeDrawer()
+    }
+
     return(
         <>
             <View style={styles.mainContent}>
-                { limitMax ? (
-                    <>
-                        <Text style={styles.maxLimit}>You have reached your report limit for this month. Upgrade your plan to increase your limit.</Text>
-                        <PrimaryButton title={"Upgrade Subscription"} onPress={() => {}} />
-                    </>
+                { auth.exportReportUsage === null ? (
+                    <ActivityIndicator size="large" color={theme.COLOR_PRIMARY} />
                 ) : (
                     <>
-                        <PrimaryButton altColor style={styles.dateButton} icon={"calendar"} title={typeof dateStart === 'string' ? "Starting Date" : moment(dateStart).format('MMM D, YYYY')} onPress={showStartDatepicker} />
-                        <Text style={styles.separator}>to</Text>
-                        <PrimaryButton altColor style={styles.dateButton} icon={"calendar"} title={typeof dateEnd === 'string' ? "Ending Date" : moment(dateEnd).format('MMM D, YYYY')} onPress={showEndDatepicker} />
+                        { limitMax ? (
+                            <>
+                                <Text style={styles.maxLimit}>You have reached your report limit for this month. Upgrade your plan to increase your limit.</Text>
+                                <PrimaryButton title={"Upgrade Subscription"} onPress={navigateToSubscription} />
+                            </>
+                        ) : (
+                            <>
+                                <PrimaryButton altColor style={styles.dateButton} icon={"calendar"} title={typeof dateStart === 'string' ? "Starting Date" : moment(dateStart).format('MMM D, YYYY')} onPress={showStartDatepicker} />
+                                <Text style={styles.separator}>to</Text>
+                                <PrimaryButton altColor style={styles.dateButton} icon={"calendar"} title={typeof dateEnd === 'string' ? "Ending Date" : moment(dateEnd).format('MMM D, YYYY')} onPress={showEndDatepicker} />
+                            </>
+                        )}
+                        <View style={{width: '100%', marginTop: 36}}>
+                            <Text style={{fontFamily: 'Montserrat-bold', fontSize: 16}}>Report Usage</Text>
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12}}>
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    <Text style={{color: theme.COLOR_PRIMARY, marginRight: 6, fontFamily: 'Lato-bold'}}>{ auth.exportReportUsage }</Text>
+                                    <Text style={{fontFamily: 'Lato'}}>reports this month</Text>
+                                </View>
+                                <Text>{reportLimit}</Text>
+                            </View>
+                            { renderReportUsage() }
+                        </View>
                     </>
                 )}
-                <View style={{width: '100%', marginTop: 36}}>
-                    <Text style={{fontFamily: 'Montserrat-bold', fontSize: 16}}>Report Usage</Text>
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 12}}>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={{color: theme.COLOR_PRIMARY, marginRight: 6, fontFamily: 'Lato-bold'}}>{ account.reportUsage }</Text>
-                            <Text style={{fontFamily: 'Lato'}}>reports this month</Text>
-                        </View>
-                        <Text>{reportLimit}</Text>
-                    </View>
-                    { renderReportUsage() }
-                </View>
                 <View style={styles.modalActions}>
                     { checkDates() === 'invalid' && (
                         <Text style={styles.error}>Start Date must equal or precede End Date.</Text>
                     ) }
                     { reportError.length > 0 && (
                         <Text style={styles.error}>{reportError}</Text>
+                    )}
+                    { (reportError.length === 0 && auth.usageReportFailure) && (
+                        <Text style={styles.error}>There was an error.</Text>
                     )}
                     { !ui.isConnected && (
                         <Text style={styles.error}>No network connection detected.</Text>
@@ -228,7 +246,7 @@ const styles = StyleSheet.create({
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ generateUsageReport, usageReportReset }, dispatch)
+    return bindActionCreators({ generateUsageReport, usageReportReset, getReportUsage }, dispatch)
 };
 
 const mapStateToProps = state => {

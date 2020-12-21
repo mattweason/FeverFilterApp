@@ -31,6 +31,8 @@ export const USAGE_REPORT_SUCCESS = "USAGE_REPORT_SUCCESS";
 export const USAGE_REPORT_FAILURE = "USAGE_REPORT_FAILURE";
 export const USAGE_REPORT_RESET = "USAGE_REPORT_RESET";
 
+export const REPORT_USAGE = "REPORT_USAGE";
+
 export const UPDATE_PROFILE_STATE = "UPDATE_PROFILE_STATE";
 
 export const ACTIVE_SUBSCRIPTION_PLAN = "ACTIVE_SUBSCRIPTION_PLAN";
@@ -364,9 +366,33 @@ export const generateUsageReport = (startDate, endDate) => async (dispatch, getS
         }
     }).then(result => {
         dispatch(usageReportSuccess())
+        dispatch(incrementReportUsage())
     }).catch(err => {
         if(err.response)
             dispatch(usageReportFailure(err.response.data.error))
         console.log('error', err.response.data.error)
     })
+}
+
+export const getReportUsage = (billingDate) => async (dispatch, getState) => {
+    const {uid} = getState().auth.user;
+    let date = new Date(Date.parse(billingDate));
+
+    let exportSnapshots = await firestore().collection('exports').where("userId","==",uid).where("timestamp", ">=", date).get()
+    let numberOfExports = exportSnapshots.size;
+
+    dispatch(setReportUsage(numberOfExports))
+}
+
+const setReportUsage = (usage) => {
+    return {
+        type: REPORT_USAGE,
+        usage
+    }
+}
+
+export const incrementReportUsage = () => (dispatch, getState) => {
+    let reportUsage = getState().auth.exportReportUsage;
+
+    dispatch(setReportUsage(reportUsage+1));
 }

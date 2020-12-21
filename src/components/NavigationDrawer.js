@@ -47,7 +47,7 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     }
 
     const exportReportModalContent = () => {
-        return <ReportExportDialog account={auth.user} toggleModal={toggleReportExportModal} />
+        return <ReportExportDialog navigation={navigation} account={auth.user} toggleModal={toggleReportExportModal} />
     }
 
     const handleIssueSubmit = (title, content) => {
