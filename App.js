@@ -121,17 +121,20 @@ export default App = () => {
 
     })
 
-    useEffect(async () => {
+    useEffect( () => {
         const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
 
         SplashScreen.hide();
 
         //Get subscriptions
-        try {
-            const subscriptions = await RNIap.getSubscriptions(itemSubs);
-        } catch(err) {
-            console.warn(err); // standardized err.code and err.message available
+        async function getSubs() {
+            try {
+                const subscriptions = await RNIap.getSubscriptions(itemSubs);
+            } catch(err) {
+                console.warn(err); // standardized err.code and err.message available
+            }
         }
+        getSubs()
 
         //Start listening for wifi
         //Only when we have wifi will the app initialize
