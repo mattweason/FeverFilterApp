@@ -4,22 +4,24 @@ import PrimaryButton from "./PrimaryButton";
 import theme from "../styles/theme.styles";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
-import {generateUsageReport} from "../actions/authActions";
+import {generateUsageReport, usageReportReset} from "../actions/authActions";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
+import { Snackbar } from 'react-native-paper';
 
 let initialDate = new Date();
 let dateLimit = new Date();
 dateLimit.setDate(dateLimit.getDate()-60)
 
-const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport}) => {
+const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport, usageReportReset}) => {
     const [dateStart, setDateStart] = useState('');
     const [dateEnd, setDateEnd] = useState('');
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [reportLimit, setReportLimit] = useState(40);
     const [limitMax, setLimitMax] = useState(false)
+    const [reportError, setReportError] = useState('');
+    const [snackVisible, setSnackVisible] = useState(false)
 
     useEffect(() => {
         if(account.subscription === 'starter')
@@ -30,7 +32,23 @@ const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport
             setReportLimit(30);
         if(account.subscription === 'enterprise')
             setReportLimit(50);
+
+        return () => {
+                usageReportReset()
+            }
     }, []);
+
+    useEffect(() => {
+        if(auth.usageReportSuccess)
+            setSnackVisible(true)
+    }, [auth.usageReportSuccess])
+
+    useEffect(() => {
+        if(auth.usageReportFailure)
+            setReportError(auth.usageReportError)
+        else
+            setReportError('')
+    }, [auth.usageReportFailure])
 
     useEffect(() => {
         if(account.reportUsage >= reportLimit)
@@ -46,12 +64,14 @@ const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport
     }
 
     const onStartChange = (event, selectedDate) => {
+        setReportError('')
         const currentDate = selectedDate || dateStart;
         setShowStart(Platform.OS === 'ios');
         setDateStart(currentDate);
     }
 
     const onEndChange = (event, selectedDate) => {
+        setReportError('')
         const currentDate = selectedDate || dateEnd;
         setShowEnd(Platform.OS === 'ios');
         setDateEnd(currentDate);
@@ -113,9 +133,28 @@ const ReportExportDialog = ({toggleModal, account, auth, ui, generateUsageReport
                     { checkDates() === 'invalid' && (
                         <Text style={styles.error}>Start Date must equal or precede End Date.</Text>
                     ) }
-                    <PrimaryButton disabled={loading} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} />
-                    <PrimaryButton disabled={loading || checkDates() === 'invalid' || checkDates() === 'notset'} loading={loading} style={styles.button} title={"Send Report"} onPress={handleSubmit} />
+                    { reportError.length > 0 && (
+                        <Text style={styles.error}>{reportError}</Text>
+                    )}
+                    { !ui.isConnected && (
+                        <Text style={styles.error}>No network connection detected.</Text>
+                    )}
+                    <PrimaryButton disabled={auth.usageReportRequest} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} />
+                    <PrimaryButton disabled={auth.usageReportRequest || checkDates() === 'invalid' || checkDates() === 'notset' || !ui.isConnected} loading={auth.usageReportRequest} style={styles.button} title={"Send Report"} onPress={handleSubmit} />
                 </View>
+                <Snackbar
+                    visible={snackVisible}
+                    onDismiss={() => {}}
+                    duration={3000}
+                    action={{
+                        label: "Ok",
+                        onPress: () => {
+                            setSnackVisible(false)
+                        },
+                    }}
+                >
+                    Usage Report successfully sent.
+                </Snackbar>
             </View>
             {showStart && (
                 <DateTimePicker
@@ -176,7 +215,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'red',
         bottom: 60,
-        left: 6
+        left: 6,
+        textAlign: 'center',
+        width: '100%'
     },
     maxLimit: {
         fontFamily: 'Lato-bold',
@@ -187,7 +228,7 @@ const styles = StyleSheet.create({
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ generateUsageReport }, dispatch)
+    return bindActionCreators({ generateUsageReport, usageReportReset }, dispatch)
 };
 
 const mapStateToProps = state => {

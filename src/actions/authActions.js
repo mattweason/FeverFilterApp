@@ -29,6 +29,7 @@ export const UPDATE_EMAIL_FAILURE = "UPDATE_EMAIL_FAILURE";
 export const USAGE_REPORT_REQUEST = "USAGE_REPORT_REQUEST";
 export const USAGE_REPORT_SUCCESS = "USAGE_REPORT_SUCCESS";
 export const USAGE_REPORT_FAILURE = "USAGE_REPORT_FAILURE";
+export const USAGE_REPORT_RESET = "USAGE_REPORT_RESET";
 
 export const UPDATE_PROFILE_STATE = "UPDATE_PROFILE_STATE";
 
@@ -324,21 +325,28 @@ export const setActivePlan = (plan) => {
     }
 }
 
-export const usageReportRequest = () => {
+const usageReportRequest = () => {
     return {
         type: USAGE_REPORT_REQUEST
     }
 }
 
-export const usageReportSuccess = () => {
+const usageReportSuccess = () => {
     return {
         type: USAGE_REPORT_SUCCESS
     }
 }
 
-export const usageReportFailure = () => {
+const usageReportFailure = (error) => {
     return {
-        type: USAGE_REPORT_FAILURE
+        type: USAGE_REPORT_FAILURE,
+        error
+    }
+}
+
+export const usageReportReset = () => {
+    return {
+        type: USAGE_REPORT_RESET,
     }
 }
 
@@ -355,8 +363,10 @@ export const generateUsageReport = (startDate, endDate) => async (dispatch, getS
             Authorization: 'Bearer '+idToken.token
         }
     }).then(result => {
-        console.log(result)
+        dispatch(usageReportSuccess())
     }).catch(err => {
-        console.log(err)
+        if(err.response)
+            dispatch(usageReportFailure(err.response.data.error))
+        console.log('error', err.response.data.error)
     })
 }

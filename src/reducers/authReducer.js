@@ -17,7 +17,11 @@ import {
     UPDATE_EMAIL_REQUEST,
     UPDATE_EMAIL_SUCCESS,
     UPDATE_EMAIL_FAILURE,
-    UPDATE_PROFILE_STATE
+    UPDATE_PROFILE_STATE,
+    USAGE_REPORT_REQUEST,
+    USAGE_REPORT_SUCCESS,
+    USAGE_REPORT_FAILURE,
+    USAGE_REPORT_RESET,
 } from "../actions/authActions";
 
 export default (state = {
@@ -161,6 +165,35 @@ export default (state = {
                     ...state.user,
                     ...action.data
                 }
+            }
+        case USAGE_REPORT_REQUEST:
+            return {
+                ...state,
+                usageReportRequest: true,
+                usageReportFailure: false,
+                usageReportSuccess: false,
+                usageReportError: null
+            }
+        case USAGE_REPORT_SUCCESS:
+            return {
+                ...state,
+                usageReportRequest: false,
+                usageReportSuccess: true
+            }
+        case USAGE_REPORT_FAILURE:
+            return {
+                ...state,
+                usageReportRequest: false,
+                usageReportFailure: true,
+                usageReportError: action.error
+            }
+        case USAGE_REPORT_RESET:
+            return {
+                ...state,
+                usageReportRequest: false,
+                usageReportFailure: false,
+                usageReportSuccess: false,
+                usageReportError: null
             }
         default:
             return state
