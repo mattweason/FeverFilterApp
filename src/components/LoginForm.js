@@ -79,7 +79,7 @@ const LoginForm = ({shiftUI, onSubmit, style, auth, ui}) => {
                         <Text style={template.networkError}>No network connection detected.</Text>
                     ) : null }
                     { auth.loginError ? <AuthErrorMessage errorCode={auth.loginErrorMessage}/> : null }
-                    <PrimaryButton disabled={auth.isLoggingIn || !ui.isConnected || auth.user} loading={auth.isLoggingIn || auth.user} style={{marginTop: 12}} title="Submit" onPress={handleSubmit} />
+                    <PrimaryButton disabled={auth.isLoggingIn || !ui.isConnected} loading={auth.isLoggingIn} style={{marginTop: 12}} title="Submit" onPress={handleSubmit} />
                 </>
             )}
         </Formik>
