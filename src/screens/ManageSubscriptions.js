@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {View, StyleSheet, Text, ScrollView, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, Text, ScrollView, TouchableOpacity, Platform, Linking} from 'react-native';
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import PageHeader from "../components/PageHeader";
@@ -8,8 +8,24 @@ import {Feather, FontAwesome} from "@expo/vector-icons";
 import {Banner, Divider} from "react-native-paper";
 import PrimaryButton from "../components/PrimaryButton";
 import moment from 'moment';
-import { requestSubscription } from 'react-native-iap';
+import {requestSubscription, default as RNIap} from 'react-native-iap';
 import { useIap } from '../context/IAPManager'
+
+//Skus for RNiap
+const itemSubs = Platform.select({
+    ios: [
+        'ffsubtier1',
+        'ffsubtier2',
+        'ffsubtier3',
+        'ffsubtier4'
+    ],
+    android: [
+        'ffsubtier1',
+        'ffsubtier2',
+        'ffsubtier3',
+        'ffsubtier4'
+    ]
+})
 
 //Subscription tiers
 let tiers = [
@@ -43,33 +59,39 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
     const [networkBannerVisible, setNetworkBannerVisible] = useState(false);
     const [selectedTier, setSelectedTier] = useState(-1)
     const [selectedTierObject, setSelectedTierObject] = useState({})
-    const [currentSubscription, setCurrentSubscription] = useState(null)
     const { processing, setProcessing } = useIap();
 
     // handle new subscription request
-    const handleSubscription = async (pladId) => {
+    const handleSubscription = async (planId) => {
         try {
             setProcessing(true);
-            await requestSubscription(pladId, false);
+            if(Platform.OS === 'android' && auth.activePlan.productId.length > 0)
+                await requestSubscription(planId, false, auth.activePlan.productId, auth.activePlan.purchaseToken);
+            else
+                await requestSubscription(planId, false);
         } catch (err) {
             setProcessing(false);
         }
     }
 
-    //Component did mount
-    useEffect(() => {
-        if(auth.user.subscription) {
+    const initializeSubs = async () => {
+        const subscriptions = await RNIap.getSubscriptions(itemSubs);
+        if(auth.activePlan.productId.length > 0) {
             //Get current tier object
             let tierIndex = tiers.findIndex((tier) => {
-                return tier.title === auth.user.subscription;
+                return tier.subId === auth.activePlan.productId;
             });
             setSelectedTier(tierIndex);
             setSelectedTierObject(tiers[tierIndex]);
-            setCurrentSubscription(auth.user.subscription)
         } else {
             setSelectedTier(2)
             setSelectedTierObject(tiers[2])
         }
+    }
+
+    //Component did mount
+    useEffect(() => {
+        initializeSubs();
     }, [])
 
     //No internet connection banner
@@ -82,6 +104,13 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
         setSelectedTierObject(tiers[tier])
     }
 
+    const cancelPlan = () => {
+        if(Platform.OS === 'android')
+            Linking.openURL('https://play.google.com/store/account/subscriptions?package=com.feverfilter&sku='+auth.activePlan.productId)
+        else
+            Linking.openURL('https://apps.apple.com/account/subscriptions')
+    }
+
     const renderTiers = () => {
         return tiers.map((tier, index) => {
             let selected = selectedTier === index;
@@ -92,8 +121,8 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                             <View style={styles.flexRow}>
                                 <CustomRadioButton checked={selected} />
                                 <Text style={{...styles.tierText, color: selected ? 'white' : theme.COLOR_PRIMARY}}>{tier.title}</Text>
-                                { currentSubscription === tier.title && (
-                                    <Text style={{fontFamily: 'Montserrat-bold', fontSize: 12, position: 'absolute', color: selected ? 'white' : theme.COLOR_PRIMARY, bottom: 20, right: 0}}>YOUR PLAN</Text>
+                                { auth.activePlan.productId === tier.subId && (
+                                    <Text style={{fontFamily: 'Montserrat-bold', fontSize: 12, position: 'absolute', color: selected ? 'white' : theme.COLOR_PRIMARY, bottom: 20, left: 40}}>YOUR PLAN</Text>
                                 )}
                             </View>
                             <View style={styles.flexRow}>
@@ -126,17 +155,17 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                         <Text style={{fontFamily: 'Lato-bold', fontSize: 16}}> Device Usage Reports</Text>
                         <Text style={{fontFamily: 'Lato', fontSize: 16}}> /mo</Text>
                     </View>
-                    { selectedTierObject.title === currentSubscription ? (
+                    { selectedTierObject.subId === auth.activePlan.productId ? (
                         <View style={styles.flexColumn}>
                             <Text style={{fontFamily: 'Montserrat-bold', color: theme.COLOR_PRIMARY, fontSize: 16, marginBottom: 6}}>This is your current plan.</Text>
                             <View style={{...styles.flexRow, marginBottom: 12}}>
                                 <Text>Next billing cycle begins </Text>
-                                <Text style={{fontFamily: 'Lato-bold'}}>{moment(auth.user.nextBillingCycle).format('MMM D')}</Text>
+                                <Text style={{fontFamily: 'Lato-bold'}}>{moment(auth.activePlan.expiryTimeMillis).format('MMM D')}</Text>
                             </View>
-                            <PrimaryButton style={{width: 120}} disabled={!ui.isConnected} mode="text" title={'Cancel'} onPress={() => {}} />
+                            <PrimaryButton style={{width: 120}} disabled={!ui.isConnected} mode="text" title={'Cancel'} onPress={cancelPlan} />
                         </View>
                     ) : (
-                        <PrimaryButton style={{width: 200}} loading={processing} disabled={!ui.isConnected || processing} title={currentSubscription !== null ? 'Change Plan' : 'Choose Plan'} onPress={() => handleSubscription(selectedTierObject.subId)} />
+                        <PrimaryButton style={{width: 200}} loading={processing} disabled={!ui.isConnected || processing} title={auth.activePlan.length > 0 ? 'Change Plan' : 'Choose Plan'} onPress={() => handleSubscription(selectedTierObject.subId)} />
                     )}
                 </View>
             </View>

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^10.2.0",
+    "@react-native-community/async-storage": "^1.12.1",
     "@react-native-community/cli-platform-android": "^4.10.1",
     "@react-native-community/cli-platform-ios": "^4.10.1",
     "@react-native-community/datetimepicker": "^3.0.8",

@@ -396,3 +396,27 @@ export const incrementReportUsage = () => (dispatch, getState) => {
 
     dispatch(setReportUsage(reportUsage+1));
 }
+
+export const saveNewSubscription = (subscription, receipt, cancel) => async (dispatch, getState) => {
+    const {uid} = getState().auth.user;
+    let receipts = [];
+
+    const userDoc = await firestore().collection('accounts').doc(uid).get();
+    const user = userDoc._data;
+
+    //Dont replace existing receipts
+    if(user.hasOwnProperty('receipts'))
+        receipts = user.receipts;
+
+    receipts.push(receipt);
+
+    //Add new receipt and subscription to user account
+    firestore().collection('accounts').doc(uid).update({
+        receipts,
+        subscription
+    })
+
+    //Save active subscription locally
+    dispatch(setActivePlan(subscription))
+
+}

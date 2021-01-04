@@ -27,7 +27,7 @@ import NavigationDrawer from "./src/components/NavigationDrawer";
 
 //Action imports
 import { wifiListener, userCountry } from "./src/actions/uiActions";
-import { receiveLogin, setIdToken } from "./src/actions/authActions";
+import {receiveLogin, setActivePlan} from "./src/actions/authActions";
 
 //Screen imports
 import HomeScreen from "./src/screens/HomeScreen";
@@ -93,6 +93,8 @@ export default App = () => {
             userData.uid = uid;
             setIsAuthenticated(true);
             store.dispatch(receiveLogin(userData))
+            if(userData.subscription)
+                store.dispatch(setActivePlan(userData.subscription))
             if(!authCheck) setAuthCheck(true);
         }
         else

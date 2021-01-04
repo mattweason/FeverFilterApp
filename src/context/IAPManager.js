@@ -2,20 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { Platform } from 'react-native'
 import { connect } from 'react-redux'
 import {
-    InAppPurchase,
     initConnection,
     flushFailedPurchasesCachedAsPendingAndroid,
-    PurchaseError,
-    SubscriptionPurchase,
     validateReceiptIos,
     finishTransaction,
     finishTransactionIOS,
     purchaseErrorListener,
     purchaseUpdatedListener,
 } from 'react-native-iap';
-// import { API_URL } from '../constants'
-import { setActivePlan } from '../actions/authActions'
-import { AsyncStorage } from 'react-native'
+import { saveNewSubscription } from '../actions/authActions'
+import axios from 'axios';
+import auth from "@react-native-firebase/auth";
 
 export const IAPContext = React.createContext({
     processing: false,
@@ -24,13 +21,6 @@ export const IAPContext = React.createContext({
 });
 
 export const useIap = () => React.useContext(IAPContext);
-
-const storePlanAsync = async (planData) => {
-    const userSettings = await AsyncStorage.getItem('user_settings');
-    let json = JSON.parse(userSettings);
-    json.plan = planData;
-    await AsyncStorage.setItem('user_settings', JSON.stringify(json));
-}
 
 export const IAPManagerWrapped = (props) => {
 
@@ -41,7 +31,7 @@ export const IAPManagerWrapped = (props) => {
 
     const processNewPurchase = async (purchase) => {
 
-        const { productId, transactionReceipt } = purchase;
+        const { productId, transactionReceipt, purchaseToken } = purchase;
 
         if (transactionReceipt !== undefined) {
             if(Platform.OS === 'ios'){
@@ -51,12 +41,31 @@ export const IAPManagerWrapped = (props) => {
                 }
                 const result = await validateReceiptIos(receiptBody, true)
                 console.log(result)
+            } else if(Platform.OS === 'android') {
+
+                const idToken = await auth().currentUser.getIdTokenResult();
+                axios.post('https://us-central1-feverfilter-22cc0.cloudfunctions.net/api/validate_google', {
+                    productId,
+                    purchaseToken
+                }, {
+                    headers: {
+                        Authorization: 'Bearer '+idToken.token
+                    }
+                }).then(response => {
+                    console.log('response', response.data)
+                    let purchaseData = response.data.data;
+                    let subscription = {productId: productId, purchaseDate: purchaseData.startTimeMillis, billingDate: purchaseData.expiryTimeMillis, purchaseToken};
+                    props.saveNewSubscription(subscription, transactionReceipt)
+                    setProcessing(false)
+                }).catch(err => {
+                    console.log(err.response)
+                    setProcessing(false)
+                })
             }
         }
     }
 
     useEffect(() => {
-        console.log('context mounted ')
         initConnection().then(() => {
             // we make sure that "ghost" pending payment are removed
             // (ghost = failed pending payment that are still marked as pending in Google's native Vending module cache)
@@ -67,7 +76,7 @@ export const IAPManagerWrapped = (props) => {
             }).then(() => {
                 purchaseUpdateSubscription = purchaseUpdatedListener(
                     async (purchase) => {
-                        console.log('purchasing')
+                        console.log(purchase)
                         const receipt = purchase.transactionReceipt;
                         if (receipt) {
                             try {
@@ -77,7 +86,7 @@ export const IAPManagerWrapped = (props) => {
                                 await finishTransaction(purchase);
                                 await processNewPurchase(purchase);
                             } catch (ackErr) {
-                                console.log('ackErr', ackErr);
+                                console.log('ackErr', ackErr.response);
                             }
                         }
                     },
@@ -91,7 +100,6 @@ export const IAPManagerWrapped = (props) => {
         })
 
         return (() => {
-            console.log('unmount ')
             if (purchaseUpdateSubscription) {
                 purchaseUpdateSubscription.remove();
                 purchaseUpdateSubscription = null;
@@ -115,11 +123,11 @@ export const IAPManagerWrapped = (props) => {
 }
 
 const mapStateToProps = (state) => ({
-    planId: state.auth.plan.planId,
+    planId: state.auth.activePlan,
 });
 
 const mapDispatchToProps = {
-    setActivePlan
+    saveNewSubscription
 };
 
 export const IAPManager = connect(

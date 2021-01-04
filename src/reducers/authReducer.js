@@ -22,7 +22,8 @@ import {
     USAGE_REPORT_SUCCESS,
     USAGE_REPORT_FAILURE,
     USAGE_REPORT_RESET,
-    REPORT_USAGE
+    REPORT_USAGE,
+    ACTIVE_SUBSCRIPTION_PLAN
 } from "../actions/authActions";
 
 export default (state = {
@@ -33,8 +34,8 @@ export default (state = {
     logoutError: false,
     isAuthenticated: false,
     user: null,
-    plan: {
-        planId: null
+    activePlan: {
+        productId: ''
     },
     exportReportUsage: null
 }, action) => {
@@ -201,6 +202,11 @@ export default (state = {
             return {
                 ...state,
                 exportReportUsage: action.usage
+            }
+        case ACTIVE_SUBSCRIPTION_PLAN:
+            return {
+                ...state,
+                activePlan: action.plan
             }
         default:
             return state
