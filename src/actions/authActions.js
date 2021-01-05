@@ -413,8 +413,11 @@ export const saveNewSubscription = (subscription, receipt, cancel) => async (dis
     //Add new receipt and subscription to user account
     firestore().collection('accounts').doc(uid).update({
         receipts,
-        subscription
+        subscription,
+        subscriptionActive: true
     })
+
+    subscription.subscriptionActive = true;
 
     //Save active subscription locally
     dispatch(setActivePlan(subscription))

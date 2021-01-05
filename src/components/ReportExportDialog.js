@@ -13,27 +13,27 @@ let initialDate = new Date();
 let dateLimit = new Date();
 dateLimit.setDate(dateLimit.getDate()-60)
 
-const ReportExportDialog = ({navigation, toggleModal, account, auth, ui, generateUsageReport, usageReportReset, getReportUsage}) => {
+const ReportExportDialog = ({navigation, toggleModal, auth, ui, generateUsageReport, usageReportReset, getReportUsage}) => {
     const [dateStart, setDateStart] = useState('');
     const [dateEnd, setDateEnd] = useState('');
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
-    const [reportLimit, setReportLimit] = useState(14);
+    const [reportLimit, setReportLimit] = useState(0);
     const [limitMax, setLimitMax] = useState(false)
     const [reportError, setReportError] = useState('');
     const [snackVisible, setSnackVisible] = useState(false)
 
     useEffect(() => {
         if(auth.exportReportUsage === null)
-            getReportUsage(moment().subtract(7, 'days'));
+            getReportUsage(auth.activePlan.lastBillingDate);
 
-        if(account.subscription === 'starter')
+        if(auth.activePlan.productId === 'ffsubtier1')
             setReportLimit(1);
-        if(account.subscription === 'basic')
+        if(auth.activePlan.productId === 'ffsubtier2')
             setReportLimit(10);
-        if(account.subscription === 'business')
+        if(auth.activePlan.productId === 'ffsubtier3')
             setReportLimit(30);
-        if(account.subscription === 'enterprise')
+        if(auth.activePlan.productId === 'ffsubtier4')
             setReportLimit(50);
 
         return () => {
@@ -54,9 +54,12 @@ const ReportExportDialog = ({navigation, toggleModal, account, auth, ui, generat
     }, [auth.usageReportFailure])
 
     useEffect(() => {
-        if(auth.exportReportUsage >= reportLimit)
+        if(auth.exportReportUsage >= reportLimit && auth.exportReportUsage !== null)
             setLimitMax(true);
-    }, [auth.exportReportUsage])
+        else
+            setLimitMax(false)
+
+    }, [auth.exportReportUsage, reportLimit])
 
     const showStartDatepicker = () => {
         setShowStart(true);

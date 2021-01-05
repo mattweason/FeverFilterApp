@@ -40,7 +40,6 @@ export const IAPManagerWrapped = (props) => {
                     'password': 'f4395c2dbcf749a980251b06f39cf814'
                 }
                 const result = await validateReceiptIos(receiptBody, true)
-                console.log(result)
             } else if(Platform.OS === 'android') {
 
                 const idToken = await auth().currentUser.getIdTokenResult();
@@ -52,9 +51,14 @@ export const IAPManagerWrapped = (props) => {
                         Authorization: 'Bearer '+idToken.token
                     }
                 }).then(response => {
-                    console.log('response', response.data)
                     let purchaseData = response.data.data;
-                    let subscription = {productId: productId, purchaseDate: purchaseData.startTimeMillis, billingDate: purchaseData.expiryTimeMillis, purchaseToken};
+                    let subscription = {
+                        productId: productId,
+                        purchaseDate: purchaseData.startTimeMillis,
+                        lastBillingDate: purchaseData.startTimeMillis,
+                        billingDate: purchaseData.expiryTimeMillis,
+                        purchaseToken,
+                        subscriptionStatus: 4};
                     props.saveNewSubscription(subscription, transactionReceipt)
                     setProcessing(false)
                 }).catch(err => {
@@ -76,7 +80,6 @@ export const IAPManagerWrapped = (props) => {
             }).then(() => {
                 purchaseUpdateSubscription = purchaseUpdatedListener(
                     async (purchase) => {
-                        console.log(purchase)
                         const receipt = purchase.transactionReceipt;
                         if (receipt) {
                             try {

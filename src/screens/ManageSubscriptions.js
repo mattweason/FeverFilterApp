@@ -104,7 +104,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
         setSelectedTierObject(tiers[tier])
     }
 
-    const cancelPlan = () => {
+    const managePlan = () => {
         if(Platform.OS === 'android')
             Linking.openURL('https://play.google.com/store/account/subscriptions?package=com.feverfilter&sku='+auth.activePlan.productId)
         else
@@ -158,11 +158,28 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                     { selectedTierObject.subId === auth.activePlan.productId ? (
                         <View style={styles.flexColumn}>
                             <Text style={{fontFamily: 'Montserrat-bold', color: theme.COLOR_PRIMARY, fontSize: 16, marginBottom: 6}}>This is your current plan.</Text>
-                            <View style={{...styles.flexRow, marginBottom: 12}}>
-                                <Text>Next billing cycle begins </Text>
-                                <Text style={{fontFamily: 'Lato-bold'}}>{moment(auth.activePlan.expiryTimeMillis).format('MMM D')}</Text>
-                            </View>
-                            <PrimaryButton style={{width: 120}} disabled={!ui.isConnected} mode="text" title={'Cancel'} onPress={cancelPlan} />
+                            {auth.activePlan.subscriptionStatus === 10 ? (
+                                <>
+                                    <View style={{...styles.flexRow, marginBottom: 12}}>
+                                        <Text>Your plan is on pause</Text>
+                                    </View>
+                                    <PrimaryButton style={{width: 120}} disabled={!ui.isConnected} mode="text" title={'Resume'} onPress={managePlan} />
+                                </>
+                            ) : (
+                                <>
+                                    <View style={{...styles.flexRow, marginBottom: 12}}>
+                                        { auth.activePlan.subscriptionStatus === 11 ? (
+                                            <Text>Your subscription will be paused on </Text>
+                                        ) : auth.activePlan.subscriptionStatus === 3 ? (
+                                            <Text>Your subscription will expire on </Text>
+                                        ) : (
+                                            <Text>Next billing cycle begins </Text>
+                                        )}
+                                        <Text style={{fontFamily: 'Lato-bold'}}>{moment(auth.activePlan.expiryTimeMillis).format('MMM D')}</Text>
+                                    </View>
+                                    <PrimaryButton style={{width: 120}} disabled={!ui.isConnected} mode="text" title={'Cancel'} onPress={managePlan} />
+                                </>
+                            )}
                         </View>
                     ) : (
                         <PrimaryButton style={{width: 200}} loading={processing} disabled={!ui.isConnected || processing} title={auth.activePlan.length > 0 ? 'Change Plan' : 'Choose Plan'} onPress={() => handleSubscription(selectedTierObject.subId)} />
