@@ -93,11 +93,14 @@ export default App = () => {
             userData.uid = uid;
             setIsAuthenticated(true);
             store.dispatch(receiveLogin(userData))
-            if(userData.subscription) {
-                let subscription = userData.subscription;
-                subscription.subscriptionActive = userData.subscriptionActive;
-                store.dispatch(setActivePlan(userData.subscription))
+            if(userData.subscriptionAndroid && Platform.OS === 'android') {
+                let subscription = userData.subscriptionAndroid;
+                store.dispatch(setActivePlan(subscription))
             }
+        if(userData.subscriptionIos && Platform.OS === 'ios'){
+            let subscription = userData.subscriptionIos;
+            store.dispatch(setActivePlan(subscription))
+        }
             if(!authCheck) setAuthCheck(true);
         }
         else

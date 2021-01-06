@@ -65,7 +65,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
     const handleSubscription = async (planId) => {
         try {
             setProcessing(true);
-            if(Platform.OS === 'android' && auth.activePlan.productId.length > 0)
+            if(Platform.OS === 'android' && auth.activePlan.productId !== null)
                 await requestSubscription(planId, false, auth.activePlan.productId, auth.activePlan.purchaseToken);
             else
                 await requestSubscription(planId, false);
@@ -76,7 +76,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
 
     const initializeSubs = async () => {
         const subscriptions = await RNIap.getSubscriptions(itemSubs);
-        if(auth.activePlan.productId.length > 0) {
+        if(auth.activePlan.productId !== null) {
             //Get current tier object
             let tierIndex = tiers.findIndex((tier) => {
                 return tier.subId === auth.activePlan.productId;
