@@ -40,6 +40,24 @@ export const IAPManagerWrapped = (props) => {
                     'password': 'f4395c2dbcf749a980251b06f39cf814'
                 }
                 const result = await validateReceiptIos(receiptBody, true)
+                let purchaseData = result.latest_receipt_info[0];
+                let today = new Date();
+
+                let subscriptionStatus = today < purchaseData.expires_date_ms ? 2 : 13;
+
+                let subscription = {
+                    latestReceipt: result.latest_receipt,
+                    productId: productId,
+                    purchaseDate: purchaseData.original_purchase_date_ms,
+                    lastBillingDate: purchaseData.purchase_date_ms,
+                    billingDate: purchaseData.expires_date_ms,
+                    purchaseId: purchaseData.original_transaction_id,
+                    subscriptionStatus};
+
+                props.saveNewSubscription(subscription, purchaseData)
+
+                setProcessing(false)
+
             } else if(Platform.OS === 'android') {
 
                 const idToken = await auth().currentUser.getIdTokenResult();
