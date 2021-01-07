@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Text, StyleSheet, View, ActivityIndicator} from 'react-native';
+import {Text, StyleSheet, View, ActivityIndicator, Platform} from 'react-native';
 import PrimaryButton from "./PrimaryButton";
 import theme from "../styles/theme.styles";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -8,6 +8,7 @@ import {generateUsageReport, usageReportReset, getReportUsage} from "../actions/
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import { Snackbar } from 'react-native-paper';
+import CustomModal from './CustomModal'
 
 let initialDate = new Date();
 let dateLimit = new Date();
@@ -22,6 +23,18 @@ const ReportExportDialog = ({navigation, toggleModal, auth, ui, generateUsageRep
     const [limitMax, setLimitMax] = useState(false)
     const [reportError, setReportError] = useState('');
     const [snackVisible, setSnackVisible] = useState(false)
+    const [endDateModalVisible, setEndDateModalVisible] = useState(false)
+    const [startDateModalVisible, setStartDateModalVisible] = useState(false)
+    const [iosDateStart, setIosDateStart] = useState('')
+    const [iosDateEnd, setIosDateEnd] = useState('')
+
+    const toggleStartDateModal = () => {
+        setStartDateModalVisible(!startDateModalVisible);
+    }
+
+    const toggleEndDateModal = () => {
+        setEndDateModalVisible(!endDateModalVisible);
+    }
 
     useEffect(() => {
         if(auth.exportReportUsage === null)
@@ -62,24 +75,34 @@ const ReportExportDialog = ({navigation, toggleModal, auth, ui, generateUsageRep
     }, [auth.exportReportUsage, reportLimit])
 
     const showStartDatepicker = () => {
+        if(Platform.OS === 'ios')
+            toggleStartDateModal()
+        else
         setShowStart(true);
     };
 
     const showEndDatepicker = () => {
-        setShowEnd(true)
+        if(Platform.OS === 'ios')
+            toggleEndDateModal()
+        else
+            setShowEnd(true)
     }
 
     const onStartChange = (event, selectedDate) => {
         setReportError('')
         const currentDate = selectedDate || dateStart;
-        setShowStart(Platform.OS === 'ios');
+        if(Platform.OS === 'android') {
+            setShowStart(false);
+        }
         setDateStart(currentDate);
     }
 
     const onEndChange = (event, selectedDate) => {
         setReportError('')
         const currentDate = selectedDate || dateEnd;
-        setShowEnd(Platform.OS === 'ios');
+        if(Platform.OS === 'android') {
+            setShowEnd(false);
+        }
         setDateEnd(currentDate);
     }
 
@@ -154,9 +177,6 @@ const ReportExportDialog = ({navigation, toggleModal, auth, ui, generateUsageRep
                     { reportError.length > 0 && (
                         <Text style={styles.error}>{reportError}</Text>
                     )}
-                    { (reportError.length === 0 && auth.usageReportFailure) && (
-                        <Text style={styles.error}>There was an error.</Text>
-                    )}
                     { !ui.isConnected && (
                         <Text style={styles.error}>No network connection detected.</Text>
                     )}
@@ -199,6 +219,60 @@ const ReportExportDialog = ({navigation, toggleModal, auth, ui, generateUsageRep
                     onChange={onEndChange}
                 />
             )}
+
+            <CustomModal
+                visible={endDateModalVisible}
+                toggleModal={toggleEndDateModal}
+                content={<DateTimePicker
+                    testID="dateTimePicker"
+                    value={typeof dateEnd === 'object' ? dateEnd : initialDate}
+                    mode={'date'}
+                    minimumDate={dateLimit}
+                    maximumDate={new Date()}
+                    display="inline"
+                    style={{marginBottom: -80, marginTop: 20}}
+                    onChange={onEndChange}
+                />}
+                cancelButton={{title: "Cancel", action: () => {
+                    setDateEnd(iosDateEnd)
+                    toggleEndDateModal();
+                }}}
+                confirmButton={{title: "Confirm", action: () => {
+                    if(dateEnd === '') {
+                        setDateEnd(initialDate)
+                        setIosDateEnd(initialDate)
+                    } else
+                        setIosDateEnd(dateEnd)
+                    toggleEndDateModal();
+                }}}
+            />
+
+            <CustomModal
+                visible={startDateModalVisible}
+                toggleModal={toggleStartDateModal}
+                content={<DateTimePicker
+                    testID="dateTimePicker"
+                    value={typeof dateStart === 'object' ? dateStart : initialDate}
+                    mode={'date'}
+                    minimumDate={dateLimit}
+                    maximumDate={new Date()}
+                    display="inline"
+                    style={{marginBottom: -80, marginTop: 20}}
+                    onChange={onStartChange}
+                />}
+                cancelButton={{title: "Cancel", action: () => {
+                    setDateStart(iosDateStart)
+                    toggleStartDateModal();
+                }}}
+                confirmButton={{title: "Confirm", action: () => {
+                    if(dateStart === '') {
+                        setDateStart(initialDate)
+                        setIosDateStart(initialDate)
+                    }
+                    setIosDateStart(dateStart)
+                    toggleStartDateModal();
+                }}}
+            />
         </>
     )
 };
