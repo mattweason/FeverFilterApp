@@ -40,7 +40,7 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     }
 
     const toggleReportExportModal = () => {
-        if(auth.activePlan.productId !== null)
+        if(auth.activePlan.productId !== null && auth.activePlan.subscriptionStatus !== 13)
             setExportReportModalVisible(!exportReportModalVisible);
         else
             togglePremiumModal()
@@ -87,7 +87,7 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
             }
         },
         {
-            title: "Export Report",
+            title: "Device Usage Report",
             premium: true,
             key: null,
             icon: "file-text",

@@ -74,6 +74,13 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
         }
     }
 
+    const returnTier = (subId) => {
+        let tier = tiers.find(tier => {
+            return tier.subId === subId;
+        })
+        return tier.title;
+    }
+
     const initializeSubs = async () => {
         const subscriptions = await RNIap.getSubscriptions(itemSubs);
         if(auth.activePlan.productId !== null) {
@@ -121,7 +128,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                             <View style={styles.flexRow}>
                                 <CustomRadioButton checked={selected} />
                                 <Text style={{...styles.tierText, color: selected ? 'white' : theme.COLOR_PRIMARY}}>{tier.title}</Text>
-                                { auth.activePlan.productId === tier.subId && (
+                                { (auth.activePlan.productId === tier.subId && auth.activePlan.subscriptionStatus !== 13) && (
                                     <Text style={{fontFamily: 'Montserrat-bold', fontSize: 12, position: 'absolute', color: selected ? 'white' : theme.COLOR_PRIMARY, bottom: 20, left: 40}}>YOUR PLAN</Text>
                                 )}
                             </View>
@@ -155,7 +162,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                         <Text style={{fontFamily: 'Lato-bold', fontSize: 16}}> Device Usage Reports</Text>
                         <Text style={{fontFamily: 'Lato', fontSize: 16}}> /mo</Text>
                     </View>
-                    { selectedTierObject.subId === auth.activePlan.productId ? (
+                    { (selectedTierObject.subId === auth.activePlan.productId && auth.activePlan.subscriptionStatus !== 13) ? (
                         <View style={styles.flexColumn}>
                             <Text style={{fontFamily: 'Montserrat-bold', color: theme.COLOR_PRIMARY, fontSize: 16, marginBottom: 6}}>This is your current plan.</Text>
                             {auth.activePlan.subscriptionStatus === 10 ? (
@@ -172,6 +179,8 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                                             <Text>Your subscription will be paused on </Text>
                                         ) : auth.activePlan.subscriptionStatus === 3 ? (
                                             <Text>Your subscription will expire on </Text>
+                                        ) : auth.activePlan.pendingProductId !== auth.activePlan.productId ? (
+                                            <Text>Your plan will change to <Text style={{fontFamily: 'Lato-bold'}}>{returnTier(auth.activePlan.pendingProductId)}</Text> on </Text>
                                         ) : (
                                             <Text>Next billing cycle begins </Text>
                                         )}
@@ -180,6 +189,11 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
                                     <PrimaryButton style={{width: 120}} disabled={!ui.isConnected} mode="text" title={'Cancel'} onPress={managePlan} />
                                 </>
                             )}
+                        </View>
+                    ) : (auth.activePlan.pendingProductId === selectedTierObject.subId && auth.activePlan.subscriptionStatus !== 13) ? (
+                        <View style={{...styles.flexRow, marginBottom: 12}}>
+                            <Text>This will be your new plan on </Text>
+                            <Text style={{fontFamily: 'Lato-bold'}}>{moment(auth.activePlan.expiryTimeMillis).format('MMM D')}</Text>
                         </View>
                     ) : (
                         <PrimaryButton style={{width: 200}} loading={processing} disabled={!ui.isConnected || processing} title={auth.activePlan.length > 0 ? 'Change Plan' : 'Choose Plan'} onPress={() => handleSubscription(selectedTierObject.subId)} />

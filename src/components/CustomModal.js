@@ -66,7 +66,7 @@ const CustomModal = ({
                     { content }
                     { confirmButton.action ?
                         <View style={styles.modalActions}>
-                            { cancelButton ? <PrimaryButton disabled={loading} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={toggleModal} /> : null }
+                            { cancelButton ? <PrimaryButton disabled={loading} mode="text" style={[styles.button, styles.cancelButton]} title={'Cancel'} onPress={cancelButton.action || toggleModal} /> : null }
                             <PrimaryButton disabled={loading} loading={loading} style={styles.button} title={confirmButton.title} onPress={confirmButton.action} />
                         </View>
                         : null }

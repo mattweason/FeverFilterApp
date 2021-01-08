@@ -27,7 +27,7 @@ import NavigationDrawer from "./src/components/NavigationDrawer";
 
 //Action imports
 import { wifiListener, userCountry } from "./src/actions/uiActions";
-import {receiveLogin, setActivePlan} from "./src/actions/authActions";
+import {receiveLogin, saveNewSubscription, setActivePlan} from "./src/actions/authActions";
 
 //Screen imports
 import HomeScreen from "./src/screens/HomeScreen";
@@ -48,6 +48,7 @@ const DeviceManager = new BleManager();
 //In app purchases
 import * as RNIap from 'react-native-iap'
 import IAPManager from "./src/context/IAPManager";
+import {useValidateIos} from "./src/context/IAPManager"
 
 const itemSubs = Platform.select({
     ios: [
@@ -99,7 +100,10 @@ export default App = () => {
             }
         if(userData.subscriptionIos && Platform.OS === 'ios'){
             let subscription = userData.subscriptionIos;
-            store.dispatch(setActivePlan(subscription))
+
+            useValidateIos(subscription.latestReceipt).then(res => {
+                store.dispatch(saveNewSubscription(res.subscription, res.purchaseData))
+            })
         }
             if(!authCheck) setAuthCheck(true);
         }

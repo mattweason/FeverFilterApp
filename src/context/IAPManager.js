@@ -22,6 +22,35 @@ export const IAPContext = React.createContext({
 
 export const useIap = () => React.useContext(IAPContext);
 
+export const useValidateIos = async (receipt) => {
+    const receiptBody = {
+        'receipt-data': receipt,
+        'password': 'f4395c2dbcf749a980251b06f39cf814'
+    }
+    const result = await validateReceiptIos(receiptBody, true)
+    let purchaseData = result.latest_receipt_info[0];
+
+    let pendingProductId = result.pending_renewal_info[0].auto_renew_product_id;
+    let currentProductId = result.pending_renewal_info[0].product_id;
+    let autoRenewStatus = result.pending_renewal_info[0].auto_renew_status;
+
+    let today = new Date();
+
+    let subscriptionStatus = today < purchaseData.expires_date_ms ? (autoRenewStatus === "1" ? 2 : 12) : 13;
+
+    let subscription = {
+        latestReceipt: result.latest_receipt,
+        productId: currentProductId || purchaseData.product_id,
+        pendingProductId: pendingProductId,
+        purchaseDate: purchaseData.original_purchase_date_ms,
+        lastBillingDate: purchaseData.purchase_date_ms,
+        billingDate: purchaseData.expires_date_ms,
+        purchaseId: purchaseData.original_transaction_id,
+        subscriptionStatus};
+
+    return {subscription, purchaseData}
+}
+
 export const IAPManagerWrapped = (props) => {
 
     const [processing, setProcessing] = useState(false);
@@ -41,13 +70,19 @@ export const IAPManagerWrapped = (props) => {
                 }
                 const result = await validateReceiptIos(receiptBody, true)
                 let purchaseData = result.latest_receipt_info[0];
+
+                let pendingProductId = result.pending_renewal_info[0].auto_renew_product_id;
+                let currentProductId = result.pending_renewal_info[0].product_id;
+                let autoRenewStatus = result.pending_renewal_info[0].auto_renew_status;
+
                 let today = new Date();
 
-                let subscriptionStatus = today < purchaseData.expires_date_ms ? 2 : 13;
+                let subscriptionStatus = today < purchaseData.expires_date_ms ? (autoRenewStatus ? 2 : 12) : 13;
 
                 let subscription = {
                     latestReceipt: result.latest_receipt,
-                    productId: productId,
+                    productId: currentProductId || productId,
+                    pendingProductId: pendingProductId,
                     purchaseDate: purchaseData.original_purchase_date_ms,
                     lastBillingDate: purchaseData.purchase_date_ms,
                     billingDate: purchaseData.expires_date_ms,

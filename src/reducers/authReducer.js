@@ -35,7 +35,8 @@ export default (state = {
     isAuthenticated: false,
     user: null,
     activePlan: {
-        productId: null
+        productId: null,
+        subscriptionStatus: 0
     },
     exportReportUsage: null
 }, action) => {

@@ -370,7 +370,7 @@ export const generateUsageReport = (startDate, endDate) => async (dispatch, getS
         dispatch(incrementReportUsage())
     }).catch(err => {
         if(err.response)
-            dispatch(usageReportFailure(err.response.data.error))
+            dispatch(usageReportFailure(err.response.data.error || 'There was an error.'))
         console.log('error', err.response.data.error)
     })
 }
@@ -402,8 +402,6 @@ export const saveNewSubscription = (subscription, receipt, cancel) => async (dis
     const {uid} = getState().auth.user;
     let receipts = [];
 
-    console.log('saving new subscription')
-
     const userDoc = await firestore().collection('accounts').doc(uid).get();
     const user = userDoc._data;
 
@@ -414,16 +412,18 @@ export const saveNewSubscription = (subscription, receipt, cancel) => async (dis
     receipts.push(receipt);
 
     //Add new receipt and subscription to user account
-    if(Platform.OS === 'android')
+    if(Platform.OS === 'android') {
         firestore().collection('accounts').doc(uid).update({
             receipts,
             subscriptionAndroid: subscription
         })
-    if(Platform.OS === 'ios')
+    }
+    if(Platform.OS === 'ios') {
         firestore().collection('accounts').doc(uid).update({
             receipts,
             subscriptionIos: subscription
         })
+    }
 
     //Save active subscription locally
     dispatch(setActivePlan(subscription))
