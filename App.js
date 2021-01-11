@@ -48,7 +48,7 @@ const DeviceManager = new BleManager();
 //In app purchases
 import * as RNIap from 'react-native-iap'
 import IAPManager from "./src/context/IAPManager";
-import {useValidateIos, useGetAvailablePurchases} from "./src/context/IAPManager"
+import {useValidateIos} from "./src/context/IAPManager"
 
 const itemSubs = Platform.select({
     ios: [
@@ -97,7 +97,6 @@ export default App = () => {
             if(userData.subscriptionAndroid && Platform.OS === 'android') {
                 let subscription = userData.subscriptionAndroid;
 
-                useGetAvailablePurchases()
                 store.dispatch(setActivePlan(subscription))
             }
         if(userData.subscriptionIos && Platform.OS === 'ios'){

@@ -378,7 +378,7 @@ export const generateUsageReport = (startDate, endDate) => async (dispatch, getS
 
 export const getReportUsage = (billingDate) => async (dispatch, getState) => {
     const {uid} = getState().auth.user;
-    let date = new Date(Date.parse(billingDate));
+    let date = new Date(parseInt(billingDate));
 
     let exportSnapshots = await firestore().collection('exports').where("userId","==",uid).where("timestamp", ">=", date).get()
     let numberOfExports = exportSnapshots.size;

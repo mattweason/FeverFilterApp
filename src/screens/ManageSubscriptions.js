@@ -124,8 +124,12 @@ const ManageSubscriptions = ({navigation, ui, auth, subscriptionDowngrade}) => {
     }
 
     const managePlan = () => {
-        if(Platform.OS === 'android')
-            Linking.openURL('https://play.google.com/store/account/subscriptions?package=com.feverfilter&sku='+auth.activePlan.productId)
+        if(Platform.OS === 'android') {
+            let activePlanId = auth.activePlan.productId;
+            if(auth.activePlan.pendingProductId && auth.activePlan.pendingProductId !== auth.activePlan.productId)
+                activePlanId = auth.activePlan.pendingProductId;
+            Linking.openURL('https://play.google.com/store/account/subscriptions?package=com.feverfilter&sku=' + activePlanId)
+        }
         else
             Linking.openURL('https://apps.apple.com/account/subscriptions')
     }
