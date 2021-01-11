@@ -33,7 +33,13 @@ export const useValidateIos = async (receipt) => {
         'receipt-data': receipt,
         'password': 'f4395c2dbcf749a980251b06f39cf814'
     }
-    const result = await validateReceiptIos(receiptBody, true)
+
+    let result = await validateReceiptIos(receiptBody, false) //Try production call first
+    console.log(result)
+
+    if(result.status === 21007)
+        result = await validateReceiptIos(receiptBody, true) //If result shows we are in sandbox, use sandbox call
+
     let purchaseData = result.latest_receipt_info[0];
 
     let pendingProductId = result.pending_renewal_info[0].auto_renew_product_id;
@@ -74,9 +80,13 @@ export const IAPManagerWrapped = (props) => {
                     'receipt-data': transactionReceipt,
                     'password': 'f4395c2dbcf749a980251b06f39cf814'
                 }
-                const result = await validateReceiptIos(receiptBody, true)
+
+                let result = await validateReceiptIos(receiptBody, false) //Try production call first
+
+                if(result.status === 21007)
+                    result = await validateReceiptIos(receiptBody, true) //If result shows we are in sandbox, use sandbox call
+
                 let purchaseData = result.latest_receipt_info[0];
-                console.log(result)
 
                 let pendingProductId = result.pending_renewal_info[0].auto_renew_product_id;
                 let currentProductId = result.pending_renewal_info[0].product_id;
