@@ -150,6 +150,11 @@ const ReportExportDialog = ({navigation, toggleModal, auth, ui, generateUsageRep
                                 <Text style={styles.maxLimit}>You have reached your report limit for this month. Upgrade your plan to increase your limit.</Text>
                                 <PrimaryButton title={"Upgrade Subscription"} onPress={navigateToSubscription} />
                             </>
+                        ) : auth.activePlan.subscriptionStatus === 10 ? (
+                            <>
+                                <Text style={styles.maxLimit}>Your plan is currently on pause.</Text>
+                                <PrimaryButton title={"Manage Subscription"} onPress={navigateToSubscription} />
+                            </>
                         ) : (
                             <>
                                 <PrimaryButton altColor style={styles.dateButton} icon={"calendar"} title={typeof dateStart === 'string' ? "Starting Date" : moment(dateStart).format('MMM D, YYYY')} onPress={showStartDatepicker} />

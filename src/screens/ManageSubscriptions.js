@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {View, StyleSheet, Text, ScrollView, TouchableOpacity, Platform, Linking} from 'react-native';
 import {bindActionCreators} from "redux";
+import { subscriptionDowngrade } from "../actions/uiActions";
 import {connect} from "react-redux";
 import PageHeader from "../components/PageHeader";
 import theme from "../styles/theme.styles";
@@ -55,7 +56,7 @@ let tiers = [
     }
 ]
 
-const ManageSubscriptions = ({navigation, ui, auth}) => {
+const ManageSubscriptions = ({navigation, ui, auth, subscriptionDowngrade}) => {
     const [networkBannerVisible, setNetworkBannerVisible] = useState(false);
     const [selectedTier, setSelectedTier] = useState(-1)
     const [selectedTierObject, setSelectedTierObject] = useState({})
@@ -63,10 +64,21 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
 
     // handle new subscription request
     const handleSubscription = async (planId) => {
+
         try {
             setProcessing(true);
-            if(Platform.OS === 'android' && auth.activePlan.productId !== null)
-                await requestSubscription(planId, false, auth.activePlan.productId, auth.activePlan.purchaseToken);
+            if(Platform.OS === 'android' && auth.activePlan.subscriptionStatus !== 13 && auth.activePlan.subscriptionStatus !== 0) {
+                let currentTier = auth.activePlan.productId.slice(-1);
+                let newTier = planId.slice(-1);
+                let prorationMode = 2; //IMMEDIATE_AND_CHARGE_PRORATED_PRICE
+
+                if (newTier < currentTier) {
+                    prorationMode = 3; //IMMEDIATE_WITH_TIME_PRORATION
+                    subscriptionDowngrade(true, planId, auth.activePlan.productId) //Capture the subscription downgrade
+                }
+
+                await requestSubscription(planId, false, auth.activePlan.productId, auth.activePlan.purchaseToken, prorationMode);
+            }
             else
                 await requestSubscription(planId, false);
         } catch (err) {
@@ -83,7 +95,7 @@ const ManageSubscriptions = ({navigation, ui, auth}) => {
 
     const initializeSubs = async () => {
         const subscriptions = await RNIap.getSubscriptions(itemSubs);
-        if(auth.activePlan.productId !== null) {
+        if(auth.activePlan.subscriptionStatus !== 13 && auth.activePlan.subscriptionStatus !== 0) {
             //Get current tier object
             let tierIndex = tiers.findIndex((tier) => {
                 return tier.subId === auth.activePlan.productId;
@@ -316,7 +328,7 @@ const styles = StyleSheet.create({
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ }, dispatch)
+    return bindActionCreators({ subscriptionDowngrade }, dispatch)
 };
 
 const mapStateToProps = state => {

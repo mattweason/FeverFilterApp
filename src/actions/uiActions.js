@@ -1,6 +1,7 @@
 export const WIFI_CONNECTED = "WIFI_CONNECTED";
 export const USER_COUNTRY = "USER_COUNTRY";
 export const NEW_DEVICE_READY = "NEW_DEVICE_READY";
+export const SUBSCRIPTION_DOWNGRADE = "SUBSCRIPTION_DOWNGRADE";
 
 import NetInfo from "@react-native-community/netinfo"
 
@@ -28,5 +29,14 @@ export const userCountry = (countryCode) => dispatch => {
     dispatch({
         type: USER_COUNTRY,
         countryCode
+    })
+}
+
+export const subscriptionDowngrade = (bool, pendingTier, currentTier) => dispatch => {
+    dispatch({
+        type: SUBSCRIPTION_DOWNGRADE,
+        bool,
+        pendingTier,
+        currentTier
     })
 }

@@ -9,6 +9,7 @@ import {
     finishTransactionIOS,
     purchaseErrorListener,
     purchaseUpdatedListener,
+    getAvailablePurchases
 } from 'react-native-iap';
 import { saveNewSubscription } from '../actions/authActions'
 import axios from 'axios';
@@ -21,6 +22,11 @@ export const IAPContext = React.createContext({
 });
 
 export const useIap = () => React.useContext(IAPContext);
+
+export const useGetAvailablePurchases = async () => {
+    const purchases = await getAvailablePurchases();
+    console.log('available purchases', purchases)
+}
 
 export const useValidateIos = async (receipt) => {
     const receiptBody = {
@@ -70,6 +76,7 @@ export const IAPManagerWrapped = (props) => {
                 }
                 const result = await validateReceiptIos(receiptBody, true)
                 let purchaseData = result.latest_receipt_info[0];
+                console.log(result)
 
                 let pendingProductId = result.pending_renewal_info[0].auto_renew_product_id;
                 let currentProductId = result.pending_renewal_info[0].product_id;
@@ -94,7 +101,6 @@ export const IAPManagerWrapped = (props) => {
                 setProcessing(false)
 
             } else if(Platform.OS === 'android') {
-
                 const idToken = await auth().currentUser.getIdTokenResult();
                 axios.post('https://us-central1-feverfilter-22cc0.cloudfunctions.net/api/validate_google', {
                     productId,
@@ -107,6 +113,7 @@ export const IAPManagerWrapped = (props) => {
                     let purchaseData = response.data.data;
                     let subscription = {
                         productId: productId,
+                        pendingProductId: productId,
                         purchaseDate: purchaseData.startTimeMillis,
                         lastBillingDate: purchaseData.startTimeMillis,
                         billingDate: purchaseData.expiryTimeMillis,
@@ -115,7 +122,6 @@ export const IAPManagerWrapped = (props) => {
                     props.saveNewSubscription(subscription, transactionReceipt)
                     setProcessing(false)
                 }).catch(err => {
-                    console.log(err.response)
                     setProcessing(false)
                 })
             }

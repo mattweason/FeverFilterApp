@@ -2,6 +2,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import axios from 'axios'
 import { Platform } from 'react-native'
+import { subscriptionDowngrade } from './uiActions'
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
@@ -413,6 +414,11 @@ export const saveNewSubscription = (subscription, receipt, cancel) => async (dis
 
     //Add new receipt and subscription to user account
     if(Platform.OS === 'android') {
+        if(getState().ui.subscriptionDowngrade){
+            subscription.pendingProductId = getState().ui.pendingTier;
+            subscription.productId = getState().ui.currentTier;
+            dispatch(subscriptionDowngrade(false, '', ''))
+        }
         firestore().collection('accounts').doc(uid).update({
             receipts,
             subscriptionAndroid: subscription

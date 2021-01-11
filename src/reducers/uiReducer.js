@@ -1,7 +1,9 @@
 import {
     WIFI_CONNECTED,
     USER_COUNTRY,
-    NEW_DEVICE_READY
+    NEW_DEVICE_READY,
+    SELECTED_SUBSCRIPTION_TIER,
+    SUBSCRIPTION_DOWNGRADE
 } from '../actions/uiActions'
 
 export default (state = {
@@ -23,6 +25,14 @@ export default (state = {
             return {
                 ...state,
                 newDeviceReady: action.bool
+            }
+        case SUBSCRIPTION_DOWNGRADE:
+            return {
+                ...state,
+                subscriptionDowngrade: action.bool,
+                pendingTier: action.pendingTier,
+                currentTier: action.currentTier,
+
             }
         default:
             return state
