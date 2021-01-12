@@ -73,7 +73,7 @@ const ManageSubscriptions = ({navigation, ui, auth, subscriptionDowngrade}) => {
                 let prorationMode = 2; //IMMEDIATE_AND_CHARGE_PRORATED_PRICE
 
                 if (newTier < currentTier) {
-                    prorationMode = 3; //IMMEDIATE_WITH_TIME_PRORATION
+                    prorationMode = 3; //IMMEDIATE_WITHOUT_PRORATION
                     subscriptionDowngrade(true, planId, auth.activePlan.productId) //Capture the subscription downgrade
                 }
 
