@@ -415,6 +415,7 @@ export const saveNewSubscription = (subscription, receipt, cancel) => async (dis
     //Add new receipt and subscription to user account
     if(Platform.OS === 'android') {
         if(getState().ui.subscriptionDowngrade){
+            subscription.lastBillingDate = user.subscriptionAndroid.lastBillingDate;
             subscription.pendingProductId = getState().ui.pendingTier;
             subscription.productId = getState().ui.currentTier;
             dispatch(subscriptionDowngrade(false, '', ''))

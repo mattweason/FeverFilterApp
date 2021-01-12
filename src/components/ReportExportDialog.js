@@ -55,8 +55,11 @@ const ReportExportDialog = ({navigation, toggleModal, auth, ui, generateUsageRep
     }, []);
 
     useEffect(() => {
-        if(auth.usageReportSuccess)
+        if(auth.usageReportSuccess) {
             setSnackVisible(true)
+            setDateStart('')
+            setDateEnd('')
+        }
     }, [auth.usageReportSuccess])
 
     useEffect(() => {
@@ -67,7 +70,7 @@ const ReportExportDialog = ({navigation, toggleModal, auth, ui, generateUsageRep
     }, [auth.usageReportFailure])
 
     useEffect(() => {
-        if(auth.exportReportUsage >= reportLimit && auth.exportReportUsage !== null)
+        if(auth.exportReportUsage >= reportLimit && auth.exportReportUsage !== null && !auth.user.debug)
             setLimitMax(true);
         else
             setLimitMax(false)

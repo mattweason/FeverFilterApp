@@ -40,7 +40,7 @@ const NavigationDrawer = ({auth, navigation, state, addNewIssue}) => {
     }
 
     const toggleReportExportModal = () => {
-        if(auth.activePlan.productId !== null && auth.activePlan.subscriptionStatus !== 13)
+        if((auth.activePlan.productId !== null && auth.activePlan.subscriptionStatus !== 13) || auth.user.debug)
             setExportReportModalVisible(!exportReportModalVisible);
         else
             togglePremiumModal()
